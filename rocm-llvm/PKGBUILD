@@ -1,0 +1,67 @@
+pkgbase='rocm-llvm'
+pkgname=('rocm-llvm')
+pkgver=5.7.x
+pkgrel=507000
+pkgdesc="rocm-core is a utility which can be used to get ROCm release version."
+arch=('loong64' 'x86_64')
+license=('Apache')
+depends=("rocm-core=${pkgver}")
+url="https://github.com/ROCm-Developer-Tools/llvm-project"
+
+source=(
+    "git+git://nas.xinmu.moe/mirrors/github.com/loongarch-moe/llvm-project.git#branch=rocm-5.7.x-loong64"
+)
+b2sums=('SKIP')
+prepare() {
+echo
+}
+TARGET="AMDGPU;"
+if [ $CARCH == 'loong64' ];
+then
+ TARGET="$TARGET;LoongArch;"
+elif [ $CARCH == 'x86_64' ];
+then
+ TARGET="$TARGET;X86;"
+fi
+
+build() {
+  cd "llvm-project"
+  mkdir build || true
+  cd build
+  cmake \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DCMAKE_C_COMPILER=clang \
+  -DCMAKE_CXX_COMPILER=clang++ \
+  -DCMAKE_C_FLAGS="-fno-lto -pipe" \
+  -DCMAKE_CXX_FLAGS="-fno-lto -pipe" \
+  -DCMAKE_INSTALL_PREFIX="/opt/rocm-${pkgver}/llvm" \
+  -DLLVM_ENABLE_ASSERTIONS=1 \
+  -DLLVM_TARGETS_TO_BUILD="$TARGET" \
+  -DLLVM_ENABLE_PROJECTS="compiler-rt;lld;clang" \
+  -DPROJECT_VERSION_MAJOR=5 \
+  -DPROJECT_VERSION_MINOR=7 \
+  -DPROJECT_VERSION_PATCH=0 \
+  -DCOMPILER_RT_HAS_FNO_LTO_FLAG=ON \
+  -DCOMPILER_RT_INCLUDE_TESTS=NO \
+  -DHAVE_CLANG_REPL_SUPPORT=NO \
+  -G "Ninja" \
+  -S ../llvm/
+  ninja -j
+}
+
+check() {
+#  cd "${pkgbase}"
+#  cd build
+#  ninja test
+echo
+}
+
+#packaging() {
+
+#}
+package() {
+  cd "llvm-project"
+  cd build
+  DESTDIR="$pkgdir/" ninja install
+}
+

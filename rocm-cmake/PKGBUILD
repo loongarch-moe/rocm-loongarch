@@ -1,0 +1,37 @@
+pkgbase='rocm-cmake'
+pkgname=('rocm-cmake')
+pkgver=5.7.x
+pkgrel=507000
+pkgdesc="CMake modules used within the ROCm libraries"
+arch=('loong64' 'x86_64')
+license=('MIT')
+url="https://github.com/RadeonOpenCompute/rocm-cmake"
+
+source=(
+    "git+git://nas.xinmu.moe/mirrors/github.com/RadeonOpenCompute/rocm-cmake.git#branch=develop"
+)
+b2sums=('SKIP')
+prepare() {
+  mkdir build || true
+  cd build
+  cmake "../${pkgbase}" \
+  "-DCMAKE_INSTALL_PREFIX=/opt/rocm-${pkgver}" \
+  -G 'Unix Makefiles'
+}
+build() {
+  cd build
+  make -j
+}
+
+check() {
+  cd build
+#  ninja test
+#make check
+#echo
+}
+
+package() {
+  cd build
+  make DESTDIR="$pkgdir/" install
+}
+

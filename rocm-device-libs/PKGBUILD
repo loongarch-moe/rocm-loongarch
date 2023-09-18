@@ -1,0 +1,48 @@
+pkgbase='rocm-device-libs'
+pkgname=('rocm-device-libs')
+pkgver=5.7.x
+pkgrel=507000
+pkgdesc="ROCm Device Libraries"
+arch=('loong64' 'x86_64')
+license=('Unknow')
+url="https://github.com/RadeonOpenCompute/ROCm-Device-Libs.git"
+
+source=(
+    "git+git://nas.xinmu.moe/mirrors/github.com/RadeonOpenCompute/ROCm-Device-Libs.git#branch=amd-stg-open"
+)
+depends=("rocm-llvm=${pkgver}")
+
+b2sums=('SKIP')
+prepare() {
+  mkdir build || true
+  cd build
+  cmake \
+   -DCMAKE_C_COMPILER=/opt/rocm-${pkgver}/llvm/bin/clang \
+   -DCMAKE_CXX_COMPILER=/opt/rocm-${pkgver}/llvm/bin/clang++ \
+   -DCMAKE_BUILD_TYPE=Release \
+   "-DCMAKE_INSTALL_PREFIX=/opt/rocm-${pkgver}" \
+   -DCMAKE_FIND_ROOT_PATH=/opt/rocm-${pkgver}/llvm/ \
+   -DCMAKE_INSTALL_RPATH_USE_LINK_PATH=ON \
+   -G "Unix Makefiles" \
+   "../ROCm-Device-Libs"
+
+}
+build() {
+  mkdir build || true
+  cd build
+  make -j
+}
+
+check() {
+  cd build
+#  make check
+}
+
+#packaging() {
+
+#}
+package() {
+  cd build
+  make DESTDIR="$pkgdir/" install
+}
+
