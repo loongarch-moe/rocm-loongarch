@@ -34,7 +34,7 @@ prepare() {
   "-DCMAKE_INSTALL_PREFIX=/opt/rocm-${pkgver}" \
   -DCMAKE_EXE_LINKER_FLAGS="-L/opt/rocm-${pkgver}/llvm/lib" \
   -G "Unix Makefiles"
-  make -j4
+  make -j
   cd ..
 
   mkdir build || true
@@ -48,6 +48,7 @@ prepare() {
    -DCLR_BUILD_OCL=OFF \
    -DCMAKE_C_COMPILER=/opt/rocm-${pkgver}/llvm/bin/clang \
    -DCMAKE_FIND_ROOT_PATH=/opt/rocm-${pkgver}/ \
+   -DROCM_PATH=/opt/rocm-${pkgver}/ \
    -DCMAKE_CXX_COMPILER=/opt/rocm-${pkgver}/llvm/bin/clang++ \
    -DCMAKE_PREFIX_PATH="/opt/rocm-${pkgver}/llvm/;/opt/rocm-${pkgver}/;/usr" \
    -DCMAKE_INSTALL_PREFIX="/opt/rocm-${pkgver}" \
@@ -58,7 +59,7 @@ prepare() {
 build() {
   mkdir build || true
   cd build
-  make -j4
+  make -j
 }
 
 check() {

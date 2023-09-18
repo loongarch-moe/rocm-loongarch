@@ -1,5 +1,5 @@
-pkgbase='rocm-info'
-pkgname=('rocm-info')
+pkgbase='rocminfo'
+pkgname=('rocminfo')
 pkgver=5.7.x
 pkgrel=507000
 pkgdesc="rocm-core is a utility which can be used to get ROCm release version."
