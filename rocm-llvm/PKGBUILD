@@ -23,10 +23,8 @@ elif [ $CARCH == 'x86_64' ];
 then
  TARGET="$TARGET;X86;"
 fi
-
-build() {
-  cd "llvm-project"
-  mkdir build || true
+prepare() {
+ mkdir build || true
   cd build
   cmake \
   -DCMAKE_BUILD_TYPE=Release \
@@ -45,8 +43,11 @@ build() {
   -DCOMPILER_RT_INCLUDE_TESTS=NO \
   -DHAVE_CLANG_REPL_SUPPORT=NO \
   -G "Ninja" \
-  -S ../llvm/
-  ninja -j
+  -S ../llvm-project/llvm/
+}
+build() {
+  cd build
+  ninja 
 }
 
 check() {
@@ -60,7 +61,6 @@ echo
 
 #}
 package() {
-  cd "llvm-project"
   cd build
   DESTDIR="$pkgdir/" ninja install
 }
