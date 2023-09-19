@@ -30,12 +30,21 @@ prepare() {
    -DCMAKE_C_COMPILER=/opt/rocm-${pkgver}/llvm/bin/clang \
    -DCMAKE_FIND_ROOT_PATH=/opt/rocm-${pkgver}/ \
    -DCMAKE_CXX_COMPILER=/opt/rocm-${pkgver}/llvm/bin/clang++ \
+   -DROCM_PATH=/opt/rocm-${pkgver}/ \
   "-DCMAKE_PREFIX_PATH=/opt/rocm-${pkgver}/llvm/;/opt/rocm-${pkgver}/;/usr" \
   "-DCMAKE_INSTALL_PREFIX=/opt/rocm-${pkgver}" \
   -DCMAKE_EXE_LINKER_FLAGS="-L/opt/rocm-${pkgver}/llvm/lib" \
   -G "Unix Makefiles"
-  make -j
+  make -j4
   cd ..
+
+  if [ $CARCH == 'loong64' ];
+  then
+    sed -i 's!x86_64-unknown-linux-gnu!loongarch64-unknown-linux-gnu!g' clr/hipamd/src/hip_embed_pch.sh
+    sed -i 's!#include <immintrin.h>!!g' clr/rocclr/device/rocm/rocvirtual.cpp
+    sed -i '2812 i #if defined(__x86_64)' clr/rocclr/device/rocm/rocvirtual.cpp
+    sed -i '2830 i #endif' clr/rocclr/device/rocm/rocvirtual.cpp
+  fi
 
   mkdir build || true
   cd build
@@ -46,9 +55,9 @@ prepare() {
    -DCLR_BUILD_HIP=ON \
    -DCMAKE_BUILD_TYPE=Release \
    -DCLR_BUILD_OCL=OFF \
+  -DROCM_PATH=/opt/rocm-${pkgver}/ \
    -DCMAKE_C_COMPILER=/opt/rocm-${pkgver}/llvm/bin/clang \
    -DCMAKE_FIND_ROOT_PATH=/opt/rocm-${pkgver}/ \
-   -DROCM_PATH=/opt/rocm-${pkgver}/ \
    -DCMAKE_CXX_COMPILER=/opt/rocm-${pkgver}/llvm/bin/clang++ \
    -DCMAKE_PREFIX_PATH="/opt/rocm-${pkgver}/llvm/;/opt/rocm-${pkgver}/;/usr" \
    -DCMAKE_INSTALL_PREFIX="/opt/rocm-${pkgver}" \
@@ -59,7 +68,7 @@ prepare() {
 build() {
   mkdir build || true
   cd build
-  make -j
+  make -j4
 }
 
 check() {
@@ -76,5 +85,3 @@ package() {
   cd build
   make DESTDIR="$pkgdir/" install
 }
-
-

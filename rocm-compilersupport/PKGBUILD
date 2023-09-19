@@ -16,10 +16,13 @@ PATH=/opt/rocm-${pkgver}/bin:/opt/rocm-${pkgver}/llvm/bin:$PATH
 depends=("rocm-llvm=${pkgver}")
 
 prepare() {
-  cd "ROCm-CompilerSupport"
+  if [ $CARCH == 'loong64' ];
+  then 
+    sed -i 's!x86_64-unknown-linux-gnu!loongarch64-unknown-linux-gnu!g' ROCm-CompilerSupport/lib/comgr/src/comgr-compiler.cpp
+  fi
   mkdir build || true
   cd build
-  cmake ../lib/comgr \
+  cmake ../ROCm-CompilerSupport/lib/comgr \
    -DCMAKE_C_COMPILER=/opt/rocm-${pkgver}/llvm/bin/clang \
    -DCMAKE_FIND_ROOT_PATH=/opt/rocm-${pkgver}/ \
    -DCMAKE_CXX_COMPILER=/opt/rocm-${pkgver}/llvm/bin/clang++ \
@@ -29,7 +32,6 @@ prepare() {
   -G "Unix Makefiles"
 }
 build() {
-  cd "ROCm-CompilerSupport"
   mkdir build || true
   cd build
   make -j4
@@ -46,7 +48,6 @@ echo
 
 #}
 package() {
-  cd "ROCm-CompilerSupport"
   cd build
   make DESTDIR="$pkgdir/" install
 }

@@ -9,7 +9,7 @@ depends=("rocm-core=${pkgver}")
 url="https://github.com/ROCm-Developer-Tools/llvm-project"
 
 source=(
-    "git+git://nas.xinmu.moe/mirrors/github.com/loongarch-moe/llvm-project.git#branch=rocm-5.7.x-loong64"
+    "git+git://nas.xinmu.moe/mirrors/github.com/loongarch-moe/rocm-llvm-project.git#branch=rocm-5.7.x-loong64"
 )
 b2sums=('SKIP')
 prepare() {
