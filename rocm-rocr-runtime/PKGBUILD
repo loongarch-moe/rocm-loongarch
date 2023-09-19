@@ -15,6 +15,7 @@ depends=("rocm-llvm=${pkgver}")
 
 PATH=/opt/rocm-${pkgver}/llvm/bin:$PATH
 prepare() {
+  sed -i '77 i #elif defined(__loongarch64)' ROCR-Runtime/src/image/util.h
   mkdir build || true
   cd build
   cmake "../ROCR-Runtime/src" \
