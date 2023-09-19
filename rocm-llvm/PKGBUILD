@@ -10,24 +10,22 @@ url="https://github.com/ROCm-Developer-Tools/llvm-project"
 
 source=(
     "git+git://nas.xinmu.moe/mirrors/github.com/loongarch-moe/rocm-llvm-project.git#branch=rocm-5.7.x-loong64"
+    "fp16.patch"
 )
-b2sums=('SKIP')
+b2sums=('SKIP' 'SKIP')
+#prepare() {
+#echo
+#}
+TARGET="AMDGPU;LoongArch;X86;"
 prepare() {
-echo
-}
-TARGET="AMDGPU;"
-if [ $CARCH == 'loong64' ];
-then
- TARGET="$TARGET;LoongArch;"
-elif [ $CARCH == 'x86_64' ];
-then
- TARGET="$TARGET;X86;"
-fi
-prepare() {
- mkdir build || true
+  cd rocm-llvm-project
+    git apply ../fp16.patch
+  cd ..
+
+  mkdir build || true
   cd build
   cmake \
-  -DCMAKE_BUILD_TYPE=Release \
+  -DCMAKE_BUILD_TYPE=Release\
   -DCMAKE_C_COMPILER=clang \
   -DCMAKE_CXX_COMPILER=clang++ \
   -DCMAKE_C_FLAGS="-fno-lto -pipe" \
@@ -43,7 +41,7 @@ prepare() {
   -DCOMPILER_RT_INCLUDE_TESTS=NO \
   -DHAVE_CLANG_REPL_SUPPORT=NO \
   -G "Ninja" \
-  -S ../llvm-project/llvm/
+  -S ../rocm-llvm-project/llvm/
 }
 build() {
   cd build
@@ -51,9 +49,8 @@ build() {
 }
 
 check() {
-#  cd "${pkgbase}"
 #  cd build
-#  ninja test
+#  ninja check
 echo
 }
 

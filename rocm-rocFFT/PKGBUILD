@@ -17,7 +17,7 @@ PATH=/opt/rocm-${pkgver}/bin:/opt/rocm-${pkgver}/llvm/bin:$PATH
 prepare() {
   mkdir build || true
   cd build
-  LD_LIBRARY_PATH=/opt/rocm-${pkgver}/lib64:$LD_LIBRARY_PATH cmake ../rocFFT \
+  LD_LIBRARY_PATH=/opt/rocm-${pkgver}/lib64:/opt/rocm-${pkgver}/lib:/opt/rocm-${pkgver}/hip/lib:$LD_LIBRARY_PATH cmake ../rocFFT \
    -DCMAKE_BUILD_TYPE=Release \
    -DCMAKE_C_COMPILER=/opt/rocm-${pkgver}/llvm/bin/clang \
    -DCMAKE_FIND_ROOT_PATH=/opt/rocm-${pkgver}/ \
@@ -32,7 +32,7 @@ prepare() {
 build() {
   mkdir build || true
   cd build
-  LD_LIBRARY_PATH=/opt/rocm-${pkgver}/lib64:$LD_LIBRARY_PATH make -j
+  LD_LIBRARY_PATH=/opt/rocm-${pkgver}/lib64:/opt/rocm-${pkgver}/lib:/opt/rocm-${pkgver}/hip/lib:$LD_LIBRARY_PATH make 
 }
 
 check() {
@@ -47,6 +47,6 @@ echo
 #}
 package() {
   cd build
-  LD_LIBRARY_PATH=/opt/rocm-${pkgver}/lib64:$LD_LIBRARY_PATH make DESTDIR="$pkgdir/" install
+  LD_LIBRARY_PATH=/opt/rocm-${pkgver}/lib64:/opt/rocm-${pkgver}/lib:/opt/rocm-${pkgver}/hip/lib:$LD_LIBRARY_PATH make DESTDIR="$pkgdir/" install
 }
 

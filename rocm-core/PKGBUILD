@@ -12,10 +12,9 @@ source=(
 )
 b2sums=('SKIP')
 prepare() {
-  cd "${pkgbase}"
-  mkdir build
+  mkdir build || true
   cd build
-  cmake .. \
+  cmake ../rocm-core \
   "-DCMAKE_INSTALL_PREFIX=/opt/rocm-${pkgver}" \
   -DPROJECT_VERSION_MAJOR=5 \
   -DPROJECT_VERSION_MINOR=7 \
@@ -24,23 +23,20 @@ prepare() {
   -G "Unix Makefiles"
 }
 build() {
-  cd "${pkgbase}"
   cd build
   make -j
 }
 
 check() {
-#  cd "${pkgbase}"
 #  cd build
-#  ninja test
+#  ninja check
 echo
 }
 
 #packaging() {
-
+#
 #}
 package() {
-  cd "${pkgbase}"
   cd build
   make DESTDIR="$pkgdir/" install
 }

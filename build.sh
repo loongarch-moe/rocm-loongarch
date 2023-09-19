@@ -1,49 +1,49 @@
 cd rocm-core
-makepkg
-makepkg -si
+makepkg -f
+makepkg -i
 
 cd ..
 cd rocm-llvm
-makepkg
-makepkg -si
+makepkg -f
+makepkg -i
 
 cd ..
 cd rocm-roct-thunk-interface
-makepkg
-makepkg -si
+makepkg -f
+makepkg -i
 
 cd ..
 cd rocm-cmake
-makepkg
-makepkg -si
+makepkg -f
+makepkg -i
 
 cd ..
 cd rocm-device-libs
-makepkg
-makepkg -si
+makepkg -f
+makepkg -i
 
 cd ..
 cd rocm-rocr-runtime
-makepkg
-makepkg -si
+makepkg -f
+makepkg -i
 
 cd ..
 cd rocminfo
-makepkg
-makepkg -si
+makepkg -f
+makepkg -i
 
 cd ..
 cd rocm-compilersupport
-makepkg
-makepkg -si
+makepkg -f
+makepkg -i
 
 cd ..
 cd rocm-clr
-makepkg
-makepkg -si
+makepkg -f
+makepkg -i
 
 cd ..
 cd rocFFT
-makepkg
-makepkg -si
+makepkg -f 
+makepkg -i
 
