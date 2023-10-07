@@ -44,6 +44,6 @@ makepkg -i
 
 cd ..
 cd rocFFT
-makepkg -f 
+makepkg -f
 makepkg -i
 

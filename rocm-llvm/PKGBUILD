@@ -10,7 +10,6 @@ url="https://github.com/ROCm-Developer-Tools/llvm-project"
 
 source=(
     "git+git://nas.xinmu.moe/mirrors/github.com/loongarch-moe/rocm-llvm-project.git#branch=rocm-5.7.x-loong64"
-    "fp16.patch"
 )
 b2sums=('SKIP' 'SKIP')
 #prepare() {
@@ -18,16 +17,10 @@ b2sums=('SKIP' 'SKIP')
 #}
 TARGET="AMDGPU;LoongArch;X86;"
 prepare() {
-  cd rocm-llvm-project
-    git apply ../fp16.patch
-  cd ..
-
   mkdir build || true
   cd build
   cmake \
-  -DCMAKE_BUILD_TYPE=Release\
-  -DCMAKE_C_COMPILER=clang \
-  -DCMAKE_CXX_COMPILER=clang++ \
+  -DCMAKE_BUILD_TYPE=Release \
   -DCMAKE_C_FLAGS="-fno-lto -pipe" \
   -DCMAKE_CXX_FLAGS="-fno-lto -pipe" \
   -DCMAKE_INSTALL_PREFIX="/opt/rocm-${pkgver}/llvm" \
