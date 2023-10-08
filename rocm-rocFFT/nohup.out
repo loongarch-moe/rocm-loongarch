@@ -1,0 +1,136 @@
+==> 正在创建软件包：rocm-rocFFT 5.7.x-507000 (2023年10月08日 星期日 10时48分17秒)
+==> 正在检查运行时依赖关系...
+==> 正在检查编译时依赖关系
+==> 获取源代码...
+  -> 正在升级 rocFFT git 仓库...
+==> 正在验证 source 文件，使用b2sums...
+    rocFFT ... 已跳过
+==> 正在释放源码...
+  -> 正在建立 rocFFT git 仓库的拷贝...
+重置分支 'makepkg'
+==> 正在开始 prepare()...
+mkdir: 无法创建目录 "build": 文件已存在
+CMake Deprecation Warning at /opt/rocm-5.7.x/lib64/cmake/hip/hip-config.cmake:20 (cmake_minimum_required):
+  Compatibility with CMake < 3.5 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value or use a ...<max> suffix to tell
+  CMake that the project does not need compatibility with older versions.
+Call Stack (most recent call first):
+  CMakeLists.txt:162 (find_package)
+
+
+CMake Deprecation Warning at /opt/rocm-5.7.x/lib64/cmake/hip/hip-config-amd.cmake:21 (cmake_minimum_required):
+  Compatibility with CMake < 3.5 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value or use a ...<max> suffix to tell
+  CMake that the project does not need compatibility with older versions.
+Call Stack (most recent call first):
+  /opt/rocm-5.7.x/lib64/cmake/hip/hip-config.cmake:150 (include)
+  CMakeLists.txt:162 (find_package)
+
+
+-- hip::amdhip64 is SHARED_LIBRARY
+-- /opt/rocm-5.7.x/bin/hipcc: CLANGRT compiler options not supported.
+CMake Warning (dev) at /usr/share/cmake/Modules/FetchContent.cmake:1316 (message):
+  The DOWNLOAD_EXTRACT_TIMESTAMP option was not given and policy CMP0135 is
+  not set.  The policy's OLD behavior will be used.  When using a URL
+  download, the timestamps of extracted files should preferably be that of
+  the time of extraction, otherwise code that depends on the extracted
+  contents might not be rebuilt if the URL changes.  The OLD behavior
+  preserves the timestamps from the archive instead, but this is usually not
+  what you want.  Update your project to the NEW behavior or specify the
+  DOWNLOAD_EXTRACT_TIMESTAMP option with a value of true to avoid this
+  robustness issue.
+Call Stack (most recent call first):
+  library/src/CMakeLists.txt:231 (FetchContent_Declare)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+-- Backward Compatible Sym Link Created for include directories
+-- Configuring done (0.9s)
+-- Generating done (0.1s)
+-- Build files have been written to: /var/tmp/portage/rocm-loongarch/rocm-rocFFT/src/build
+==> 正在删除现存的 $pkgdir/ 目录...
+==> 正在开始 build()...
+mkdir: 无法创建目录 "build": 文件已存在
+[  1%] Built target rocfft-rtc-compile
+[  3%] Built target rocfft-rtc-subprocess
+[  4%] Built target stockham_gen
+[ 10%] Built target rocfft-rtc-common
+[ 15%] Built target rocfft-solution-map
+[ 17%] Built target sqlite3
+[ 18%] Built target rocfft-tuning-helper
+[ 21%] Built target generator
+[ 31%] Built target rocfft-rtc-gen
+[ 34%] Built target rocfft_rtc_helper
+[ 35%] Built target rocfft-rtc-cache
+[ 39%] Built target stockham_aot
+[ 40%] Built target gen_headers_target
+[ 54%] Built target rocfft-function-pool
+[ 54%] Built target rocfft-rtc-launch
+[ 59%] Built target rocfft_config_search
+[ 64%] Built target rocfft_aot_helper
+[ 65%] Compile kernels into shipped cache file
+[100%] Built target rocfft
+[100%] Built target rocfft_kernel_cache_target
+==> 正在开始 check()...
+
+==> 正在进入 fakeroot 环境...
+==> 正在开始 package()...
+[  1%] Built target rocfft-rtc-compile
+[  4%] Built target rocfft_rtc_helper
+[  6%] Built target sqlite3
+[ 12%] Built target rocfft-rtc-common
+[ 14%] Built target rocfft-rtc-subprocess
+[ 23%] Built target rocfft-rtc-gen
+[ 25%] Built target rocfft-rtc-cache
+[ 35%] Built target rocfft-rtc-launch
+[ 40%] Built target rocfft-solution-map
+[ 42%] Built target rocfft-tuning-helper
+[ 45%] Built target generator
+[ 46%] Built target stockham_gen
+[ 50%] Built target stockham_aot
+[ 51%] Built target gen_headers_target
+[ 54%] Built target rocfft-function-pool
+[ 59%] Built target rocfft_aot_helper
+[ 64%] Built target rocfft_config_search
+[ 98%] Built target rocfft
+[100%] Built target rocfft_kernel_cache_target
+Install the project...
+-- Install configuration: "Release"
+-- Installing: /var/tmp/portage/rocm-loongarch/rocm-rocFFT/pkg/rocm-rocFFT/opt/rocm-5.7.x/include
+-- Installing: /var/tmp/portage/rocm-loongarch/rocm-rocFFT/pkg/rocm-rocFFT/opt/rocm-5.7.x/include/rocfft-export.h
+-- Installing: /var/tmp/portage/rocm-loongarch/rocm-rocFFT/pkg/rocm-rocFFT/opt/rocm-5.7.x/include/rocfft
+-- Installing: /var/tmp/portage/rocm-loongarch/rocm-rocFFT/pkg/rocm-rocFFT/opt/rocm-5.7.x/include/rocfft/rocfft-export.h
+-- Installing: /var/tmp/portage/rocm-loongarch/rocm-rocFFT/pkg/rocm-rocFFT/opt/rocm-5.7.x/include/rocfft/rocfft.h
+-- Installing: /var/tmp/portage/rocm-loongarch/rocm-rocFFT/pkg/rocm-rocFFT/opt/rocm-5.7.x/include/rocfft/rocfft-version.h
+-- Installing: /var/tmp/portage/rocm-loongarch/rocm-rocFFT/pkg/rocm-rocFFT/opt/rocm-5.7.x/include/rocfft.h
+-- Installing: /var/tmp/portage/rocm-loongarch/rocm-rocFFT/pkg/rocm-rocFFT/opt/rocm-5.7.x/include/rocfft-version.h
+-- Installing: /var/tmp/portage/rocm-loongarch/rocm-rocFFT/pkg/rocm-rocFFT/opt/rocm-5.7.x/lib/librocfft.so.0.1
+-- Installing: /var/tmp/portage/rocm-loongarch/rocm-rocFFT/pkg/rocm-rocFFT/opt/rocm-5.7.x/lib/librocfft.so.0
+-- Set runtime path of "/var/tmp/portage/rocm-loongarch/rocm-rocFFT/pkg/rocm-rocFFT//opt/rocm-5.7.x/lib/librocfft.so.0.1" to ""
+-- Installing: /var/tmp/portage/rocm-loongarch/rocm-rocFFT/pkg/rocm-rocFFT/opt/rocm-5.7.x/lib/librocfft.so
+-- Installing: /var/tmp/portage/rocm-loongarch/rocm-rocFFT/pkg/rocm-rocFFT/opt/rocm-5.7.x/lib/rocfft/rocfft_kernel_cache.db
+-- Installing: /var/tmp/portage/rocm-loongarch/rocm-rocFFT/pkg/rocm-rocFFT/opt/rocm-5.7.x/lib/rocfft/1.0.23/rocfft_rtc_helper
+-- Installing: /var/tmp/portage/rocm-loongarch/rocm-rocFFT/pkg/rocm-rocFFT/opt/rocm-5.7.x/lib/cmake/rocfft/rocfft-targets.cmake
+-- Installing: /var/tmp/portage/rocm-loongarch/rocm-rocFFT/pkg/rocm-rocFFT/opt/rocm-5.7.x/lib/cmake/rocfft/rocfft-targets-release.cmake
+-- Installing: /var/tmp/portage/rocm-loongarch/rocm-rocFFT/pkg/rocm-rocFFT/opt/rocm-5.7.x/lib/cmake/rocfft/rocfft-config.cmake
+-- Installing: /var/tmp/portage/rocm-loongarch/rocm-rocFFT/pkg/rocm-rocFFT/opt/rocm-5.7.x/lib/cmake/rocfft/rocfft-config-version.cmake
+-- Up-to-date: /var/tmp/portage/rocm-loongarch/rocm-rocFFT/pkg/rocm-rocFFT/opt/rocm-5.7.x/./rocfft
+-- Installing: /var/tmp/portage/rocm-loongarch/rocm-rocFFT/pkg/rocm-rocFFT/opt/rocm-5.7.x/./rocfft/include
+-- Installing: /var/tmp/portage/rocm-loongarch/rocm-rocFFT/pkg/rocm-rocFFT/opt/rocm-5.7.x/./rocfft/include/rocfft-export.h
+-- Installing: /var/tmp/portage/rocm-loongarch/rocm-rocFFT/pkg/rocm-rocFFT/opt/rocm-5.7.x/./rocfft/include/rocfft.h
+-- Installing: /var/tmp/portage/rocm-loongarch/rocm-rocFFT/pkg/rocm-rocFFT/opt/rocm-5.7.x/./rocfft/include/rocfft-version.h
+-- Installing: /var/tmp/portage/rocm-loongarch/rocm-rocFFT/pkg/rocm-rocFFT/opt/rocm-5.7.x/share/doc/rocfft/LICENSE.md
+==> 正在清理安装...
+  -> 正在清除不打算要的文件...
+  -> 正在压缩 man 及 info 文档...
+==> 正在检查打包问题...
+==> 正在构建软件包"rocm-rocFFT"...
+  -> 正在生成 .PKGINFO 文件...
+  -> 正在生成 .BUILDINFO 文件...
+  -> 正在生成 .MTREE 文件...
+  -> 正在压缩软件包...
+==> 正在离开 fakeroot 环境。
+==> 完成创建：rocm-rocFFT 5.7.x-507000 (2023年10月08日 星期日 10时50分55秒)

@@ -1,0 +1,49 @@
+
+pkgbase='rocm-ROCgdb'
+pkgname=('rocm-ROCgdb')
+pkgver=5.7.x
+pkgrel=507000
+pkgdesc="rocm-core is a utility which can be used to get ROCm release version."
+arch=('loong64' 'x86_64')
+license=('MIT')
+url="https://github.com/RadeonOpenCompute/ROCT-Thunk-Interface.git"
+
+source=(
+    "git+git://nas.xinmu.moe/mirrors/github.com/ROCm-Developer-Tools/ROCgdb.git#branch=rocm-5.7.x"
+)
+b2sums=('SKIP')
+depends=("rocm-clr=${pkgver}")
+PATH=/opt/rocm-${pkgver}/bin:$PATH
+prepare() {
+#  sed -i '32d' ROCgdb/test/CMakeLists.txt
+#  sed -i '32i find_package( HIP CONFIG REQUIRED )' ROCgdb/test/CMakeLists.txt
+  mkdir build || true
+  cd build
+  ../ROCgdb/configure \
+    --enable-64-bit-bfd \
+    --enable-targets="x86_64-linux-gnu,loongarch64-linux-gnu,amdgcn-amd-amdhsa" \
+    --disable-ld --disable-gas --disable-gdbserver --disable-sim --enable-tui \
+    --disable-gdbtk --disable-shared --with-expat --with-system-zlib \
+    --without-guile --with-babeltrace --with-lzma --with-python=python3.12 \
+    --prefix=/opt/rocm-${pkgver}
+}
+build() {
+  mkdir build || true
+  cd build
+  make -j16
+}
+
+check() {
+#  cd "ROCm-CompilerSupport"
+#  cd build
+#  make ctest
+echo
+}
+
+#packaging() {
+
+#}
+package() {
+  cd build
+  make DESTDIR="$pkgdir/" install
+}

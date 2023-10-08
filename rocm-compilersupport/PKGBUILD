@@ -12,7 +12,7 @@ source=(
     "git+git://nas.xinmu.moe/mirrors/github.com/RadeonOpenCompute/ROCm-CompilerSupport.git#branch=amd-stg-open"
 )
 b2sums=('SKIP')
-PATH=/opt/rocm-${pkgver}/bin:/opt/rocm-${pkgver}/llvm/bin:$PATH
+PATH=/opt/rocm-${pkgver}/bin:$PATH
 depends=("rocm-llvm=${pkgver}")
 
 prepare() {
@@ -23,18 +23,18 @@ prepare() {
   mkdir build || true
   cd build
   cmake ../ROCm-CompilerSupport/lib/comgr \
-   -DCMAKE_C_COMPILER=/opt/rocm-${pkgver}/llvm/bin/clang \
+   -DCMAKE_C_COMPILER=/opt/rocm-${pkgver}/bin/clang \
    -DCMAKE_FIND_ROOT_PATH=/opt/rocm-${pkgver}/ \
-   -DCMAKE_CXX_COMPILER=/opt/rocm-${pkgver}/llvm/bin/clang++ \
-  "-DCMAKE_PREFIX_PATH=/opt/rocm-${pkgver}/llvm/;/opt/rocm-${pkgver}/;/usr" \
+   -DCMAKE_CXX_COMPILER=/opt/rocm-${pkgver}/bin/clang++ \
+  "-DCMAKE_PREFIX_PATH=/opt/rocm-${pkgver}/;/usr" \
   "-DCMAKE_INSTALL_PREFIX=/opt/rocm-${pkgver}" \
-  -DCMAKE_EXE_LINKER_FLAGS="-L/opt/rocm-${pkgver}/llvm/lib" \
+  -DCMAKE_EXE_LINKER_FLAGS="-L/opt/rocm-${pkgver}/lib" \
   -G "Unix Makefiles"
 }
 build() {
   mkdir build || true
   cd build
-  make -j4
+  make -j
 }
 
 check() {

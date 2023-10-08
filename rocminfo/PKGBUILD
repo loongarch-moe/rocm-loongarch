@@ -13,14 +13,14 @@ source=(
 b2sums=('SKIP')
 depends=("rocm-llvm=${pkgver}")
 
-PATH=/opt/rocm-${pkgver}/llvm/bin:$PATH
+PATH=/opt/rocm-${pkgver}/bin:$PATH
 
 prepare() {
   mkdir build || true
   cd build
   cmake "../rocminfo" \
-   -DCMAKE_C_COMPILER=/opt/rocm-${pkgver}/llvm/bin/clang \
-   -DCMAKE_CXX_COMPILER=/opt/rocm-${pkgver}/llvm/bin/clang++ \
+   -DCMAKE_C_COMPILER=/opt/rocm-${pkgver}/bin/clang \
+   -DCMAKE_CXX_COMPILER=/opt/rocm-${pkgver}/bin/clang++ \
   "-DCMAKE_INSTALL_PREFIX=/opt/rocm-${pkgver}" \
   -G 'Unix Makefiles'
 }

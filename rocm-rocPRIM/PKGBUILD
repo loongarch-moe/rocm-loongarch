@@ -13,19 +13,19 @@ source=(
 )
 b2sums=('SKIP')
 depends=("rocm-clr=${pkgver}")
-PATH=/opt/rocm-${pkgver}/bin:/opt/rocm-${pkgver}/llvm/bin:$PATH
+PATH=/opt/rocm-${pkgver}/bin:$PATH
 prepare() {
   mkdir build || true
   cd build
   LD_LIBRARY_PATH=/opt/rocm-${pkgver}/lib64:/opt/rocm-${pkgver}/lib:/opt/rocm-${pkgver}/hip/lib:$LD_LIBRARY_PATH cmake ../rocPRIM \
    -DCMAKE_BUILD_TYPE=Release \
-   -DCMAKE_C_COMPILER=/opt/rocm-${pkgver}/llvm/bin/clang \
+   -DCMAKE_C_COMPILER=/opt/rocm-${pkgver}/bin/clang \
    -DCMAKE_FIND_ROOT_PATH=/opt/rocm-${pkgver}/ \
    -DCMAKE_CXX_COMPILER=/opt/rocm-${pkgver}/bin/hipcc \
-   -DCMAKE_CXX_FLAGS="-L/opt/rocm-${pkgver}/llvm/lib  -L/opt/rocm-${pkgver}/hip/lib" \
-   -DCMAKE_PREFIX_PATH="/opt/rocm-${pkgver}/llvm/;/opt/rocm-${pkgver}/;/usr" \
+   -DCMAKE_CXX_FLAGS="-L/opt/rocm-${pkgver}/lib  -L/opt/rocm-${pkgver}/hip/lib" \
+   -DCMAKE_PREFIX_PATH="/opt/rocm-${pkgver}/;/usr" \
    -DCMAKE_INSTALL_PREFIX=/opt/rocm-${pkgver} \
-   -DCMAKE_EXE_LINKER_FLAGS="-L/opt/rocm-${pkgver}/llvm/lib  -L/opt/rocm-${pkgver}/hip/lib" \
+   -DCMAKE_EXE_LINKER_FLAGS="-L/opt/rocm-${pkgver}/lib  -L/opt/rocm-${pkgver}/hip/lib" \
   -G "Unix Makefiles"
 }
 build() {

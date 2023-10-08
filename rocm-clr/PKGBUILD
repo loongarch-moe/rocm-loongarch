@@ -27,14 +27,14 @@ prepare() {
   cd hipcc-build
   cmake ../HIPCC \
    -DCMAKE_BUILD_TYPE=Release \
-   -DCMAKE_C_COMPILER=/opt/rocm-${pkgver}/llvm/bin/clang \
+   -DCMAKE_C_COMPILER=/opt/rocm-${pkgver}/bin/clang \
    -DCMAKE_FIND_ROOT_PATH=/opt/rocm-${pkgver}/ \
-   -DCMAKE_CXX_COMPILER=/opt/rocm-${pkgver}/llvm/bin/clang++ \
+   -DCMAKE_CXX_COMPILER=/opt/rocm-${pkgver}/bin/clang++ \
    -DROCM_PATH=/opt/rocm-${pkgver}/ \
    -DOFFLOAD_ARCH_STR="--offload-arch=gfx803;gfx900;gfx906;gfx908;gfx1010;gfx1011;gfx1012;gfx1030;gfx1031" \
-  "-DCMAKE_PREFIX_PATH=/opt/rocm-${pkgver}/llvm/;/opt/rocm-${pkgver}/;/usr" \
+  "-DCMAKE_PREFIX_PATH=/opt/rocm-${pkgver}/;/usr" \
   "-DCMAKE_INSTALL_PREFIX=/opt/rocm-${pkgver}" \
-  -DCMAKE_EXE_LINKER_FLAGS="-L/opt/rocm-${pkgver}/llvm/lib" \
+  -DCMAKE_EXE_LINKER_FLAGS="-L/opt/rocm-${pkgver}/lib" \
   -G "Unix Makefiles"
   make -j4
   cd ..
@@ -56,14 +56,14 @@ prepare() {
    -DCLR_BUILD_HIP=ON \
    -DCMAKE_BUILD_TYPE=Release \
    -DOFFLOAD_ARCH_STR="--offload-arch=gfx803;gfx900;gfx906;gfx908;gfx1010;gfx1011;gfx1012;gfx1030;gfx1031" \
-   -DCLR_BUILD_OCL=OFF \
+   -DCLR_BUILD_OCL=ON \
    -DROCM_PATH=/opt/rocm-${pkgver}/ \
-   -DCMAKE_C_COMPILER=/opt/rocm-${pkgver}/llvm/bin/clang \
+   -DCMAKE_C_COMPILER=/opt/rocm-${pkgver}/bin/clang \
    -DCMAKE_FIND_ROOT_PATH=/opt/rocm-${pkgver}/ \
-   -DCMAKE_CXX_COMPILER=/opt/rocm-${pkgver}/llvm/bin/clang++ \
-   -DCMAKE_PREFIX_PATH="/opt/rocm-${pkgver}/llvm/;/opt/rocm-${pkgver}/;/usr" \
+   -DCMAKE_CXX_COMPILER=/opt/rocm-${pkgver}/bin/clang++ \
+   -DCMAKE_PREFIX_PATH="/opt/rocm-${pkgver}/;/usr" \
    -DCMAKE_INSTALL_PREFIX="/opt/rocm-${pkgver}" \
-   -DCMAKE_EXE_LINKER_FLAGS="-L/opt/rocm-${pkgver}/llvm/lib" \
+   -DCMAKE_EXE_LINKER_FLAGS="-L/opt/rocm-${pkgver}/lib" \
    -G "Unix Makefiles"
   sed -i 's!.bat!!g' hipamd/cmake_install.cmake
 }

@@ -101,3 +101,8 @@ makepkg -i
 # error: no member named 'int_least16_t' in the global namespace; did you mean '__int_least16_t'?
 # error: no member named 'int_least32_t' in the global namespace; did you mean '__int_least32_t'?
 # error: no member named 'int_least64_t' in the global namespace; did you mean '__int_least64_t'
+
+cd ..
+cd rocm-hipFFT
+makepkg -f
+makepkg -i

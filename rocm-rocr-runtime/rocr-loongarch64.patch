@@ -1,0 +1,25 @@
+diff --git a/src/image/util.h b/src/image/util.h
+index 8c0faaa..1f1cbad 100644
+--- a/src/image/util.h
++++ b/src/image/util.h
+@@ -74,6 +74,7 @@ namespace image {
+ #include "mm_malloc.h"
+ #if defined(__i386__) || defined(__x86_64__)
+ #include <x86intrin.h>
++#elif defined(__loongarch64)
+ #else
+ #error                                                                                             \
+     "Processor not identified.  " \
+diff --git a/src/inc/hsa.h b/src/inc/hsa.h
+index a70fd0f..b65cb0e 100644
+--- a/src/inc/hsa.h
++++ b/src/inc/hsa.h
+@@ -80,7 +80,7 @@
+ // Try to detect CPU endianness
+ #if !defined(LITTLEENDIAN_CPU) && !defined(BIGENDIAN_CPU)
+ #if defined(__i386__) || defined(__x86_64__) || defined(_M_IX86) || \
+-    defined(_M_X64)
++    defined(_M_X64) || defined(__loongarch64)
+ #define LITTLEENDIAN_CPU
+ #endif
+ #endif

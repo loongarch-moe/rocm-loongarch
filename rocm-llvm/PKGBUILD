@@ -11,7 +11,7 @@ url="https://github.com/ROCm-Developer-Tools/llvm-project"
 source=(
     "git+git://nas.xinmu.moe/mirrors/github.com/loongarch-moe/rocm-llvm-project.git#branch=rocm-5.7.x-loong64"
 )
-b2sums=('SKIP' 'SKIP')
+b2sums=('SKIP')
 #prepare() {
 #echo
 #}
@@ -23,7 +23,7 @@ prepare() {
   -DCMAKE_BUILD_TYPE=Release \
   -DCMAKE_C_FLAGS="-fno-lto -pipe" \
   -DCMAKE_CXX_FLAGS="-fno-lto -pipe" \
-  -DCMAKE_INSTALL_PREFIX="/opt/rocm-${pkgver}/llvm" \
+  -DCMAKE_INSTALL_PREFIX="/opt/rocm-${pkgver}" \
   -DLLVM_ENABLE_ASSERTIONS=1 \
   -DLLVM_TARGETS_TO_BUILD="$TARGET" \
   -DLLVM_ENABLE_PROJECTS="compiler-rt;lld;clang" \
