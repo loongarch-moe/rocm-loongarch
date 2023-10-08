@@ -13,11 +13,13 @@ source=(
 b2sums=('SKIP')
 depends=(
   "rocm-clr=${pkgver}"
-  "rocALUTION=${pkgver}"
 )
 PATH=/opt/rocm-${pkgver}/bin:$PATH
 prepare() {
-#  sed -i '32d' rocALUTION/test/CMakeLists.txt
+#  sed -i '129,133d' rocALUTION/src/CMakeLists.txt 
+#  sed -i '129d' rocALUTION/src/CMakeLists.txt
+
+
 #  sed -i '32i find_package( HIP CONFIG REQUIRED )' rocALUTION/test/CMakeLists.txt
   mkdir build || true
   cd build
