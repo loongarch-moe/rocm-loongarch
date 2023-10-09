@@ -32,7 +32,7 @@ prepare() {
    -DCMAKE_PREFIX_PATH="/opt/rocm-${pkgver}/;/usr" \
    -DCMAKE_INSTALL_PREFIX=/opt/rocm-${pkgver} \
    -DCMAKE_EXE_LINKER_FLAGS="-L/opt/rocm-${pkgver}/lib  -L/opt/rocm-${pkgver}/hip/lib" \
-   -DLLVM_TARGETS_TO_BUILD="AMDGPU;LoongArch;X86;" \
+   -DLLVM_TARGETS_TO_BUILD="AMDGPU;LoongArch;" \
    -DROCM_PATH=/opt/rocm-${pkgver} \
   -G "Unix Makefiles"
 }
