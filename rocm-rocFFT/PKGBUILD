@@ -25,6 +25,7 @@ prepare() {
    -DCMAKE_CXX_FLAGS="-L/opt/rocm-${pkgver}/lib  -L/opt/rocm-${pkgver}/hip/lib" \
    -DCMAKE_PREFIX_PATH="/opt/rocm-${pkgver}/;/opt/rocm-${pkgver}/;/usr" \
    -DCMAKE_INSTALL_PREFIX=/opt/rocm-${pkgver} \
+    -DAMDGPU_TARGETS=$AMDGPU_TARGETS \
    -DSQLITE_SRC_URL=http://nas.xinmu.moe:8086/mirrors/sqlite3/sqlite-amalgamation-3360000.zip \
    -DCMAKE_EXE_LINKER_FLAGS="-L/opt/rocm-${pkgver}/lib  -L/opt/rocm-${pkgver}/hip/lib" \
   -G "Unix Makefiles"

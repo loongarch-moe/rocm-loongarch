@@ -15,7 +15,14 @@ b2sums=('SKIP')
 #prepare() {
 #echo
 #}
-TARGET="AMDGPU;LoongArch;X86;"
+TARGET="AMDGPU;"
+if [ $CARCH == 'loong64' ];
+then
+ TARGET="$TARGET;LoongArch;"
+elif [ $CARCH == 'x86_64' ];
+then
+ TARGET="$TARGET;X86;"
+fi
 prepare() {
   mkdir build || true
   cd build

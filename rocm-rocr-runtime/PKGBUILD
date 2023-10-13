@@ -14,17 +14,21 @@ source=(
 b2sums=('SKIP' 'SKIP')
 depends=("rocm-llvm=${pkgver}")
 
-PATH=/opt/rocm-${pkgver}/llvm/bin:$PATH
+PATH=/opt/rocm-${pkgver}/bin:$PATH
 prepare() {
-  cd ROCR-Runtime
-  git apply ../rocr-loongarch64.patch
-  cd ..
+  if [ $CARCH == 'loong64' ];
+  then
+    cd ROCR-Runtime
+    git apply ../rocr-loongarch64.patch
+    cd ..
+  fi
   mkdir build || true
   cd build
   cmake "../ROCR-Runtime/src" \
    -DCMAKE_C_COMPILER=/opt/rocm-${pkgver}/bin/clang \
    -DCMAKE_CXX_COMPILER=/opt/rocm-${pkgver}/bin/clang++ \
-  -DCMAKE_INSTALL_PREFIX=/opt/rocm-${pkgver} \
+   -DAMDGPU_TARGETS=$AMDGPU_TARGETS \
+   -DCMAKE_INSTALL_PREFIX=/opt/rocm-${pkgver} \
   -G 'Unix Makefiles'
 }
 build() {

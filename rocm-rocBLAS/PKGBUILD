@@ -46,8 +46,8 @@ prepare() {
    -DTensile_TEST_LOCAL_PATH=$PWD/../Tensile \
    -DCMAKE_PREFIX_PATH="/opt/rocm-${pkgver}/;/usr" \
    -DCMAKE_INSTALL_PREFIX=/opt/rocm-${pkgver} \
-   -DVIRTUALENV_PYTHON_EXE=/usr/bin/python3.12 \
-   -DTensile_ROOT=$PWD/virtualenv/lib/python3.12/site-packages/Tensile \
+   -DVIRTUALENV_PYTHON_EXE=/usr/bin/python3.11 \
+   -DTensile_ROOT=$PWD/virtualenv/lib/python3.11/site-packages/Tensile \
    -DCMAKE_EXE_LINKER_FLAGS="-L/opt/rocm-${pkgver}/lib  -L/opt/rocm-${pkgver}/hip/lib" \
   -G "Unix Makefiles"
 }

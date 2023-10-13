@@ -18,6 +18,14 @@ depends=(
   "rocm-rocBLAS=${pkgver}"
 )
 PATH=/opt/rocm-${pkgver}/bin:$PATH
+TARGET="AMDGPU;"
+if [ $CARCH == 'loong64' ];
+then
+ TARGET="$TARGET;LoongArch;"
+elif [ $CARCH == 'x86_64' ];
+then
+ TARGET="$TARGET;X86;"
+fi
 prepare() {
   cd rocMLIR
     git apply ../rocMLIR-loongarch.patch
@@ -32,7 +40,7 @@ prepare() {
    -DCMAKE_PREFIX_PATH="/opt/rocm-${pkgver}/;/usr" \
    -DCMAKE_INSTALL_PREFIX=/opt/rocm-${pkgver} \
    -DCMAKE_EXE_LINKER_FLAGS="-L/opt/rocm-${pkgver}/lib  -L/opt/rocm-${pkgver}/hip/lib" \
-   -DLLVM_TARGETS_TO_BUILD="AMDGPU;LoongArch;" \
+   -DLLVM_TARGETS_TO_BUILD="$TARGET" \
    -DROCM_PATH=/opt/rocm-${pkgver} \
   -G "Unix Makefiles"
 }
