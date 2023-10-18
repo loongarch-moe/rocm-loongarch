@@ -26,7 +26,7 @@ prepare() {
   mkdir hipcc-build || true
   cd hipcc-build
   cmake ../HIPCC \
-   -DCMAKE_BUILD_TYPE=Release \
+   -DCMAKE_BUILD_TYPE=Debug \
    -DCMAKE_C_COMPILER=/opt/rocm-${pkgver}/bin/clang \
    -DCMAKE_FIND_ROOT_PATH=/opt/rocm-${pkgver}/ \
    -DCMAKE_CXX_COMPILER=/opt/rocm-${pkgver}/bin/clang++ \
@@ -57,7 +57,7 @@ prepare() {
    -DHIP_PLATFORM=amd \
    -DHIPCC_BIN_DIR=$PWD/../hipcc-build/ \
    -DCLR_BUILD_HIP=ON \
-   -DCMAKE_BUILD_TYPE=Release \
+   -DCMAKE_BUILD_TYPE=Debug \
    -DCLR_BUILD_OCL=ON \
    -DROCM_PATH=/opt/rocm-${pkgver}/ \
    -DCMAKE_C_COMPILER=/opt/rocm-${pkgver}/bin/clang \

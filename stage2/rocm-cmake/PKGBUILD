@@ -15,6 +15,7 @@ prepare() {
   mkdir build || true
   cd build
   cmake "../${pkgbase}" \
+  -DCMAKE_BUILD_TYPE=Debug \
   "-DCMAKE_INSTALL_PREFIX=/opt/rocm-${pkgver}" \
   -G 'Unix Makefiles'
 }
