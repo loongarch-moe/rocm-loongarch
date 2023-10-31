@@ -12,7 +12,7 @@ source=(
     "rocr-loongarch64.patch"
 )
 b2sums=('SKIP' 'SKIP')
-depends=("rocm-llvm=${pkgver}")
+depends=("rocm-llvm=${pkgver}" "rocm-device-libs=${pkgver}")
 
 PATH=/opt/rocm-${pkgver}/bin:$PATH
 prepare() {
@@ -28,7 +28,6 @@ prepare() {
   -DCMAKE_BUILD_TYPE=Debug \
    -DCMAKE_C_COMPILER=/opt/rocm-${pkgver}/bin/clang \
    -DCMAKE_CXX_COMPILER=/opt/rocm-${pkgver}/bin/clang++ \
-   -DAMDGPU_TARGETS=$AMDGPU_TARGETS \
    -DCMAKE_INSTALL_PREFIX=/opt/rocm-${pkgver} \
   -G 'Unix Makefiles'
 }

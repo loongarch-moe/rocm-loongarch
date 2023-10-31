@@ -24,6 +24,7 @@ prepare() {
   cd build
   cmake ../ROCm-CompilerSupport/lib/comgr \
   -DCMAKE_BUILD_TYPE=Debug \
+  -DBUILD_TESTING=on \
    -DCMAKE_C_COMPILER=/opt/rocm-${pkgver}/bin/clang \
    -DCMAKE_FIND_ROOT_PATH=/opt/rocm-${pkgver}/ \
    -DCMAKE_CXX_COMPILER=/opt/rocm-${pkgver}/bin/clang++ \
@@ -40,9 +41,8 @@ build() {
 
 check() {
 #  cd "ROCm-CompilerSupport"
-#  cd build
-#  make ctest
-echo
+  cd build
+  make test
 }
 
 #packaging() {

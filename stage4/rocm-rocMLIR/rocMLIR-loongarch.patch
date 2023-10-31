@@ -1,5 +1,5 @@
 diff --git a/external/llvm-project/clang/lib/Basic/Targets/LoongArch.h b/external/llvm-project/clang/lib/Basic/Targets/LoongArch.h
-index 646c8d071f1d..84c23a955616 100644
+index 52c4ce425368..0c0a509704b2 100644
 --- a/external/llvm-project/clang/lib/Basic/Targets/LoongArch.h
 +++ b/external/llvm-project/clang/lib/Basic/Targets/LoongArch.h
 @@ -38,6 +38,8 @@ public:
@@ -12,7 +12,7 @@ index 646c8d071f1d..84c23a955616 100644
  
    StringRef getABI() const override { return ABI; }
 diff --git a/external/llvm-project/clang/lib/Driver/ToolChains/HIPUtility.cpp b/external/llvm-project/clang/lib/Driver/ToolChains/HIPUtility.cpp
-index 6f8c563c22aa..72a475495ea8 100644
+index 8b9d8db90ffa..c0b3c1f2b4b3 100644
 --- a/external/llvm-project/clang/lib/Driver/ToolChains/HIPUtility.cpp
 +++ b/external/llvm-project/clang/lib/Driver/ToolChains/HIPUtility.cpp
 @@ -52,7 +52,12 @@ void HIP::constructHIPFatbinCommand(Compilation &C, const JobAction &JA,
@@ -40,10 +40,10 @@ index 0626e0aaed9d..8a644bd07931 100644
  // RUN: %clang_cc1 -emit-llvm -o - -triple x86_64-linux-gnu %s | FileCheck %s --check-prefix=NOTNATIVE --check-prefix=CHECK
  // RUN: %clang_cc1 -emit-llvm -o - -triple arm-none-linux-gnueabi -fnative-half-type %s \
 diff --git a/external/llvm-project/clang/tools/clang-linker-wrapper/ClangLinkerWrapper.cpp b/external/llvm-project/clang/tools/clang-linker-wrapper/ClangLinkerWrapper.cpp
-index 1daa58f20fd5..26a53b42ae90 100644
+index c553cf86da8e..8413bea73145 100644
 --- a/external/llvm-project/clang/tools/clang-linker-wrapper/ClangLinkerWrapper.cpp
 +++ b/external/llvm-project/clang/tools/clang-linker-wrapper/ClangLinkerWrapper.cpp
-@@ -463,8 +463,12 @@ fatbinary(ArrayRef<std::pair<StringRef, StringRef>> InputFiles,
+@@ -339,8 +339,12 @@ fatbinary(ArrayRef<std::pair<StringRef, StringRef>> InputFiles,
    CmdArgs.push_back(*OffloadBundlerPath);
    CmdArgs.push_back("-type=o");
    CmdArgs.push_back("-bundle-align=4096");
@@ -57,16 +57,16 @@ index 1daa58f20fd5..26a53b42ae90 100644
    for (const auto &[File, Arch] : InputFiles)
      Targets.push_back(Saver.save("hipv4-amdgcn-amd-amdhsa--" + Arch));
    CmdArgs.push_back(Saver.save(llvm::join(Targets, ",")));
-@@ -610,6 +614,7 @@ Expected<StringRef> linkDevice(ArrayRef<StringRef> InputFiles,
+@@ -458,6 +462,7 @@ Expected<StringRef> linkDevice(ArrayRef<StringRef> InputFiles,
    case Triple::aarch64_be:
    case Triple::ppc64:
    case Triple::ppc64le:
 +  case Triple::loongarch64:
-     return generic::link(InputFiles, Args);
+     return generic::clang(InputFiles, Args);
    default:
      return createStringError(inconvertibleErrorCode(),
 diff --git a/external/llvm-project/llvm/lib/Target/LoongArch/LoongArchFloat32InstrInfo.td b/external/llvm-project/llvm/lib/Target/LoongArch/LoongArchFloat32InstrInfo.td
-index 40e7665fb1f7..5fe80a6fec25 100644
+index 799029740f2c..235978928003 100644
 --- a/external/llvm-project/llvm/lib/Target/LoongArch/LoongArchFloat32InstrInfo.td
 +++ b/external/llvm-project/llvm/lib/Target/LoongArch/LoongArchFloat32InstrInfo.td
 @@ -18,6 +18,13 @@ def SDT_LoongArchMOVGR2FR_W_LA64
@@ -84,10 +84,10 @@ index 40e7665fb1f7..5fe80a6fec25 100644
  
  def loongarch_movgr2fr_w_la64
 diff --git a/external/llvm-project/llvm/lib/Target/LoongArch/LoongArchISelLowering.cpp b/external/llvm-project/llvm/lib/Target/LoongArch/LoongArchISelLowering.cpp
-index 4a64a9484ab6..b005388d5d59 100644
+index 62ce24d942fa..05cc3a6dbe9b 100644
 --- a/external/llvm-project/llvm/lib/Target/LoongArch/LoongArchISelLowering.cpp
 +++ b/external/llvm-project/llvm/lib/Target/LoongArch/LoongArchISelLowering.cpp
-@@ -74,6 +74,8 @@ LoongArchTargetLowering::LoongArchTargetLowering(const TargetMachine &TM,
+@@ -77,6 +77,8 @@ LoongArchTargetLowering::LoongArchTargetLowering(const TargetMachine &TM,
  
    setOperationAction(ISD::INTRINSIC_WO_CHAIN, MVT::Other, Custom);
  
@@ -96,7 +96,7 @@ index 4a64a9484ab6..b005388d5d59 100644
    setOperationAction(ISD::EH_DWARF_CFA, MVT::i32, Custom);
    if (Subtarget.is64Bit())
      setOperationAction(ISD::EH_DWARF_CFA, MVT::i64, Custom);
-@@ -83,6 +85,12 @@ LoongArchTargetLowering::LoongArchTargetLowering(const TargetMachine &TM,
+@@ -86,6 +88,12 @@ LoongArchTargetLowering::LoongArchTargetLowering(const TargetMachine &TM,
    setOperationAction(ISD::VASTART, MVT::Other, Custom);
    setOperationAction({ISD::VAARG, ISD::VACOPY, ISD::VAEND}, MVT::Other, Expand);
  
@@ -109,7 +109,7 @@ index 4a64a9484ab6..b005388d5d59 100644
    if (Subtarget.is64Bit()) {
      setOperationAction(ISD::SHL, MVT::i32, Custom);
      setOperationAction(ISD::SRA, MVT::i32, Custom);
-@@ -165,9 +173,20 @@ LoongArchTargetLowering::LoongArchTargetLowering(const TargetMachine &TM,
+@@ -168,9 +176,20 @@ LoongArchTargetLowering::LoongArchTargetLowering(const TargetMachine &TM,
      setOperationAction(ISD::FREM, MVT::f64, Expand);
      setTruncStoreAction(MVT::f64, MVT::f32, Expand);
    }
@@ -131,3 +131,34 @@ index 4a64a9484ab6..b005388d5d59 100644
    setOperationAction(ISD::BR_CC, GRLenVT, Expand);
    setOperationAction(ISD::SELECT_CC, GRLenVT, Expand);
    setOperationAction(ISD::SIGN_EXTEND_INREG, MVT::i1, Expand);
+diff --git a/mlir/tools/xmir-runner/CMakeLists.txt b/mlir/tools/xmir-runner/CMakeLists.txt
+index 81f484a51ce5..209ae3c8e7b2 100644
+--- a/mlir/tools/xmir-runner/CMakeLists.txt
++++ b/mlir/tools/xmir-runner/CMakeLists.txt
+@@ -13,7 +13,6 @@ if(MLIR_ENABLE_ROCM_RUNNER)
+     ${rocmlir_dialect_libs}
+     ${rocmlir_conversion_libs}
+     ${rocmlir_test_libs}
+-    LLVMX86AsmParser
+     MLIRMHAL
+     MLIRMHALTransforms
+     MLIRMHALPipeline
+@@ -21,12 +20,16 @@ if(MLIR_ENABLE_ROCM_RUNNER)
+     MLIRRocmExecutionEngineUtils
+     MLIRJitRunner
+   )
+-
++if(CPUINFO_TARGET_PROCESSOR MATCHES "^(i[3-6]86|AMD64|x86(_64)?)$")
++  set(NATIVE_LIBS LLVMX86AsmParser)
++ELSEIF(CPUINFO_TARGET_PROCESSOR STREQUAL "loongarch64")
++  set(NATIVE_LIBS LLVMLoongArchAsmParser)
++endif()
+   add_rocmlir_tool(xmir-runner
+     xmir-runner.cpp
+     )
+ 
+-  target_link_libraries(xmir-runner PRIVATE ${LIBS})
++  target_link_libraries(xmir-runner PRIVATE ${LIBS} ${NATIVE_LIBS})
+   llvm_update_compile_flags(xmir-runner)
+ 
+ endif()

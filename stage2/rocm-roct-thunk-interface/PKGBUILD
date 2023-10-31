@@ -10,9 +10,14 @@ url="https://github.com/RadeonOpenCompute/ROCT-Thunk-Interface.git"
 
 source=(
     "git+git://nas.xinmu.moe/mirrors/github.com/RadeonOpenCompute/ROCT-Thunk-Interface.git#branch=rocm-5.7.x"
+    "rocm-roct-thunk-interface.patch"
 )
-b2sums=('SKIP')
+b2sums=('SKIP' 'SKIP')
 prepare() {
+cd ROCT-Thunk-Interface
+git apply ../rocm-roct-thunk-interface.patch
+cd ..
+
   mkdir build || true
   cd build
   cmake ../ROCT-Thunk-Interface \
@@ -20,6 +25,7 @@ prepare() {
    -DCMAKE_C_COMPILER=/opt/rocm-${pkgver}/bin/clang \
    -DCMAKE_CXX_COMPILER=/opt/rocm-${pkgver}/bin/clang++ \
    -DCMAKE_INSTALL_PREFIX=/opt/rocm-${pkgver} \
+   -D-DBUILD_SHARED_LIBS=on \
    -G "Unix Makefiles"
 }
 build() {

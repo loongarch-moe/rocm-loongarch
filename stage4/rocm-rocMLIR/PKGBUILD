@@ -9,7 +9,7 @@ license=('MIT')
 url="https://github.com/RadeonOpenCompute/ROCT-Thunk-Interface.git"
 
 source=(
-    "git+git://nas.xinmu.moe/mirrors/github.com/ROCmSoftwarePlatform/rocMLIR.git#branch=release/rocm-rel-5.7"
+    "git+git://nas.xinmu.moe/mirrors/github.com/ROCmSoftwarePlatform/rocMLIR.git#branch=develop"
     "rocMLIR-loongarch.patch"
 )
 b2sums=('SKIP' 'SKIP')

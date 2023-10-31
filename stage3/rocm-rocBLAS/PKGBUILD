@@ -42,6 +42,7 @@ prepare() {
    -DROCM_PATH=/opt/rocm-${pkgver} \
    -DTensile_LIBRARY_FORMAT=yaml \
    -DRUN_HEADER_TESTING=OFF \
+   -DAMDGPU_TARGETS=$AMDGPU_TARGETS \
    -DTensile_COMPILER=hipcc \
    -DTensile_TEST_LOCAL_PATH=$PWD/../Tensile \
    -DCMAKE_PREFIX_PATH="/opt/rocm-${pkgver}/;/usr" \

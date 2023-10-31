@@ -12,7 +12,7 @@ source=(
     "git+git://nas.xinmu.moe/mirrors/github.com/ROCmSoftwarePlatform/rocSPARSE.git#branch=release/rocm-rel-5.7"
 )
 b2sums=('SKIP')
-depends=("rocm-clr=${pkgver}")
+depends=("rocm-clr=${pkgver}" "rocm-rocPRIM=${pkgver}")
 PATH=/opt/rocm-${pkgver}/bin:$PATH
 prepare() {
   mkdir build || true

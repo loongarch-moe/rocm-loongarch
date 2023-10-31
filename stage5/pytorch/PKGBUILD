@@ -1,0 +1,133 @@
+pkgbase='pytorch'
+pkgname=('pytorch')
+arch=('loong64' 'x86_64')
+pkgver=develop
+pkgrel=99999999
+source=(
+ "git+https://github.com/pytorch/pytorch.git"
+ "git+https://github.com/01org/tbb.git"
+ "git+https://github.com/asmjit/asmjit.git"
+ "git+https://github.com/dtrugman/pfs.git"
+ "git+https://github.com/facebookincubator/dynolog.git"
+ "git+https://github.com/facebookincubator/fbjni.git"
+ "git+https://github.com/facebookincubator/gloo.git"
+ "git+https://github.com/facebook/zstd.git"
+ "git+https://github.com/fmtlib/fmt.git"
+ "git+https://github.com/gflags/gflags.git"
+ "git+https://github.com/google/benchmark.git"
+ "git+https://github.com/google/flatbuffers.git"
+ "git+https://github.com/google/gemmlowp.git"
+ "git+https://github.com/google/glog.git"
+ "git+https://github.com/google/googletest.git"
+ "git+https://github.com/google/libnop.git"
+ "git+https://github.com/google/XNNPACK.git"
+ "git+https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git"
+ "git+https://github.com/houseroad/foxi.git"
+ "git+https://github.com/intel/ARM_NEON_2_x86_SSE.git"
+ "git+https://github.com/intel/ideep.git"
+ "git+https://github.com/intel/ittapi.git"
+ "git+https://github.com/intel/mkl-dnn.git"
+ "git+https://github.com/libcpr/cpr.git"
+ "git+https://github.com/libuv/libuv.git"
+ "git+https://github.com/malfet/PeachPy.git"
+ "git+https://github.com/Maratyszcza/FP16.git"
+ "git+https://github.com/Maratyszcza/FXdiv.git"
+ "git+https://github.com/Maratyszcza/NNPACK.git"
+ "git+https://github.com/Maratyszcza/psimd.git"
+ "git+https://github.com/Maratyszcza/pthreadpool.git"
+ "git+https://github.com/microsoft/mimalloc.git"
+ "git+https://github.com/mreineck/pocketfft"
+ "git+https://github.com/nlohmann/json.git"
+ "git+https://github.com/NVIDIA/cudnn-frontend.git"
+ "git+https://github.com/NVIDIA/cutlass.git"
+ "git+https://github.com/NVIDIA/DCGM.git"
+ "git+https://github.com/NVIDIA/nccl.git"
+ "git+https://github.com/NVlabs/cub.git"
+ "git+https://github.com/onnx/onnx.git"
+ "git+https://github.com/onnx/onnx-tensorrt.git"
+ "git+https://github.com/protocolbuffers/protobuf.git"
+ "git+https://github.com/pybind/pybind11.git"
+ "git+https://github.com/pytorch/cpuinfo.git"
+ "git+https://github.com/pytorch/fbgemm.git"
+ "git+https://github.com/pytorch/kineto.git"
+ "git+https://github.com/pytorch/QNNPACK.git"
+ "git+https://github.com/pytorch/tensorpipe.git"
+ "git+https://github.com/ROCmSoftwarePlatform/hipify_torch.git"
+ "git+https://github.com/shibatch/sleef.git"
+ "git+https://github.com/wjakob/clang-cindex-python3.git"
+ "git+https://github.com/Yangqing/ios-cmake.git"
+ "git+https://gitlab.com/libeigen/eigen.git"
+)
+b2sums=(
+'SKIP'
+'SKIP'
+'SKIP'
+'SKIP'
+'SKIP'
+'SKIP'
+'SKIP'
+'SKIP'
+'SKIP'
+'SKIP'
+'SKIP'
+'SKIP'
+'SKIP'
+'SKIP'
+'SKIP'
+'SKIP'
+'SKIP'
+'SKIP'
+'SKIP'
+'SKIP'
+'SKIP'
+'SKIP'
+'SKIP'
+'SKIP'
+'SKIP'
+'SKIP'
+'SKIP'
+'SKIP'
+'SKIP'
+'SKIP'
+'SKIP'
+'SKIP'
+'SKIP'
+'SKIP'
+'SKIP'
+'SKIP'
+'SKIP'
+'SKIP'
+'SKIP'
+'SKIP'
+'SKIP'
+'SKIP'
+'SKIP'
+'SKIP'
+'SKIP'
+'SKIP'
+'SKIP'
+'SKIP'
+'SKIP'
+'SKIP'
+'SKIP'
+'SKIP'
+'SKIP'
+)
+
+
+prepare() {
+  cd pytorch 
+  git submodule init
+
+ 
+}
+
+build() {
+echo 
+}
+check() {
+echo
+}
+package() {
+echo 
+}

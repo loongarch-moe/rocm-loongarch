@@ -20,7 +20,6 @@ prepare() {
   -DCMAKE_BUILD_TYPE=Debug \
    -DCMAKE_C_COMPILER=/opt/rocm-${pkgver}/bin/clang \
    -DCMAKE_CXX_COMPILER=/opt/rocm-${pkgver}/bin/clang++ \
-   -DCMAKE_BUILD_TYPE=Release \
    "-DCMAKE_INSTALL_PREFIX=/opt/rocm-${pkgver}" \
    -DCMAKE_FIND_ROOT_PATH=/opt/rocm-${pkgver} \
    -DCMAKE_INSTALL_RPATH_USE_LINK_PATH=ON \
@@ -36,7 +35,9 @@ build() {
 
 check() {
   cd build
-#  make check
+  mkdir test/compile/ || true
+  cp ../ROCm-Device-Libs/test/compile/lgamma_r.cl test/compile/ || true
+#  make test
 }
 
 #packaging() {
