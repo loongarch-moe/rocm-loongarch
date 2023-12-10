@@ -1,8 +1,8 @@
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index ba4bd72a..c2ea30e2 100644
+index 374dec84..2c435603 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -555,7 +555,6 @@ if(DEMANGLE_DIR)
+@@ -601,7 +601,6 @@ if(DEMANGLE_DIR)
  endif()
  
  ## Set RCCL compile options
@@ -10,17 +10,16 @@ index ba4bd72a..c2ea30e2 100644
  target_compile_options(rccl PRIVATE -Wno-format-nonliteral)
  target_compile_options(rccl PRIVATE -fgpu-rdc)               # Generate relocatable device code (required for extern __shared__)
  target_compile_options(rccl PRIVATE -fvisibility=hidden)     # Set symbol visibility to hidden by default
-@@ -593,7 +592,7 @@ endif()
+@@ -634,7 +633,6 @@ endif()
+ target_link_libraries(rccl PRIVATE -fgpu-rdc)               # Required when linking relocatable device code
  
  ## Set RCCL link options
- target_link_options(rccl PRIVATE -fgpu-rdc)               # Required when linking relocatable device code
 -target_link_options(rccl PRIVATE -parallel-jobs=16)       # Use multiple threads to link
-+# target_link_options(rccl PRIVATE -parallel-jobs=16)       # Use multiple threads to link
  if(BUILD_ADDRESS_SANITIZER)
    target_link_options(rccl PRIVATE -fuse-ld=lld)
  endif()
 diff --git a/src/include/gdrwrap.h b/src/include/gdrwrap.h
-index c83a2292..e0e13ec0 100644
+index f532a705..635bce22 100644
 --- a/src/include/gdrwrap.h
 +++ b/src/include/gdrwrap.h
 @@ -41,7 +41,7 @@ static inline void wc_store_fence(void) { asm volatile("sync") ; }
@@ -32,16 +31,3 @@ index c83a2292..e0e13ec0 100644
  #ifdef __cplusplus
  #include <atomic>
  static inline void wc_store_fence(void) { std::atomic_thread_fence(std::memory_order_release); }
-diff --git a/src/include/msccl/msccl_struct.h b/src/include/msccl/msccl_struct.h
-index ee03403a..035c1375 100644
---- a/src/include/msccl/msccl_struct.h
-+++ b/src/include/msccl/msccl_struct.h
-@@ -64,7 +64,7 @@ struct mscclThreadBlock {
-   int16_t channelId; // associated channel. -1 indicates a thread block with only local copies
- }; // 5384 bytes
- 
--static_assert(sizeof(struct mscclThreadBlock) % sizeof(uint64_t) == 0, "Sanity check: sizeof(struct mscclThreadBlock) \% sizeof(uint64_t) != 0");
-+static_assert(sizeof(struct mscclThreadBlock) % sizeof(uint64_t) == 0, "Sanity check: sizeof(struct mscclThreadBlock) \\% sizeof(uint64_t) != 0");
- 
- struct mscclFlag {
-   uint64_t flag;

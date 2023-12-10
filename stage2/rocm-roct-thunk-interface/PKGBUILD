@@ -1,7 +1,7 @@
 pkgbase='rocm-roct-thunk-interface'
 pkgname=('rocm-roct-thunk-interface')
-pkgver=5.7.x
-pkgrel=507000
+pkgver=next
+pkgrel=999000
 pkgdesc=" Radeon Open Compute Thunk Interface "
 arch=('loong64' 'x86_64')
 license=('MIT')
@@ -9,7 +9,7 @@ depends=("rocm-llvm=${pkgver}")
 url="https://github.com/RadeonOpenCompute/ROCT-Thunk-Interface.git"
 
 source=(
-    "git+git://nas.xinmu.moe/mirrors/github.com/RadeonOpenCompute/ROCT-Thunk-Interface.git#branch=rocm-5.7.x"
+    "git+git://nas.xinmu.moe/github.com/RadeonOpenCompute/ROCT-Thunk-Interface.git#branch=master"
     "rocm-roct-thunk-interface.patch"
 )
 b2sums=('SKIP' 'SKIP')
@@ -25,13 +25,12 @@ cd ..
    -DCMAKE_C_COMPILER=/opt/rocm-${pkgver}/bin/clang \
    -DCMAKE_CXX_COMPILER=/opt/rocm-${pkgver}/bin/clang++ \
    -DCMAKE_INSTALL_PREFIX=/opt/rocm-${pkgver} \
-   -D-DBUILD_SHARED_LIBS=on \
    -G "Unix Makefiles"
 }
 build() {
   mkdir build || true
   cd build
-  make -j4
+  cmake --build .
 }
 
 check() {
@@ -97,7 +96,7 @@ check() {
 #}
 package() {
   cd build
-  make DESTDIR="$pkgdir/" install
+  cmake --install . --prefix "$pkgdir"/opt/rocm-${pkgver}
 }
 
 

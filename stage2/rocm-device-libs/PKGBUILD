@@ -1,14 +1,14 @@
 pkgbase='rocm-device-libs'
 pkgname=('rocm-device-libs')
-pkgver=5.7.x
-pkgrel=507000
+pkgver=next
+pkgrel=999000
 pkgdesc="ROCm Device Libraries"
 arch=('loong64' 'x86_64')
 license=('Unknow')
 url="https://github.com/RadeonOpenCompute/ROCm-Device-Libs.git"
 
 source=(
-    "git+git://nas.xinmu.moe/mirrors/github.com/RadeonOpenCompute/ROCm-Device-Libs.git#branch=amd-stg-open"
+    "git+git://nas.xinmu.moe/github.com/RadeonOpenCompute/ROCm-Device-Libs.git#branch=amd-stg-open"
 )
 depends=("rocm-llvm=${pkgver}")
 
@@ -30,7 +30,7 @@ prepare() {
 build() {
   mkdir build || true
   cd build
-  make -j
+  cmake --build .
 }
 
 check() {
@@ -45,6 +45,6 @@ check() {
 #}
 package() {
   cd build
-  make DESTDIR="$pkgdir/" install
+  cmake --install . --prefix "$pkgdir"/opt/rocm-${pkgver}
 }
 

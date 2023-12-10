@@ -1,0 +1,80 @@
+diff --git a/clang/lib/Basic/Targets/LoongArch.h b/clang/lib/Basic/Targets/LoongArch.h
+index 3313102492cb..09e8d935ec83 100644
+--- a/clang/lib/Basic/Targets/LoongArch.h
++++ b/clang/lib/Basic/Targets/LoongArch.h
+@@ -44,6 +44,8 @@ public:
+     SuitableAlign = 128;
+     WCharType = SignedInt;
+     WIntType = UnsignedInt;
++    HasFloat128 = true;
++    HasFloat16 = true;
+   }
+ 
+   bool setCPU(const std::string &Name) override {
+diff --git a/clang/lib/Driver/ToolChains/HIPUtility.cpp b/clang/lib/Driver/ToolChains/HIPUtility.cpp
+index f692458b775d..7c33d0a72b7b 100644
+--- a/clang/lib/Driver/ToolChains/HIPUtility.cpp
++++ b/clang/lib/Driver/ToolChains/HIPUtility.cpp
+@@ -52,7 +52,12 @@ void HIP::constructHIPFatbinCommand(Compilation &C, const JobAction &JA,
+ 
+   // ToDo: Remove the dummy host binary entry which is required by
+   // clang-offload-bundler.
++#if defined(__x86_64)
+   std::string BundlerTargetArg = "-targets=host-x86_64-unknown-linux";
++#elif defined(__loongarch64)
++  std::string BundlerTargetArg = "-targets=host-loongarch64-unknown-linux";
++#else
++#endif
+   // AMDGCN:
+   // For code object version 2 and 3, the offload kind in bundle ID is 'hip'
+   // for backward compatibility. For code object version 4 and greater, the
+diff --git a/clang/tools/clang-linker-wrapper/ClangLinkerWrapper.cpp b/clang/tools/clang-linker-wrapper/ClangLinkerWrapper.cpp
+index 2fd0b64c36ae..534768609ec3 100644
+--- a/clang/tools/clang-linker-wrapper/ClangLinkerWrapper.cpp
++++ b/clang/tools/clang-linker-wrapper/ClangLinkerWrapper.cpp
+@@ -336,8 +336,12 @@ fatbinary(ArrayRef<std::pair<StringRef, StringRef>> InputFiles,
+   CmdArgs.push_back(*OffloadBundlerPath);
+   CmdArgs.push_back("-type=o");
+   CmdArgs.push_back("-bundle-align=4096");
+-
++#if defined(__x86_64)
+   SmallVector<StringRef> Targets = {"-targets=host-x86_64-unknown-linux"};
++#elif defined(__loongarch64)
++  SmallVector<StringRef> Targets = {"-targets=host-loongarch64-unknown-linux"};
++#else
++#endif
+   for (const auto &[File, Arch] : InputFiles)
+     Targets.push_back(Saver.save("hipv4-amdgcn-amd-amdhsa--" + Arch));
+   CmdArgs.push_back(Saver.save(llvm::join(Targets, ",")));
+@@ -462,6 +466,7 @@ Expected<StringRef> linkDevice(ArrayRef<StringRef> InputFiles,
+   case Triple::aarch64_be:
+   case Triple::ppc64:
+   case Triple::ppc64le:
++  case Triple::loongarch64:
+     return generic::clang(InputFiles, Args);
+   default:
+     return createStringError(inconvertibleErrorCode(),
+diff --git a/llvm/lib/Target/LoongArch/LoongArchISelLowering.cpp b/llvm/lib/Target/LoongArch/LoongArchISelLowering.cpp
+index 9f8b2fd07a48..9515a865e95a 100644
+--- a/llvm/lib/Target/LoongArch/LoongArchISelLowering.cpp
++++ b/llvm/lib/Target/LoongArch/LoongArchISelLowering.cpp
+@@ -301,6 +301,19 @@ LoongArchTargetLowering::LoongArchTargetLowering(const TargetMachine &TM,
+   setTargetDAGCombine(ISD::OR);
+   setTargetDAGCombine(ISD::SRL);
+ 
++  setOperationAction(ISD::FP16_TO_FP,        MVT::f32,   Expand);
++  setOperationAction(ISD::FP_TO_FP16,        MVT::f32,   Expand);
++  setOperationAction(ISD::FP16_TO_FP,        MVT::f64,   Expand);
++  setOperationAction(ISD::FP_TO_FP16,        MVT::f64,   Expand);
++  setOperationAction(ISD::SPLAT_VECTOR, MVT::f16, Custom);
++  setTruncStoreAction(MVT::f32, MVT::f16, Expand);
++
++  setLoadExtAction(ISD::EXTLOAD, MVT::f32, MVT::f16, Expand);
++  setLibcallName(RTLIB::FPEXT_F16_F32, "__extendhfsf2");
++  setLibcallName(RTLIB::FPROUND_F32_F16, "__truncsfhf2");
++  setLoadExtAction(ISD::EXTLOAD, MVT::f64, MVT::f16, Expand);
++  setTruncStoreAction(MVT::f64, MVT::f16, Expand);
++
+   // Set DAG combine for 'LSX' feature.
+ 
+   if (Subtarget.hasExtLSX())
