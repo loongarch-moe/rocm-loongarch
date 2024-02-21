@@ -8,9 +8,9 @@ license=('MIT')
 url="https://github.com/RadeonOpenCompute/ROCT-Thunk-Interface.git"
 
 source=(
-    "git+git://nas.xinmu.moe/github.com/ROCm-Developer-Tools/HIPCC.git#branch=develop"
-    "git+git://nas.xinmu.moe/github.com/ROCm-Developer-Tools/clr.git#branch=rocm-5.7.x"
-    "git+git://nas.xinmu.moe/github.com/ROCm-Developer-Tools/HIP.git#branch=rocm-5.7.x"
+    "git+https://github.com/ROCm-Developer-Tools/HIPCC.git#branch=develop"
+    "git+https://github.com/ROCm-Developer-Tools/clr.git#branch=rocm-5.7.x"
+    "git+https://github.com/ROCm-Developer-Tools/HIP.git#branch=rocm-5.7.x"
     "clr.patch"
 )
 b2sums=('SKIP' 'SKIP' 'SKIP' 'SKIP')

@@ -9,7 +9,7 @@ license=('MIT')
 url="https://github.com/RadeonOpenCompute/ROCT-Thunk-Interface.git"
 
 source=(
-    "git+git://nas.xinmu.moe/github.com/RadeonOpenCompute/rocm_bandwidth_test.git#branch=master"
+    "git+https://github.com/RadeonOpenCompute/rocm_bandwidth_test.git#branch=master"
 )
 b2sums=('SKIP')
 depends=(

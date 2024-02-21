@@ -8,7 +8,7 @@ license=('MIT')
 url="https://github.com/RadeonOpenCompute/rocm-cmake"
 
 source=(
-    "git+git://nas.xinmu.moe/github.com/RadeonOpenCompute/rocm-cmake.git#branch=develop"
+    "git+https://github.com/RadeonOpenCompute/rocm-cmake.git#branch=develop"
 )
 b2sums=('SKIP')
 prepare() {

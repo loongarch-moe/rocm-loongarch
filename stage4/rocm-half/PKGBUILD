@@ -9,7 +9,7 @@ license=('MIT')
 url="https://github.com/RadeonOpenCompute/ROCT-Thunk-Interface.git"
 
 source=(
-    "git+git://nas.xinmu.moe/github.com/ROCmSoftwarePlatform/half.git#branch=release/rocm-rel-6.0"
+    "git+https://github.com/ROCmSoftwarePlatform/half.git#branch=release/rocm-rel-6.0"
 )
 b2sums=('SKIP')
 depends=("rocm-clr=${pkgver}")

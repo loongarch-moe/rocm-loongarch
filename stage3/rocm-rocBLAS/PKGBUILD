@@ -9,9 +9,9 @@ license=('MIT')
 url="https://github.com/RadeonOpenCompute/ROCT-Thunk-Interface.git"
 
 source=(
-    "git+git://nas.xinmu.moe/github.com/ROCmSoftwarePlatform/rocBLAS.git#branch=develop"
-    "git+git://nas.xinmu.moe/github.com/ROCmSoftwarePlatform/Tensile.git#branch=develop"
-    "git+git://nas.xinmu.moe/github.com/google/googletest.git"
+    "git+https://github.com/ROCmSoftwarePlatform/rocBLAS.git#branch=develop"
+    "git+https://github.com/ROCmSoftwarePlatform/Tensile.git#branch=develop"
+    "git+https://github.com/google/googletest.git"
 )
 b2sums=('SKIP' 'SKIP' 'SKIP')
 depends=("rocm-clr=${pkgver}")
@@ -41,7 +41,7 @@ prepare() {
    -DROCM_PATH=/opt/rocm-${pkgver} \
    -DTensile_LIBRARY_FORMAT=yaml \
    -DRUN_HEADER_TESTING=OFF \
-   -DAMDGPU_TARGETS=${AMDGPU_TARGETS//,/;} \
+  -DAMDGPU_TARGETS=all \
    -DTensile_COMPILER=hipcc \
    -DTensile_TEST_LOCAL_PATH=$PWD/../Tensile \
    -DCMAKE_PREFIX_PATH="/opt/rocm-${pkgver}/;/usr" \

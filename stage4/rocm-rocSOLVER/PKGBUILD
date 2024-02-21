@@ -9,7 +9,7 @@ license=('MIT')
 url="https://github.com/RadeonOpenCompute/ROCT-Thunk-Interface.git"
 
 source=(
-    "git+git://nas.xinmu.moe/github.com/ROCmSoftwarePlatform/rocSOLVER.git#branch=develop"
+    "git+https://github.com/ROCmSoftwarePlatform/rocSOLVER.git#branch=develop"
 )
 b2sums=('SKIP')
 depends=(

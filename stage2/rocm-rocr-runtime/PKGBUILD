@@ -8,7 +8,7 @@ license=('Unknow')
 url="https://github.com/RadeonOpenCompute/rocm-core"
 
 source=(
-    "git+git://nas.xinmu.moe/github.com/RadeonOpenCompute/ROCR-Runtime.git#branch=master"
+    "git+https://github.com/RadeonOpenCompute/ROCR-Runtime.git#branch=master"
     "rocr-loongarch64.patch"
 )
 b2sums=('SKIP' 'SKIP')
@@ -19,7 +19,7 @@ prepare() {
   if [ $CARCH == 'loong64' ];
   then
     cd ROCR-Runtime
-    git apply ../rocr-loongarch64.patch
+#    git apply ../rocr-loongarch64.patch
     cd ..
   fi
   mkdir build || true

@@ -9,7 +9,7 @@ license=('MIT')
 url="https://github.com/RadeonOpenCompute/ROCT-Thunk-Interface.git"
 
 source=(
-    "git+git://nas.xinmu.moe/github.com/ROCmSoftwarePlatform/FunctionalPlus.git"
+    "git+https://github.com/ROCmSoftwarePlatform/FunctionalPlus.git"
 )
 b2sums=('SKIP')
 depends=(

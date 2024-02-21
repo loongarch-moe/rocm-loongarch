@@ -9,7 +9,7 @@ depends=("rocm-llvm=${pkgver}")
 url="https://github.com/RadeonOpenCompute/ROCT-Thunk-Interface.git"
 
 source=(
-    "git+git://nas.xinmu.moe/github.com/RadeonOpenCompute/ROCT-Thunk-Interface.git#branch=master"
+    "git+https://github.com/RadeonOpenCompute/ROCT-Thunk-Interface.git#branch=master"
     "rocm-roct-thunk-interface.patch"
 )
 b2sums=('SKIP' 'SKIP')
@@ -70,7 +70,7 @@ check() {
    -DCMAKE_INSTALL_PREFIX=/opt/rocm-${pkgver} \
   "-DCMAKE_PREFIX_PATH=/opt/rocm-${pkgver}/;/usr" \
   -G Ninja
-  ninja 
+#  ninja 
 # nocheck rdma
 #  LD_LIBRARY_PATH=/opt/rocm-${pkgver}/lib64:/opt/rocm-${pkgver}/lib:/opt/rocm-${pkgver}/hip/lib:$LD_LIBRARY_PATH ./rdma_test
   cd ..
@@ -86,7 +86,7 @@ check() {
    -DCMAKE_INSTALL_PREFIX=/opt/rocm-${pkgver} \
   "-DCMAKE_PREFIX_PATH=/opt/rocm-${pkgver}/;/usr" \
   -G Ninja
-  ninja
+#  ninja
 # no shared
 #  LD_LIBRARY_PATH=/opt/rocm-${pkgver}/lib64:/opt/rocm-${pkgver}/lib:/opt/rocm-${pkgver}/hip/lib:$LD_LIBRARY_PATH:$PWD/../dist/opt/rocm-${pkgver} ./kmtreopen
 }

@@ -9,7 +9,7 @@ depends=("rocm-core=${pkgver}")
 url="https://github.com/ROCm-Developer-Tools/llvm-project"
 
 source=(
-    "git+git://nas.xinmu.moe/github.com/RadeonOpenCompute/llvm-project.git#branch=amd-stg-open"
+    "git+https://github.com/RadeonOpenCompute/llvm-project.git#branch=amd-stg-open"
     "loongarch.patch"
 )
 b2sums=('SKIP' 'SKIP')

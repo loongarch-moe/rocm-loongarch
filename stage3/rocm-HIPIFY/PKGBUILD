@@ -8,7 +8,7 @@ license=('MIT')
 url="https://github.com/RadeonOpenCompute/ROCT-Thunk-Interface.git"
 
 source=(
-    "git+git://nas.xinmu.moe/github.com/ROCm-Developer-Tools/HIPIFY.git#branch=amd-staging"
+    "git+https://github.com/ROCm-Developer-Tools/HIPIFY.git#branch=amd-staging"
 )
 b2sums=('SKIP')
 depends=("rocm-clr=${pkgver}")

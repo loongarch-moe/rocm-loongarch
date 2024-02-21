@@ -9,7 +9,7 @@ license=('MIT')
 url="https://github.com/RadeonOpenCompute/ROCT-Thunk-Interface.git"
 
 source=(
-    "git+git://nas.xinmu.moe/github.com/RadeonOpenCompute/ROCm-CompilerSupport.git#branch=amd-stg-open"
+    "git+https://github.com/RadeonOpenCompute/ROCm-CompilerSupport.git#branch=amd-stg-open"
 )
 b2sums=('SKIP')
 PATH=/opt/rocm-${pkgver}/bin:$PATH

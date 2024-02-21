@@ -8,7 +8,7 @@ license=('Unknow')
 url="https://github.com/RadeonOpenCompute/ROCm-Device-Libs.git"
 
 source=(
-    "git+git://nas.xinmu.moe/github.com/RadeonOpenCompute/ROCm-Device-Libs.git#branch=amd-stg-open"
+    "git+https://github.com/RadeonOpenCompute/ROCm-Device-Libs.git#branch=amd-stg-open"
 )
 depends=("rocm-llvm=${pkgver}")
 
