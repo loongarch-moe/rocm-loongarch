@@ -1,0 +1,30 @@
+diff --git a/src/core/runtime/amd_aql_queue.cpp b/src/core/runtime/amd_aql_queue.cpp
+index 01b1855..5e088f8 100644
+--- a/src/core/runtime/amd_aql_queue.cpp
++++ b/src/core/runtime/amd_aql_queue.cpp
+@@ -549,8 +549,7 @@ uint32_t AqlQueue::ComputeRingBufferMaxPkts() {
+ void AqlQueue::AllocRegisteredRingBuffer(uint32_t queue_size_pkts) {
+   if ((agent_->profile() == HSA_PROFILE_FULL) && queue_full_workaround_) {
+     // Compute the physical and virtual size of the queue.
+-    uint32_t ring_buf_phys_size_bytes =
+-        uint32_t(queue_size_pkts * sizeof(core::AqlPacket));
++    uint32_t ring_buf_phys_size_bytes = 65536;
+     ring_buf_alloc_bytes_ = 2 * ring_buf_phys_size_bytes;
+ 
+ #ifdef __linux__
+diff --git a/src/core/runtime/amd_hsa_loader.cpp b/src/core/runtime/amd_hsa_loader.cpp
+index 496d0d2..e00d73f 100644
+--- a/src/core/runtime/amd_hsa_loader.cpp
++++ b/src/core/runtime/amd_hsa_loader.cpp
+@@ -61,10 +61,7 @@ namespace {
+ #if !defined(_WIN32) && !defined(_WIN64)
+ uintptr_t PAGE_SIZE_MASK{
+     [] () {
+-      uintptr_t page_size = sysconf(_SC_PAGE_SIZE);
+-      if (page_size == -1) {
+-        page_size = 1 << 12; // Default page size to 4KiB.
+-      }
++      uintptr_t page_size = 65536;
+       return ~(page_size - 1);
+     } ()
+   };

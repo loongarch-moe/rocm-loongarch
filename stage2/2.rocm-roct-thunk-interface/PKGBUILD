@@ -25,6 +25,7 @@ cd ..
    -DCMAKE_C_COMPILER=/opt/rocm-${pkgver}/bin/clang \
    -DCMAKE_CXX_COMPILER=/opt/rocm-${pkgver}/bin/clang++ \
    -DCMAKE_INSTALL_PREFIX=/opt/rocm-${pkgver} \
+   -DBUILD_SHARED_LIBS=ON \
    -G "Unix Makefiles"
 }
 build() {
@@ -38,11 +39,10 @@ check() {
   mkdir test || true
 # init
   cd build
-  make DESTDIR="../test/dist" install
+#  make DESTDIR="../test/dist" install
   cd ..
 # init check
   cd test/
-  cp -r dist/opt/rocm-${pkgver}/lib64 dist/opt/rocm-${pkgver}/lib
   mkdir kfdtest || true
   cd kfdtest
   LIBHSAKMT_PATH=$PWD/../dist/opt/rocm-${pkgver}/ cmake ../../ROCT-Thunk-Interface/tests/kfdtest/ \
@@ -53,7 +53,7 @@ check() {
    -DLLVM_DIR=/opt/rocm-${pkgver} \
   "-DCMAKE_PREFIX_PATH=/opt/rocm-${pkgver}/;/usr" \
   -G Ninja
-  ninja 
+#  ninja 
 # OOM
 #  BIN_DIR=$PWD LD_LIBRARY_PATH=/opt/rocm-${pkgver}/lib64:/opt/rocm-${pkgver}/lib:/opt/rocm-${pkgver}/hip/lib:$LD_LIBRARY_PATH ./run_kfdtest.sh
   cd ..

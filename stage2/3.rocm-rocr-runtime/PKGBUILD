@@ -19,7 +19,7 @@ prepare() {
   if [ $CARCH == 'loong64' ];
   then
     cd ROCR-Runtime
-#    git apply ../rocr-loongarch64.patch
+    git apply ../rocr-loongarch64.patch
     cd ..
   fi
   mkdir build || true
@@ -29,6 +29,7 @@ prepare() {
    -DCMAKE_C_COMPILER=/opt/rocm-${pkgver}/bin/clang \
    -DCMAKE_CXX_COMPILER=/opt/rocm-${pkgver}/bin/clang++ \
    -DCMAKE_INSTALL_PREFIX=/opt/rocm-${pkgver} \
+   -DBUILD_SHARED_LIBS=ON \
   -G 'Unix Makefiles'
 }
 build() {

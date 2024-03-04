@@ -1,6 +1,6 @@
 
-pkgbase='rocm-rocFFT'
-pkgname=('rocm-rocFFT')
+pkgbase='rocm-rocRAND'
+pkgname=('rocm-rocRAND')
 pkgver=next
 pkgrel=999000
 pkgdesc="rocm-core is a utility which can be used to get ROCm release version."
@@ -9,46 +9,39 @@ license=('MIT')
 url="https://github.com/RadeonOpenCompute/ROCT-Thunk-Interface.git"
 
 source=(
-    "git+https://github.com/ROCmSoftwarePlatform/rocFFT.git#branch=develop"
-    "rocFFT-loong64.patch"
+    "git+https://github.com/ROCmSoftwarePlatform/rocRAND.git#branch=develop"
+    "git+https://github.com/ROCmSoftwarePlatform/hipRAND.git#branch=develop"
 )
 b2sums=('SKIP' 'SKIP')
 depends=("rocm-clr=${pkgver}")
 PATH=/opt/rocm-${pkgver}/bin:$PATH
-LD_LIBRARY_PATH=/opt/rocm-${pkgver}/lib64:/opt/rocm-${pkgver}/lib:/opt/rocm-${pkgver}/hip/lib:$LD_LIBRARY_PATH
 prepare() {
-  cd rocFFT
-    git apply ../rocFFT-loong64.patch
-  cd ..
+  rm -rf rocRAND/hipRAND || true
+  ln -s $PWD/hipRAND rocRAND/hipRAND || true
   mkdir build || true
   cd build
-  cmake ../rocFFT \
-   -DCMAKE_BUILD_TYPE=Release \
-   -DROCM_PATH=/opt/rocm-${pkgver} \
+  LD_LIBRARY_PATH=/opt/rocm-${pkgver}/lib64:/opt/rocm-${pkgver}/lib:/opt/rocm-${pkgver}/hip/lib:$LD_LIBRARY_PATH cmake ../rocRAND \
+   -DCMAKE_BUILD_TYPE=Debug \
    -DCMAKE_C_COMPILER=/opt/rocm-${pkgver}/bin/clang \
    -DCMAKE_FIND_ROOT_PATH=/opt/rocm-${pkgver}/ \
    -DCMAKE_CXX_COMPILER=/opt/rocm-${pkgver}/bin/hipcc \
    -DCMAKE_CXX_FLAGS="-L/opt/rocm-${pkgver}/lib  -L/opt/rocm-${pkgver}/hip/lib" \
-   -DCMAKE_PREFIX_PATH="/opt/rocm-${pkgver}/;/opt/rocm-${pkgver}/;/usr" \
+   -DCMAKE_PREFIX_PATH="/opt/rocm-${pkgver}/;/usr" \
    -DCMAKE_INSTALL_PREFIX=/opt/rocm-${pkgver} \
-   -DAMDGPU_TARGETS=${AMDGPU_TARGETS//,/;} \
-   -DSQLITE_SRC_URL=http://nas.xinmu.moe:8086/mirrors/sqlite3/sqlite-amalgamation-3430200.zip \
+   -DAMDGPU_TARGETS=all \
    -DCMAKE_EXE_LINKER_FLAGS="-L/opt/rocm-${pkgver}/lib  -L/opt/rocm-${pkgver}/hip/lib" \
-   -G "Unix Makefiles"
+  -G "Unix Makefiles"
 }
 build() {
   mkdir build || true
   cd build
-  make -j $(nproc)
+  LD_LIBRARY_PATH=/opt/rocm-${pkgver}/lib64:/opt/rocm-${pkgver}/lib:/opt/rocm-${pkgver}/hip/lib:$LD_LIBRARY_PATH make -j16
 }
 
 check() {
 #  cd "ROCm-CompilerSupport"
 #  cd build
 #  make ctest
-# dep: hiprand
-#   -DBUILD_CLIENTS_TESTS=on \
-
 echo
 }
 
