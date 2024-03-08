@@ -1,8 +1,8 @@
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 374dec84..2c435603 100644
+index 0e27118a..cac5259f 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -601,7 +601,6 @@ if(DEMANGLE_DIR)
+@@ -618,7 +618,6 @@ if(${hipcc_version_string} VERSION_GREATER_EQUAL "6.1.33591")
  endif()
  
  ## Set RCCL compile options
@@ -10,8 +10,8 @@ index 374dec84..2c435603 100644
  target_compile_options(rccl PRIVATE -Wno-format-nonliteral)
  target_compile_options(rccl PRIVATE -fgpu-rdc)               # Generate relocatable device code (required for extern __shared__)
  target_compile_options(rccl PRIVATE -fvisibility=hidden)     # Set symbol visibility to hidden by default
-@@ -634,7 +633,6 @@ endif()
- target_link_libraries(rccl PRIVATE -fgpu-rdc)               # Required when linking relocatable device code
+@@ -659,7 +658,6 @@ target_link_libraries(rccl PRIVATE   dl)
+ target_link_libraries(rccl PRIVATE   ${ROCM_SMI_LIBRARIES})
  
  ## Set RCCL link options
 -target_link_options(rccl PRIVATE -parallel-jobs=16)       # Use multiple threads to link
@@ -19,7 +19,7 @@ index 374dec84..2c435603 100644
    target_link_options(rccl PRIVATE -fuse-ld=lld)
  endif()
 diff --git a/src/include/gdrwrap.h b/src/include/gdrwrap.h
-index f532a705..635bce22 100644
+index a791e050..272eb10a 100644
 --- a/src/include/gdrwrap.h
 +++ b/src/include/gdrwrap.h
 @@ -41,7 +41,7 @@ static inline void wc_store_fence(void) { asm volatile("sync") ; }

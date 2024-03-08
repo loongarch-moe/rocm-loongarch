@@ -1,7 +1,16 @@
 diff --git a/src/core/runtime/amd_aql_queue.cpp b/src/core/runtime/amd_aql_queue.cpp
-index 01b1855..5e088f8 100644
+index 01b1855..0f42ae2 100644
 --- a/src/core/runtime/amd_aql_queue.cpp
 +++ b/src/core/runtime/amd_aql_queue.cpp
+@@ -121,7 +121,7 @@ AqlQueue::AqlQueue(GpuAgent* agent, size_t req_size_pkts, HSAuint32 node_id, Scr
+   queue_size_pkts = Min(queue_size_pkts, max_pkts);
+   queue_size_pkts = Max(queue_size_pkts, min_pkts);
+ 
+-  uint32_t queue_size_bytes = queue_size_pkts * sizeof(core::AqlPacket);
++  uint32_t queue_size_bytes = 65536;
+   if ((queue_size_bytes & (queue_size_bytes - 1)) != 0)
+     throw AMD::hsa_exception(HSA_STATUS_ERROR_INVALID_QUEUE_CREATION,
+                              "Requested queue with non-power of two packet capacity.\n");
 @@ -549,8 +549,7 @@ uint32_t AqlQueue::ComputeRingBufferMaxPkts() {
  void AqlQueue::AllocRegisteredRingBuffer(uint32_t queue_size_pkts) {
    if ((agent_->profile() == HSA_PROFILE_FULL) && queue_full_workaround_) {
@@ -12,6 +21,33 @@ index 01b1855..5e088f8 100644
      ring_buf_alloc_bytes_ = 2 * ring_buf_phys_size_bytes;
  
  #ifdef __linux__
+@@ -677,11 +676,11 @@ void AqlQueue::AllocRegisteredRingBuffer(uint32_t queue_size_pkts) {
+ #endif
+   } else {
+     // Allocate storage for the ring buffer.
+-    ring_buf_alloc_bytes_ = queue_size_pkts * sizeof(core::AqlPacket);
++    ring_buf_alloc_bytes_ = 65536;
+     assert(IsMultipleOf(ring_buf_alloc_bytes_, 4096) && "Ring buffer sizes must be 4KiB aligned.");
+ 
+     ring_buf_ = agent_->system_allocator()(
+-        ring_buf_alloc_bytes_, 0x1000,
++        ring_buf_alloc_bytes_, 65536,
+         core::MemoryRegion::AllocateExecutable |
+             (queue_full_workaround_ ? core::MemoryRegion::AllocateDoubleMap : 0));
+ 
+diff --git a/src/core/runtime/amd_gpu_agent.cpp b/src/core/runtime/amd_gpu_agent.cpp
+index f5d276f..8244079 100644
+--- a/src/core/runtime/amd_gpu_agent.cpp
++++ b/src/core/runtime/amd_gpu_agent.cpp
+@@ -2117,7 +2117,7 @@ void GpuAgent::InitNumaAllocator() {
+     if (pool->kernarg()) {
+       system_allocator_ = [pool](size_t size, size_t alignment,
+                                  MemoryRegion::AllocateFlags alloc_flags) -> void* {
+-        assert(alignment <= 4096);
++//        assert(alignment <= 4096);
+         void* ptr = nullptr;
+         return (HSA_STATUS_SUCCESS ==
+                 core::Runtime::runtime_singleton_->AllocateMemory(pool, size, alloc_flags, &ptr))
 diff --git a/src/core/runtime/amd_hsa_loader.cpp b/src/core/runtime/amd_hsa_loader.cpp
 index 496d0d2..e00d73f 100644
 --- a/src/core/runtime/amd_hsa_loader.cpp
@@ -28,3 +64,24 @@ index 496d0d2..e00d73f 100644
        return ~(page_size - 1);
      } ()
    };
+diff --git a/src/inc/hsa.h b/src/inc/hsa.h
+index bd0ee1e..4bc1d16 100644
+--- a/src/inc/hsa.h
++++ b/src/inc/hsa.h
+@@ -73,14 +73,14 @@
+ 
+ // Detect and set large model builds.
+ #undef HSA_LARGE_MODEL
+-#if defined(__LP64__) || defined(_M_X64)
++#if defined(__LP64__) || defined(_M_X64) || defined(__loongarch_lp64)
+ #define HSA_LARGE_MODEL
+ #endif
+ 
+ // Try to detect CPU endianness
+ #if !defined(LITTLEENDIAN_CPU) && !defined(BIGENDIAN_CPU)
+ #if defined(__i386__) || defined(__x86_64__) || defined(_M_IX86) || \
+-    defined(_M_X64)
++    defined(_M_X64) || defined(__loongarch_lp64)
+ #define LITTLEENDIAN_CPU
+ #endif
+ #endif
