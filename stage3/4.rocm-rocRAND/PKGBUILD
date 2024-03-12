@@ -29,6 +29,7 @@ prepare() {
    -DCMAKE_PREFIX_PATH="/opt/rocm-${pkgver}/;/usr" \
    -DCMAKE_INSTALL_PREFIX=/opt/rocm-${pkgver} \
    -DAMDGPU_TARGETS=all \
+   -DBUILD_SHARED_LIBS=ON \
    -DCMAKE_EXE_LINKER_FLAGS="-L/opt/rocm-${pkgver}/lib  -L/opt/rocm-${pkgver}/hip/lib" \
   -G "Unix Makefiles"
   cd ..
@@ -43,16 +44,17 @@ prepare() {
    -DCMAKE_PREFIX_PATH="/opt/rocm-${pkgver}/;/usr" \
    -DCMAKE_INSTALL_PREFIX=/opt/rocm-${pkgver} \
    -DAMDGPU_TARGETS=all \
+   -DBUILD_SHARED_LIBS=ON \
    -DCMAKE_EXE_LINKER_FLAGS="-L/opt/rocm-${pkgver}/lib  -L/opt/rocm-${pkgver}/hip/lib" \
   -G "Unix Makefiles"
 }
 build() {
   mkdir build || true
   cd build
-  LD_LIBRARY_PATH=/opt/rocm-${pkgver}/lib64:/opt/rocm-${pkgver}/lib:/opt/rocm-${pkgver}/hip/lib:$LD_LIBRARY_PATH make -j16
+  LD_LIBRARY_PATH=/opt/rocm-${pkgver}/lib64:/opt/rocm-${pkgver}/lib:/opt/rocm-${pkgver}/hip/lib:$LD_LIBRARY_PATH cmake --build .
   cd ..
   cd buildHipRAND
-  LD_LIBRARY_PATH=/opt/rocm-${pkgver}/lib64:/opt/rocm-${pkgver}/lib:/opt/rocm-${pkgver}/hip/lib:$LD_LIBRARY_PATH make -j16
+  LD_LIBRARY_PATH=/opt/rocm-${pkgver}/lib64:/opt/rocm-${pkgver}/lib:/opt/rocm-${pkgver}/hip/lib:$LD_LIBRARY_PATH cmake --build .
 
 }
 

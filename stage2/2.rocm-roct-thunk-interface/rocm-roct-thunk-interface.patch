@@ -1,24 +1,5 @@
-diff --git a/src/openclose.c b/src/openclose.c
-index 4913349..fe692be 100644
---- a/src/openclose.c
-+++ b/src/openclose.c
-@@ -116,8 +116,12 @@ static void clear_after_fork(void)
- 
- static inline void init_page_size(void)
- {
--	PAGE_SIZE = sysconf(_SC_PAGESIZE);
--	PAGE_SHIFT = ffs(PAGE_SIZE) - 1;
-+#if defined(__loongarch_lp64)
-+    PAGE_SIZE = 65536;
-+#else
-+    PAGE_SIZE = sysconf(_SC_PAGESIZE);
-+#endif
-+    PAGE_SHIFT = ffs(PAGE_SIZE) - 1;
- }
- 
- static HSAKMT_STATUS init_vars_from_env(void)
 diff --git a/src/queues.c b/src/queues.c
-index f62e862..10e87a9 100644
+index f62e862..b6546e7 100644
 --- a/src/queues.c
 +++ b/src/queues.c
 @@ -134,7 +134,9 @@ static void get_doorbell_map_info(uint32_t node_id,
@@ -26,26 +7,9 @@ index f62e862..10e87a9 100644
  	doorbell->use_gpuvm = (is_dgpu && gfxv != GFX_VERSION_TONGA);
  	doorbell->size = DOORBELLS_PAGE_SIZE(DOORBELL_SIZE(gfxv));
 -
-+    if(doorbell->size<PAGE_SIZE){
-+        doorbell->size=PAGE_SIZE;
++    if (doorbell->size < (uint32_t) PAGE_SIZE) {
++        doorbell->size = PAGE_SIZE;
 +    }
  	return;
  }
  
-@@ -325,9 +327,16 @@ void *allocate_exec_aligned_memory_gpu(uint32_t size, uint32_t align,
- 	flags.ui32.HostAccess = !DeviceLocal;
- 	flags.ui32.ExecuteAccess = 1;
- 	flags.ui32.NonPaged = nonPaged;
-+#if defined(__loongarch64)
-+        flags.ui32.PageSize = HSA_PAGE_SIZE_64KB;
-+#else
- 	flags.ui32.PageSize = HSA_PAGE_SIZE_4KB;
-+#endif
- 	flags.ui32.CoarseGrain = DeviceLocal;
- 	flags.ui32.Uncached = Uncached;
-+#if defined(__loongarch64)
-+    flags.ui32.NoNUMABind = 1;
-+#endif
- 
- 	/* Get the closest cpu_id to GPU NodeId for system memory allocation
- 	 * nonPaged=1 system memory allocation uses GTT path

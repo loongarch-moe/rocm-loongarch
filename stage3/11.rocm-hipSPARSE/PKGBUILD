@@ -27,7 +27,8 @@ prepare() {
    -DCMAKE_CXX_FLAGS="-L/opt/rocm-${pkgver}/llvm/lib  -L/opt/rocm-${pkgver}/hip/lib" \
    -DCMAKE_PREFIX_PATH="/opt/rocm-${pkgver}/llvm/;/opt/rocm-${pkgver}/;/usr" \
    -DCMAKE_INSTALL_PREFIX=/opt/rocm-${pkgver} \
-   -DAMDGPU_TARGETS=${AMDGPU_TARGETS//,/;} \
+   -DAMDGPU_TARGETS=all \
+   -DBUILD_SHARED_LIBS=ON \
    -DCMAKE_EXE_LINKER_FLAGS="-L/opt/rocm-${pkgver}/llvm/lib  -L/opt/rocm-${pkgver}/hip/lib" \
   -G "Unix Makefiles"
 }
