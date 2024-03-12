@@ -27,7 +27,7 @@ index a791e050..272eb10a 100644
  #include <immintrin.h>
  static inline void wc_store_fence(void) { _mm_sfence(); }
 -#elif defined(__aarch64__)
-+#elif defined(__aarch64__) || defined(__loongarch64)
++#elif defined(__aarch64__) || defined(__loongarch_lp64)
  #ifdef __cplusplus
  #include <atomic>
  static inline void wc_store_fence(void) { std::atomic_thread_fence(std::memory_order_release); }

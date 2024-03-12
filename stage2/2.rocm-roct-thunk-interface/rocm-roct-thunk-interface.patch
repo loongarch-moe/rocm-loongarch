@@ -18,10 +18,21 @@ index 4913349..fe692be 100644
  
  static HSAKMT_STATUS init_vars_from_env(void)
 diff --git a/src/queues.c b/src/queues.c
-index f62e862..e587521 100644
+index f62e862..10e87a9 100644
 --- a/src/queues.c
 +++ b/src/queues.c
-@@ -325,13 +325,21 @@ void *allocate_exec_aligned_memory_gpu(uint32_t size, uint32_t align,
+@@ -134,7 +134,9 @@ static void get_doorbell_map_info(uint32_t node_id,
+ 	uint32_t gfxv = get_gfxv_by_node_id(node_id);
+ 	doorbell->use_gpuvm = (is_dgpu && gfxv != GFX_VERSION_TONGA);
+ 	doorbell->size = DOORBELLS_PAGE_SIZE(DOORBELL_SIZE(gfxv));
+-
++    if(doorbell->size<PAGE_SIZE){
++        doorbell->size=PAGE_SIZE;
++    }
+ 	return;
+ }
+ 
+@@ -325,9 +327,16 @@ void *allocate_exec_aligned_memory_gpu(uint32_t size, uint32_t align,
  	flags.ui32.HostAccess = !DeviceLocal;
  	flags.ui32.ExecuteAccess = 1;
  	flags.ui32.NonPaged = nonPaged;
@@ -38,16 +49,3 @@ index f62e862..e587521 100644
  
  	/* Get the closest cpu_id to GPU NodeId for system memory allocation
  	 * nonPaged=1 system memory allocation uses GTT path
- 	 */
-+#if !defined(__loongarch64)
- 	if (!DeviceLocal && !nonPaged) {
- 		cpu_id = get_direct_link_cpu(NodeId);
- 		if (cpu_id == INVALID_NODEID) {
-@@ -340,6 +348,7 @@ void *allocate_exec_aligned_memory_gpu(uint32_t size, uint32_t align,
- 		}
- 	}
- 
-+#endif
- 	size = ALIGN_UP(size, align);
- 
- 	ret = hsaKmtAllocMemory(DeviceLocal ? NodeId : cpu_id, size, flags, &mem);

@@ -37,13 +37,14 @@ prepare() {
   -DCMAKE_INSTALL_PREFIX="/opt/rocm-${pkgver}" \
   -DLLVM_ENABLE_ASSERTIONS=1 \
   -DLLVM_TARGETS_TO_BUILD="$TARGET" \
-  -DLLVM_ENABLE_PROJECTS="lld;clang;compiler-rt" \
+  -DLLVM_ENABLE_PROJECTS="lld;clang;compiler-rt;flang" \
   -DPROJECT_VERSION_MAJOR=6 \
   -DPROJECT_VERSION_MINOR=0 \
   -DPROJECT_VERSION_PATCH=0 \
   -DCOMPILER_RT_HAS_FNO_LTO_FLAG=ON \
   -G "Ninja" \
   -S ../llvm-project/llvm/
+  sed -i 's!-lamdhip64!/opt/rocm-next/lib64/libamdhip64.so!g' ../llvm-project/clang/lib/Driver/ToolChains/Linux.cpp
 }
 build() {
   cd build

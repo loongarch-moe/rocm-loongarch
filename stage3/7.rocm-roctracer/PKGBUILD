@@ -29,6 +29,8 @@ prepare() {
    -DCMAKE_INSTALL_PREFIX=/opt/rocm-${pkgver} \
    -DCMAKE_EXE_LINKER_FLAGS="-L/opt/rocm-${pkgver}/lib  -L/opt/rocm-${pkgver}/hip/lib" \
   -G "Unix Makefiles"
+  sed -i '3921,d' build/hipify/src/device/device_table.h
+
 }
 build() {
   mkdir build || true

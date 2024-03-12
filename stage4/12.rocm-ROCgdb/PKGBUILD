@@ -1,4 +1,3 @@
-
 pkgbase='rocm-ROCgdb'
 pkgname=('rocm-ROCgdb')
 pkgver=next
@@ -19,18 +18,17 @@ prepare() {
 #  sed -i '32i find_package( HIP CONFIG REQUIRED )' ROCgdb/test/CMakeLists.txt
   mkdir build || true
   cd build
-  ../ROCgdb/configure \
-    --enable-64-bit-bfd \
-    --enable-targets="x86_64-linux-gnu,loongarch64-linux-gnu,amdgcn-amd-amdhsa" \
+  PKG_CONFIG_PATH=/opt/rocm-${pkgver}/lib64/pkgconfig/:/opt/rocm-${pkgver}/share/pkgconfig/:/usr/lib/pkgconfig ../ROCgdb/configure \
+    --enable-targets="loongarch64-linux-gnu,amdgcn-amd-amdhsa" \
     --disable-ld --disable-gas --disable-gdbserver --disable-sim --enable-tui \
-    --disable-gdbtk --disable-shared --with-expat --with-system-zlib \
+    --disable-gdbtk --with-expat --with-system-zlib \
     --without-guile --with-babeltrace --with-lzma --with-python=python3.12 \
     --prefix=/opt/rocm-${pkgver}
 }
 build() {
   mkdir build || true
   cd build
-  make -j16
+  make -j8
 }
 
 check() {

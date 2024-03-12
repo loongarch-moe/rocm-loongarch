@@ -44,6 +44,8 @@ prepare() {
    -DLLVM_TARGETS_TO_BUILD="$TARGET" \
    -DROCM_PATH=/opt/rocm-${pkgver} \
   -G "Unix Makefiles"
+#   -DBUILD_SHARED_LIBS=ON \
+
 }
 build() {
   mkdir build || true

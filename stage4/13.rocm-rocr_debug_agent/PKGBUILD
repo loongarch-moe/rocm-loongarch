@@ -1,6 +1,5 @@
-
-pkgbase='rocm-hipFFT'
-pkgname=('rocm-hipFFT')
+pkgbase='rocm-rocr_debug_agent'
+pkgname=('rocm-rocr_debug_agent')
 pkgver=next
 pkgrel=999000
 pkgdesc="rocm-core is a utility which can be used to get ROCm release version."
@@ -9,27 +8,24 @@ license=('MIT')
 url="https://github.com/RadeonOpenCompute/ROCT-Thunk-Interface.git"
 
 source=(
-    "git+https://github.com/ROCmSoftwarePlatform/hipFFT.git#branch=develop"
-    "git+https://github.com/ROCmSoftwarePlatform/rocFFT.git#branch=develop"
+    "git+https://github.com/ROCm-Developer-Tools/rocr_debug_agent.git#branch=rocm-5.7.x"
 )
-b2sums=('SKIP' 'SKIP')
+b2sums=('SKIP')
 depends=("rocm-clr=${pkgver}")
 PATH=/opt/rocm-${pkgver}/bin:$PATH
 prepare() {
-  rm -rf hipFFT/clients/rocFFT || true
-  ln -s $PWD/rocFFT hipFFT/clients/rocFFT
-  sed -i '43,45d' hipFFT/cmake/dependencies.cmake
-  sed -i '41d' hipFFT/cmake/dependencies.cmake
-
+#  sed -i '32d' rocr_debug_agent/test/CMakeLists.txt
+#  sed -i '32i find_package( HIP CONFIG REQUIRED )' rocr_debug_agent/test/CMakeLists.txt
   mkdir build || true
   cd build
-  LD_LIBRARY_PATH=/opt/rocm-${pkgver}/lib64:/opt/rocm-${pkgver}/lib:/opt/rocm-${pkgver}/hip/lib:$LD_LIBRARY_PATH cmake ../hipFFT \
+  LD_LIBRARY_PATH=/opt/rocm-${pkgver}/lib64:/opt/rocm-${pkgver}/lib:/opt/rocm-${pkgver}/hip/lib:$LD_LIBRARY_PATH cmake ../rocr_debug_agent \
    -DCMAKE_BUILD_TYPE=Debug \
+   -DCMAKE_C_COMPILER=/opt/rocm-${pkgver}/bin/clang \
    -DCMAKE_FIND_ROOT_PATH=/opt/rocm-${pkgver}/ \
    -DCMAKE_CXX_COMPILER=/opt/rocm-${pkgver}/bin/hipcc \
    -DCMAKE_CXX_FLAGS="-L/opt/rocm-${pkgver}/lib  -L/opt/rocm-${pkgver}/hip/lib" \
    -DCMAKE_PREFIX_PATH="/opt/rocm-${pkgver}/;/usr" \
-   -DAMDGPU_TARGETS=${AMDGPU_TARGETS//,/;} \
+   -DCMAKE_MODULE_PATH=/opt/rocm-${pkgver}/hip/cmake \
    -DCMAKE_INSTALL_PREFIX=/opt/rocm-${pkgver} \
    -DCMAKE_EXE_LINKER_FLAGS="-L/opt/rocm-${pkgver}/lib  -L/opt/rocm-${pkgver}/hip/lib" \
   -G "Unix Makefiles"
