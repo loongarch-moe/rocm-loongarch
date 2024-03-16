@@ -11,6 +11,18 @@ index 3313102492cb..09e8d935ec83 100644
    }
  
    bool setCPU(const std::string &Name) override {
+diff --git a/clang/lib/CodeGen/BackendUtil.cpp b/clang/lib/CodeGen/BackendUtil.cpp
+index 8c666e2cb463..7c4b42a69498 100644
+--- a/clang/lib/CodeGen/BackendUtil.cpp
++++ b/clang/lib/CodeGen/BackendUtil.cpp
+@@ -273,6 +273,7 @@ getCodeModel(const CodeGenOptions &CodeGenOpts) {
+                            .Case("kernel", llvm::CodeModel::Kernel)
+                            .Case("medium", llvm::CodeModel::Medium)
+                            .Case("large", llvm::CodeModel::Large)
++                           .Case("extreme", llvm::CodeModel::Large)
+                            .Case("default", ~1u)
+                            .Default(~0u);
+   assert(CodeModel != ~0u && "invalid code model!");
 diff --git a/clang/lib/Driver/ToolChains/HIPUtility.cpp b/clang/lib/Driver/ToolChains/HIPUtility.cpp
 index f692458b775d..91e8ebfd1016 100644
 --- a/clang/lib/Driver/ToolChains/HIPUtility.cpp
@@ -40,6 +52,19 @@ index f692458b775d..91e8ebfd1016 100644
    // AMDGCN:
    // For code object version 2 and 3, the offload kind in bundle ID is 'hip'
    // for backward compatibility. For code object version 4 and greater, the
+diff --git a/clang/lib/Driver/ToolChains/Linux.cpp b/clang/lib/Driver/ToolChains/Linux.cpp
+index 930585efd02a..9f7b6869a808 100644
+--- a/clang/lib/Driver/ToolChains/Linux.cpp
++++ b/clang/lib/Driver/ToolChains/Linux.cpp
+@@ -965,7 +965,7 @@ void Linux::AddHIPRuntimeLibArgs(const ArgList &Args,
+     CmdArgs.append(
+         {"-rpath", Args.MakeArgString(RocmInstallation->getLibPath())});
+ 
+-  CmdArgs.push_back("-lamdhip64");
++  CmdArgs.push_back("/opt/rocm-next/lib64/libamdhip64.so");
+ }
+ 
+ void Linux::AddIAMCUIncludeArgs(const ArgList &DriverArgs,
 diff --git a/clang/tools/clang-linker-wrapper/ClangLinkerWrapper.cpp b/clang/tools/clang-linker-wrapper/ClangLinkerWrapper.cpp
 index 2fd0b64c36ae..f5be0d31d81f 100644
 --- a/clang/tools/clang-linker-wrapper/ClangLinkerWrapper.cpp
@@ -71,6 +96,45 @@ index 2fd0b64c36ae..f5be0d31d81f 100644
      return generic::clang(InputFiles, Args);
    default:
      return createStringError(inconvertibleErrorCode(),
+diff --git a/llvm/lib/Target/AMDGPU/AMDGPUAsmPrinter.cpp b/llvm/lib/Target/AMDGPU/AMDGPUAsmPrinter.cpp
+index eb30f31af6d6..67cc858a182c 100644
+--- a/llvm/lib/Target/AMDGPU/AMDGPUAsmPrinter.cpp
++++ b/llvm/lib/Target/AMDGPU/AMDGPUAsmPrinter.cpp
+@@ -1238,6 +1238,14 @@ bool AMDGPUAsmPrinter::PrintAsmOperand(const MachineInstr *MI, unsigned OpNo,
+ void AMDGPUAsmPrinter::getAnalysisUsage(AnalysisUsage &AU) const {
+   AU.addRequired<AMDGPUResourceUsageAnalysis>();
+   AU.addPreserved<AMDGPUResourceUsageAnalysis>();
++
++  // The Dummy pass is necessary because AMDGPUResourceUsageAnalysis will pop
++  // the CGSCC pass manager off of the active pass managers stack. Adding the
++  // Dummy pass will re-insert the CGSCC pass manager into said stack again
++  // through CallGraphSCCPass::assignPassManager.
++  AU.addRequired<DummyCGSCCPass>();
++  AU.addPreserved<DummyCGSCCPass>();
++
+   AsmPrinter::getAnalysisUsage(AU);
+ }
+ 
+diff --git a/llvm/lib/Target/AMDGPU/AMDGPUResourceUsageAnalysis.cpp b/llvm/lib/Target/AMDGPU/AMDGPUResourceUsageAnalysis.cpp
+index db5d2bbcf5bb..5c1c8801585c 100644
+--- a/llvm/lib/Target/AMDGPU/AMDGPUResourceUsageAnalysis.cpp
++++ b/llvm/lib/Target/AMDGPU/AMDGPUResourceUsageAnalysis.cpp
+@@ -151,9 +151,12 @@ bool AMDGPUResourceUsageAnalysis::runOnModule(Module &M) {
+ 
+     SIFunctionResourceInfo &Info = CI.first->second;
+     MachineFunction *MF = MMI.getMachineFunction(*F);
+-    assert(MF && "function must have been generated already");
+-    Info = analyzeResourceUsage(*MF, TM);
+-    HasIndirectCall |= Info.HasIndirectCall;
++    assert((MF || TPC->requiresCodeGenSCCOrder()) &&
++           "function must have been generated already");
++    if (MF) {
++      Info = analyzeResourceUsage(*MF, TM);
++      HasIndirectCall |= Info.HasIndirectCall;
++    }
+   }
+ 
+   if (HasIndirectCall)
 diff --git a/llvm/lib/Target/LoongArch/LoongArchISelLowering.cpp b/llvm/lib/Target/LoongArch/LoongArchISelLowering.cpp
 index d297d115d59c..e0928d7eb9a4 100644
 --- a/llvm/lib/Target/LoongArch/LoongArchISelLowering.cpp

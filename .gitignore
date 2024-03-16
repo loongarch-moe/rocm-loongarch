@@ -3,3 +3,4 @@
 */*/pkg/
 */*/*/*
 *.pkg.tar.gz
+nohup.out

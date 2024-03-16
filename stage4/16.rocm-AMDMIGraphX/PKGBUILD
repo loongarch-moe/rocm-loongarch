@@ -1,5 +1,5 @@
-pkgbase='rocm-rocALUTION'
-pkgname=('rocm-rocALUTION')
+pkgbase='rocm-AMDMIGraphX'
+pkgname=('rocm-AMDMIGraphX')
 pkgver=next
 pkgrel=999000
 pkgdesc="rocm-core is a utility which can be used to get ROCm release version."
@@ -8,37 +8,42 @@ license=('MIT')
 url="https://github.com/RadeonOpenCompute/ROCT-Thunk-Interface.git"
 
 source=(
-    "git+https://github.com/ROCmSoftwarePlatform/rocALUTION.git#branch=release/rocm-rel-5.7"
+    "git+https://github.com/ROCm/AMDMIGraphX.git#branch=develop"
+    "git+https://github.com/ROCm/rbuild.git#branch=master"
+    "amdmigraphx.patch"
 )
-b2sums=('SKIP')
-depends=(
-  "rocm-clr=${pkgver}"
-)
+b2sums=('SKIP' 'SKIP' 'SKIP')
+depends=("rocm-clr=${pkgver}" "rocm-MIOpen=${pkgver}")
 PATH=/opt/rocm-${pkgver}/bin:$PATH
 prepare() {
-#  sed -i '129,133d' rocALUTION/src/CMakeLists.txt
-#  sed -i '129d' rocALUTION/src/CMakeLists.txt
-
-
-#  sed -i '32i find_package( HIP CONFIG REQUIRED )' rocALUTION/test/CMakeLists.txt
-  mkdir build || true
-  cd build
-  LD_LIBRARY_PATH=/opt/rocm-${pkgver}/lib64:/opt/rocm-${pkgver}/lib:/opt/rocm-${pkgver}/hip/lib:$LD_LIBRARY_PATH cmake ../rocALUTION \
+#  python3.11 -m venv build-env
+#  source build-env/bin/activate
+#  python3.11 -m pip install ./rbuild/
+#  export PATH=$PWD/build-env/bin:$PATH
+#  export CMAKE_C_COMPILER=/opt/rocm-${pkgver}/bin/clang
+#  export CMAKE_CXX_COMPILER=/opt/rocm-${pkgver}/bin/hipcc
+#  cd AMDMIGraphX
+#    git apply ../amdmigraphx.patch
+#    rbuild prepare -d depend
+sed -i 's!msgpackc-cxx!msgpack-cxx!g' AMDMIGraphX/src/CMakeLists.txt
+    mkdir build || true
+    cd build
+      LD_LIBRARY_PATH=/opt/rocm-${pkgver}/lib64:/opt/rocm-${pkgver}/lib:/opt/rocm-${pkgver}/hip/lib:$LD_LIBRARY_PATH cmake ../AMDMIGraphX \
    -DCMAKE_BUILD_TYPE=Debug \
-   -DAMDGPU_TARGETS=gfx1030 \
    -DCMAKE_C_COMPILER=/opt/rocm-${pkgver}/bin/clang \
    -DCMAKE_FIND_ROOT_PATH=/opt/rocm-${pkgver}/ \
    -DCMAKE_CXX_COMPILER=/opt/rocm-${pkgver}/bin/hipcc \
    -DCMAKE_CXX_FLAGS="-L/opt/rocm-${pkgver}/lib  -L/opt/rocm-${pkgver}/hip/lib" \
    -DCMAKE_PREFIX_PATH="/opt/rocm-${pkgver}/;/usr" \
    -DCMAKE_INSTALL_PREFIX=/opt/rocm-${pkgver} \
+   -DGPU_TARGETS=gfx1030 \
    -DCMAKE_EXE_LINKER_FLAGS="-L/opt/rocm-${pkgver}/lib  -L/opt/rocm-${pkgver}/hip/lib" \
   -G "Unix Makefiles"
+
 }
 build() {
   mkdir build || true
   cd build
-  LD_LIBRARY_PATH=/opt/rocm-${pkgver}/lib64:/opt/rocm-${pkgver}/lib:/opt/rocm-${pkgver}/hip/lib:$LD_LIBRARY_PATH make -j16
 }
 
 check() {
@@ -53,5 +58,4 @@ echo
 #}
 package() {
   cd build
-  LD_LIBRARY_PATH=/opt/rocm-${pkgver}/lib64:/opt/rocm-${pkgver}/lib:/opt/rocm-${pkgver}/hip/lib:$LD_LIBRARY_PATH make DESTDIR="$pkgdir/" install
 }

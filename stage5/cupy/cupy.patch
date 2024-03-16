@@ -1,0 +1,88 @@
+diff --git a/install/cupy_builder/cupy_setup_build.py b/install/cupy_builder/cupy_setup_build.py
+index 369c8f09b..ca66ea8a5 100644
+--- a/install/cupy_builder/cupy_setup_build.py
++++ b/install/cupy_builder/cupy_setup_build.py
+@@ -342,7 +342,6 @@ def make_extensions(ctx: Context, compiler, use_cython):
+ 
+         compile_args = s.setdefault('extra_compile_args', [])
+         link_args = s.setdefault('extra_link_args', [])
+-
+         if module['name'] == 'cusolver':
+             # cupy_backends/cupy_lapack.h has C++ template code
+             compile_args.append('--std=c++11')
+@@ -407,6 +406,9 @@ def make_extensions(ctx: Context, compiler, use_cython):
+                 args.append(ldflag)
+ 
+             sources = module_extension_sources(f, use_cython, no_cuda)
++            s_file['libraries']=[]
++            for i in ('/opt/rocm-next/lib64/libamdhip64.so', '/opt/rocm-next/lib64/libroctx64.so', '/opt/rocm-next/lib/libhiprand-d.so', '/opt/rocm-next/lib/libhipsparse-d.so', '/opt/rocm-next/lib/libhipblas.so', '/opt/rocm-next/lib/libhipfft.so', '/opt/rocm-next/lib/librocblas.so', '/opt/rocm-next/lib/librocsolver.so', '/opt/rocm-next/lib/librocsparse.so'):
++                s_file['extra_link_args'].append(i)
+             extension = setuptools.Extension(name, sources, **s_file)
+             ret.append(extension)
+ 
+diff --git a/install/cupy_builder/install_build.py b/install/cupy_builder/install_build.py
+index 720917e0f..86eb53d5d 100644
+--- a/install/cupy_builder/install_build.py
++++ b/install/cupy_builder/install_build.py
+@@ -152,9 +152,15 @@ def get_compiler_setting(ctx: Context, use_hip):
+     if rocm_path:
+         include_dirs.append(os.path.join(rocm_path, 'include'))
+         include_dirs.append(os.path.join(rocm_path, 'include', 'hip'))
++        include_dirs.append(os.path.join(rocm_path, 'include', 'rccl'))
++
++        include_dirs.append(os.path.join(rocm_path, 'include', 'hipfft'))
+         include_dirs.append(os.path.join(rocm_path, 'include', 'rocrand'))
+         include_dirs.append(os.path.join(rocm_path, 'include', 'hiprand'))
+         include_dirs.append(os.path.join(rocm_path, 'include', 'roctracer'))
++        include_dirs.append(os.path.join(rocm_path, 'include', 'hipblas'))
++        include_dirs.append(os.path.join(rocm_path, 'include', 'hipsparse'))
++        include_dirs.append(os.path.join(rocm_path, 'include', 'rocsolver'))
+         library_dirs.append(os.path.join(rocm_path, 'lib'))
+ 
+     if use_hip:
+@@ -705,10 +711,20 @@ def build_shlib(compiler, source, libraries=(),
+                                    extra_postargs=list(extra_compile_args))
+ 
+         try:
+-            postargs = ['/MANIFEST'] if PLATFORM_WIN32 else []
++            l=[]
++            for i in libraries:
++                if i in ('amdhip64','roctx64'):
++                    l.append('/opt/rocm-next/lib64/lib'+i+'.so')
++                elif i in ('hiprand'):
++                    l.append('/opt/rocm-next/lib/libhiprand-d.so')
++                elif i in ('hipsparse'):
++                    l.append('/opt/rocm-next/lib/libhipsparse-d.so')
++                else:
++                    l.append('/opt/rocm-next/lib/lib'+i+'.so')
++            postargs = l
+             compiler.link_shared_lib(objects,
+                                      os.path.join(temp_dir, 'a'),
+-                                     libraries=libraries,
++                                     libraries=[],
+                                      library_dirs=library_dirs,
+                                      extra_postargs=postargs,
+                                      target_lang='c++')
+@@ -731,10 +747,20 @@ def build_and_run(compiler, source, libraries=(),
+                                    extra_postargs=list(extra_compile_args))
+ 
+         try:
+-            postargs = ['/MANIFEST'] if PLATFORM_WIN32 else []
++            l=[]
++            for i in libraries:
++                if i in ('amdhip64','roctx64'):
++                    l.append('/opt/rocm-next/lib64/lib'+i+'.so')
++                elif i in ('hiprand'):
++                    l.append('/opt/rocm-next/lib/libhiprand-d.so')
++                elif i in ('hipsparse'):
++                    l.append('/opt/rocm-next/lib/libhipsparse-d.so')
++                else:
++                    l.append('/opt/rocm-next/lib/lib'+i+'.so')
++            postargs = l
+             compiler.link_executable(objects,
+                                      os.path.join(temp_dir, 'a'),
+-                                     libraries=libraries,
++                                     libraries=[],
+                                      library_dirs=library_dirs,
+                                      extra_postargs=postargs,
+                                      target_lang='c++')

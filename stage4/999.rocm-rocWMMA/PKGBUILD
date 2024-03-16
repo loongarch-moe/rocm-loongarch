@@ -1,5 +1,5 @@
-pkgbase='rocm-composable_kernel'
-pkgname=('rocm-composable_kernel')
+pkgbase='rocm-rocWMMA'
+pkgname=('rocm-rocWMMA')
 pkgver=next
 pkgrel=999000
 pkgdesc="rocm-core is a utility which can be used to get ROCm release version."
@@ -8,10 +8,9 @@ license=('MIT')
 url="https://github.com/RadeonOpenCompute/ROCT-Thunk-Interface.git"
 
 source=(
-    "git+https://github.com/ROCmSoftwarePlatform/composable_kernel.git#branch=develop"
-    "composable_kernel_loongarch.patch"
+    "git+https://github.com/ROCmSoftwarePlatform/rocWMMA.git#branch=develop"
 )
-b2sums=('SKIP' 'SKIP')
+b2sums=('SKIP')
 depends=(
   "rocm-clr=${pkgver}"
   "rocm-rocBLAS=${pkgver}"
@@ -19,32 +18,26 @@ depends=(
 )
 PATH=/opt/rocm-${pkgver}/bin:$PATH
 prepare() {
-  cd composable_kernel
-    git apply ../composable_kernel_loongarch.patch
-  cd ..
+  sed -i 's!-mcmodel=large!-mcmodel=medium!g' rocWMMA/test/CMakeLists.txt
   mkdir build || true
   cd build
-  LD_LIBRARY_PATH=/opt/rocm-${pkgver}/lib64:/opt/rocm-${pkgver}/lib:/opt/rocm-${pkgver}/hip/lib:$LD_LIBRARY_PATH cmake ../composable_kernel \
+  LD_LIBRARY_PATH=/opt/rocm-${pkgver}/lib64:/opt/rocm-${pkgver}/lib:/opt/rocm-${pkgver}/hip/lib:$LD_LIBRARY_PATH cmake ../rocWMMA \
    -DCMAKE_BUILD_TYPE=Debug \
    -DCMAKE_C_COMPILER=/opt/rocm-${pkgver}/bin/clang \
    -DCMAKE_FIND_ROOT_PATH=/opt/rocm-${pkgver}/ \
    -DCMAKE_CXX_COMPILER=/opt/rocm-${pkgver}/bin/clang++ \
-   -DCMAKE_CXX_FLAGS="-L/opt/rocm-${pkgver}/lib  -L/opt/rocm-${pkgver}/hip/lib -mcmodel=extreme" \
+   -DAMDGPU_TARGETS=gfx1030 \
    -DCMAKE_PREFIX_PATH="/opt/rocm-${pkgver}/;/usr" \
    -DCMAKE_INSTALL_PREFIX=/opt/rocm-${pkgver} \
-   -DCMAKE_EXE_LINKER_FLAGS="-L/opt/rocm-${pkgver}/lib  -L/opt/rocm-${pkgver}/hip/lib" \
    -DBUILD_SHARED_LIBS=ON \
-   -DAMDGPU_TARGETS=gfx1030 \
-   -DGPU_TARGETS=gfx1030 \
-   -DBUILD_TESTING=OFF \
-   -DINSTANCES_ONLY=ON \
+   -DROCWMMA_BUILD_TESTS=OFF \
+   -DROCWMMA_BUILD_SAMPLES=OFF \
   -G "Unix Makefiles"
-
 }
 build() {
   mkdir build || true
   cd build
-  LD_LIBRARY_PATH=/opt/rocm-${pkgver}/lib64:/opt/rocm-${pkgver}/lib:/opt/rocm-${pkgver}/hip/lib:$LD_LIBRARY_PATH make -j $(nproc)
+  LD_LIBRARY_PATH=/opt/rocm-${pkgver}/lib64:/opt/rocm-${pkgver}/lib:/opt/rocm-${pkgver}/hip/lib:$LD_LIBRARY_PATH make -j8
 }
 
 check() {
