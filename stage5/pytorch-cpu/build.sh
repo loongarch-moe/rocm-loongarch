@@ -202,7 +202,7 @@ function prepare() {
   cd ..
   python3.12 -m venv build-env
   source build-env/bin/activate
-  pip install setuptools
+  pip install setuptools wheel
   #pip install -r pytorch/requirements.txt
   pip install \
     astunparse \
@@ -268,8 +268,8 @@ function build() {
 function package(){
   source build-env/bin/activate
   cd pytorch
-    python setup.py bdist_egg
-    cp dist/torch-*.egg ..
+    python setup.py bdist_wheel
+    cp dist/torch-*.whl ..
   cd ..
 
 }

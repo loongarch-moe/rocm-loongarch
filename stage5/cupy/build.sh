@@ -18,7 +18,7 @@ function fetch() {
 function prepare() {
   python3.12 -m venv build-env
   source build-env/bin/activate
-  pip install setuptools cython==0.29.37
+  pip install setuptools cython==0.29.37 wheel
   if [ ! -d cupy ]
   then
     git clone cupy.git || true
@@ -43,8 +43,8 @@ function build() {
 function package(){
   source build-env/bin/activate
   cd cupy
-    python setup.py bdist_egg
-    cp dist/cupy-*.egg ..
+    python setup.py bdist_wheel
+    cp dist/cupy-*.whl ..
   cd ..
 }
 
