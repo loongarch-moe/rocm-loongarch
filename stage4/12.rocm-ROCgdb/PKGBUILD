@@ -22,7 +22,7 @@ prepare() {
     --enable-targets="loongarch64-linux-gnu,amdgcn-amd-amdhsa" \
     --disable-ld --disable-gas --disable-gdbserver --disable-sim --enable-tui \
     --disable-gdbtk --with-expat --with-system-zlib \
-    --without-guile --with-babeltrace --with-lzma --with-python=python3.12 \
+    --without-guile --with-lzma --with-python=python3.12 \
     --prefix=/opt/rocm-${pkgver}
 }
 build() {

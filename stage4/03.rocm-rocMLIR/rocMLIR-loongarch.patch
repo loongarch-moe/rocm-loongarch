@@ -1,20 +1,41 @@
 diff --git a/external/llvm-project/clang/lib/Basic/Targets/LoongArch.h b/external/llvm-project/clang/lib/Basic/Targets/LoongArch.h
-index 52c4ce425368..0c0a509704b2 100644
+index 52c4ce425368..fbb7cff21c19 100644
 --- a/external/llvm-project/clang/lib/Basic/Targets/LoongArch.h
 +++ b/external/llvm-project/clang/lib/Basic/Targets/LoongArch.h
 @@ -38,6 +38,8 @@ public:
      SuitableAlign = 128;
      WCharType = SignedInt;
      WIntType = UnsignedInt;
-+//    HasFloat128 = true;
++    HasFloat128 = true;
 +    HasFloat16 = true;
    }
  
    StringRef getABI() const override { return ABI; }
+diff --git a/external/llvm-project/clang/lib/CodeGen/BackendUtil.cpp b/external/llvm-project/clang/lib/CodeGen/BackendUtil.cpp
+index 43442b120a67..0646d40c2670 100644
+--- a/external/llvm-project/clang/lib/CodeGen/BackendUtil.cpp
++++ b/external/llvm-project/clang/lib/CodeGen/BackendUtil.cpp
+@@ -304,6 +304,7 @@ getCodeModel(const CodeGenOptions &CodeGenOpts) {
+                            .Case("kernel", llvm::CodeModel::Kernel)
+                            .Case("medium", llvm::CodeModel::Medium)
+                            .Case("large", llvm::CodeModel::Large)
++                           .Case("extreme", llvm::CodeModel::Large)
+                            .Case("default", ~1u)
+                            .Default(~0u);
+   assert(CodeModel != ~0u && "invalid code model!");
 diff --git a/external/llvm-project/clang/lib/Driver/ToolChains/HIPUtility.cpp b/external/llvm-project/clang/lib/Driver/ToolChains/HIPUtility.cpp
-index 8b9d8db90ffa..c0b3c1f2b4b3 100644
+index 8b9d8db90ffa..31fef17f6dbb 100644
 --- a/external/llvm-project/clang/lib/Driver/ToolChains/HIPUtility.cpp
 +++ b/external/llvm-project/clang/lib/Driver/ToolChains/HIPUtility.cpp
+@@ -24,7 +24,7 @@ using namespace llvm::opt;
+ #endif
+ 
+ namespace {
+-const unsigned HIPCodeObjectAlign = 4096;
++const unsigned HIPCodeObjectAlign = 65536;
+ } // namespace
+ 
+ // Constructs a triple string for clang offload bundler.
 @@ -52,7 +52,12 @@ void HIP::constructHIPFatbinCommand(Compilation &C, const JobAction &JA,
  
    // ToDo: Remove the dummy host binary entry which is required by
@@ -28,26 +49,30 @@ index 8b9d8db90ffa..c0b3c1f2b4b3 100644
    // AMDGCN:
    // For code object version 2 and 3, the offload kind in bundle ID is 'hip'
    // for backward compatibility. For code object version 4 and greater, the
-diff --git a/external/llvm-project/clang/test/CodeGen/fp16-ops.c b/external/llvm-project/clang/test/CodeGen/fp16-ops.c
-index 0626e0aaed9d..8a644bd07931 100644
---- a/external/llvm-project/clang/test/CodeGen/fp16-ops.c
-+++ b/external/llvm-project/clang/test/CodeGen/fp16-ops.c
-@@ -1,5 +1,5 @@
--// REQUIRES: arm-registered-target
- // RUN: %clang_cc1 -emit-llvm -o - -triple arm-none-linux-gnueabi %s | FileCheck %s --check-prefix=NOTNATIVE --check-prefix=CHECK
-+// RUN: %clang_cc1 -emit-llvm -o - -triple loongarch64-linux-gnu %s | FileCheck %s --check-prefix=NOTNATIVE --check-prefix=CHECK
- // RUN: %clang_cc1 -emit-llvm -o - -triple aarch64-none-linux-gnueabi %s | FileCheck %s --check-prefix=NOTNATIVE --check-prefix=CHECK
- // RUN: %clang_cc1 -emit-llvm -o - -triple x86_64-linux-gnu %s | FileCheck %s --check-prefix=NOTNATIVE --check-prefix=CHECK
- // RUN: %clang_cc1 -emit-llvm -o - -triple arm-none-linux-gnueabi -fnative-half-type %s \
+diff --git a/external/llvm-project/clang/lib/Driver/ToolChains/Linux.cpp b/external/llvm-project/clang/lib/Driver/ToolChains/Linux.cpp
+index 957ff0f83271..44116c7d4476 100644
+--- a/external/llvm-project/clang/lib/Driver/ToolChains/Linux.cpp
++++ b/external/llvm-project/clang/lib/Driver/ToolChains/Linux.cpp
+@@ -965,7 +965,7 @@ void Linux::AddHIPRuntimeLibArgs(const ArgList &Args,
+     CmdArgs.append(
+         {"-rpath", Args.MakeArgString(RocmInstallation->getLibPath())});
+ 
+-  CmdArgs.push_back("-lamdhip64");
++  CmdArgs.push_back("/opt/rocm-next/lib64/libamdhip64.so");
+ }
+ 
+ void Linux::AddIAMCUIncludeArgs(const ArgList &DriverArgs,
 diff --git a/external/llvm-project/clang/tools/clang-linker-wrapper/ClangLinkerWrapper.cpp b/external/llvm-project/clang/tools/clang-linker-wrapper/ClangLinkerWrapper.cpp
-index d264dcdaf1d3..545ccbd239b3 100644
+index d264dcdaf1d3..956242d402f7 100644
 --- a/external/llvm-project/clang/tools/clang-linker-wrapper/ClangLinkerWrapper.cpp
 +++ b/external/llvm-project/clang/tools/clang-linker-wrapper/ClangLinkerWrapper.cpp
-@@ -340,8 +340,12 @@ fatbinary(ArrayRef<std::pair<StringRef, StringRef>> InputFiles,
+@@ -339,9 +339,13 @@ fatbinary(ArrayRef<std::pair<StringRef, StringRef>> InputFiles,
+   SmallVector<StringRef, 16> CmdArgs;
    CmdArgs.push_back(*OffloadBundlerPath);
    CmdArgs.push_back("-type=o");
-   CmdArgs.push_back("-bundle-align=4096");
+-  CmdArgs.push_back("-bundle-align=4096");
 -
++  CmdArgs.push_back("-bundle-align=65536");
 +#if defined(__x86_64)
    SmallVector<StringRef> Targets = {"-targets=host-x86_64-unknown-linux"};
 +#elif defined(__loongarch64)
@@ -65,110 +90,81 @@ index d264dcdaf1d3..545ccbd239b3 100644
      return generic::clang(InputFiles, Args);
    default:
      return createStringError(inconvertibleErrorCode(),
-diff --git a/external/llvm-project/llvm/lib/Target/LoongArch/LoongArchFloat32InstrInfo.td b/external/llvm-project/llvm/lib/Target/LoongArch/LoongArchFloat32InstrInfo.td
-index eb49ae329ebe..77c724dacd53 100644
---- a/external/llvm-project/llvm/lib/Target/LoongArch/LoongArchFloat32InstrInfo.td
-+++ b/external/llvm-project/llvm/lib/Target/LoongArch/LoongArchFloat32InstrInfo.td
-@@ -18,6 +18,13 @@ def SDT_LoongArchMOVGR2FR_W_LA64
-     : SDTypeProfile<1, 1, [SDTCisVT<0, f32>, SDTCisVT<1, i64>]>;
- def SDT_LoongArchMOVFR2GR_S_LA64
-     : SDTypeProfile<1, 1, [SDTCisVT<0, i64>, SDTCisVT<1, f32>]>;
-+
-+def SDT_LoongArchMOVHGR2GR_W_LA64
-+    : SDTypeProfile<1, 1, [SDTCisVT<0, f16>, SDTCisVT<1, i64>]>;
-+
-+def SDT_LoongArchMOVHFR2GR_S_LA64
-+    : SDTypeProfile<1, 1, [SDTCisVT<0, i64>, SDTCisVT<1, f16>]>;
-+
- def SDT_LoongArchFTINT : SDTypeProfile<1, 1, [SDTCisFP<0>, SDTCisFP<1>]>;
- 
- def loongarch_movgr2fr_w_la64
 diff --git a/external/llvm-project/llvm/lib/Target/LoongArch/LoongArchISelLowering.cpp b/external/llvm-project/llvm/lib/Target/LoongArch/LoongArchISelLowering.cpp
-index 4977b8e6f987..b70e3d2343e4 100644
+index 4977b8e6f987..aaa93ad2317a 100644
 --- a/external/llvm-project/llvm/lib/Target/LoongArch/LoongArchISelLowering.cpp
 +++ b/external/llvm-project/llvm/lib/Target/LoongArch/LoongArchISelLowering.cpp
-@@ -77,6 +77,8 @@ LoongArchTargetLowering::LoongArchTargetLowering(const TargetMachine &TM,
- 
-   setOperationAction(ISD::INTRINSIC_WO_CHAIN, MVT::Other, Custom);
- 
-+  setLibcallName(RTLIB::FPEXT_F16_F32, "__extendhfsf2");
-+  setLibcallName(RTLIB::FPROUND_F32_F16, "__truncsfhf2");
-   setOperationAction(ISD::EH_DWARF_CFA, MVT::i32, Custom);
-   if (Subtarget.is64Bit())
-     setOperationAction(ISD::EH_DWARF_CFA, MVT::i64, Custom);
-@@ -86,6 +88,12 @@ LoongArchTargetLowering::LoongArchTargetLowering(const TargetMachine &TM,
-   setOperationAction(ISD::VASTART, MVT::Other, Custom);
-   setOperationAction({ISD::VAARG, ISD::VACOPY, ISD::VAEND}, MVT::Other, Expand);
- 
-+  // Lower f16 conversion operations into library calls
+@@ -207,6 +207,20 @@ LoongArchTargetLowering::LoongArchTargetLowering(const TargetMachine &TM,
+   setTargetDAGCombine(ISD::AND);
+   setTargetDAGCombine(ISD::OR);
+   setTargetDAGCombine(ISD::SRL);
++    // Lower f16 conversion operations into library calls
 +  setOperationAction(ISD::FP16_TO_FP,        MVT::f32,   Expand);
 +  setOperationAction(ISD::FP_TO_FP16,        MVT::f32,   Expand);
 +  setOperationAction(ISD::FP16_TO_FP,        MVT::f64,   Expand);
 +  setOperationAction(ISD::FP_TO_FP16,        MVT::f64,   Expand);
-+
-   if (Subtarget.is64Bit()) {
-     setOperationAction(ISD::SHL, MVT::i32, Custom);
-     setOperationAction(ISD::SRA, MVT::i32, Custom);
-@@ -168,9 +176,20 @@ LoongArchTargetLowering::LoongArchTargetLowering(const TargetMachine &TM,
-     setOperationAction(ISD::FREM, MVT::f64, Expand);
-     setTruncStoreAction(MVT::f64, MVT::f32, Expand);
-   }
--
-+  setOperationAction(
-+      {ISD::VP_MERGE, ISD::VP_SELECT, ISD::VSELECT, ISD::SELECT}, MVT::f16,
-+      Custom);
-+  setOperationAction(ISD::FP16_TO_FP, MVT::f32, Expand);
-+  setOperationAction(ISD::FP_TO_FP16, MVT::f32, Expand);
-+  setLoadExtAction(ISD::EXTLOAD, MVT::f32, MVT::f16, Expand);
-+  setTruncStoreAction(MVT::f32, MVT::f16, Expand);
 +  setOperationAction(ISD::SPLAT_VECTOR, MVT::f16, Custom);
-   setOperationAction(ISD::BR_JT, MVT::Other, Expand);
- 
++  setTruncStoreAction(MVT::f32, MVT::f16, Expand);
++
++  setLoadExtAction(ISD::EXTLOAD, MVT::f32, MVT::f16, Expand);
++  setLibcallName(RTLIB::FPEXT_F16_F32, "__extendhfsf2");
++  setLibcallName(RTLIB::FPROUND_F32_F16, "__truncsfhf2");
 +  setLoadExtAction(ISD::EXTLOAD, MVT::f64, MVT::f16, Expand);
 +  setTruncStoreAction(MVT::f64, MVT::f16, Expand);
 +
-+
-   setOperationAction(ISD::BR_CC, GRLenVT, Expand);
-   setOperationAction(ISD::SELECT_CC, GRLenVT, Expand);
-   setOperationAction(ISD::SIGN_EXTEND_INREG, MVT::i1, Expand);
-diff --git a/mlir/tools/rocmlir-lib/librockcompiler_deps.cmake b/mlir/tools/rocmlir-lib/librockcompiler_deps.cmake
-index d17821a8e256..5d46e6fa87bf 100644
---- a/mlir/tools/rocmlir-lib/librockcompiler_deps.cmake
-+++ b/mlir/tools/rocmlir-lib/librockcompiler_deps.cmake
-@@ -175,11 +175,13 @@ MLIRVectorToSCF
- MLIRVectorTransforms
- MLIRVectorUtils
- MLIRViewLikeInterface
--MLIRX86VectorDialect
--MLIRX86VectorTransforms
- lldCommon
- lldELF
- )
-+
-+#MLIRX86VectorDialect
-+#MLIRX86VectorTransforms
-+
- set(__rocmlir_libs
- MLIRCAPIMIGraphX
- MLIRCAPIRegisterRocMLIR
+ }
+ 
+ bool LoongArchTargetLowering::isOffsetFoldingLegal(
+diff --git a/mlir/lib/Dialect/Rock/Generator/ConvGenerator.cpp b/mlir/lib/Dialect/Rock/Generator/ConvGenerator.cpp
+index 08dc4529e9e5..0abe46409b06 100644
+--- a/mlir/lib/Dialect/Rock/Generator/ConvGenerator.cpp
++++ b/mlir/lib/Dialect/Rock/Generator/ConvGenerator.cpp
+@@ -497,36 +497,6 @@ LogicalResult ConvGenerator::parseConvConfig(OpBuilder &builder,
+   std::map<std::string, std::string> argMap;
+   strToTokens(arguments, argMap);
+ 
+-  auto isValid = [&argMap]() {
+-    // only require tensor configs
+-    static const std::vector<std::string> validKeys = {
+-        "batchsize",   "groupsize",    "in_layout", "in_type",
+-        "in_channels", "in_h",         "in_w",      "out_layout",
+-        "out_type",    "out_channels", "out_h",     "out_w",
+-        "fil_layout",  "fil_type",     "fil_w",     "fil_h"};
+-    if (!std::all_of(validKeys.cbegin(), validKeys.cend(),
+-                     [&argMap](const std::string &key) {
+-                       return argMap.count(key) > 0;
+-                     })) {
+-      return false;
+-    }
+-    static const std::vector<std::string> layoutArgs = {
+-        "fil_layout", "in_layout", "out_layout"};
+-
+-    if (!std::all_of(layoutArgs.cbegin(), layoutArgs.cend(),
+-                     [&argMap](const std::string &key) {
+-                       return argMap[key].length() == 5;
+-                     })) {
+-      return false;
+-    }
+-    return true;
+-  };
+-
+-  // Proceed only if we have a valid argMap. Otherwise leave the handle to be
+-  // empty
+-  if (!isValid())
+-    return failure();
+-
+   auto strToLong = [&argMap](const std::string &argKey) {
+     return std::stoul(argMap[argKey]);
+   };
 diff --git a/mlir/tools/xmir-runner/CMakeLists.txt b/mlir/tools/xmir-runner/CMakeLists.txt
-index 81f484a51ce5..ba123202c936 100644
+index 81f484a51ce5..d30fc17c29bf 100644
 --- a/mlir/tools/xmir-runner/CMakeLists.txt
 +++ b/mlir/tools/xmir-runner/CMakeLists.txt
-@@ -13,7 +13,7 @@ if(MLIR_ENABLE_ROCM_RUNNER)
-     ${rocmlir_dialect_libs}
+@@ -14,6 +14,7 @@ if(MLIR_ENABLE_ROCM_RUNNER)
      ${rocmlir_conversion_libs}
      ${rocmlir_test_libs}
--    LLVMX86AsmParser
+     LLVMX86AsmParser
 +    LLVMLoongArchAsmParser
      MLIRMHAL
      MLIRMHALTransforms
      MLIRMHALPipeline
-@@ -21,7 +21,6 @@ if(MLIR_ENABLE_ROCM_RUNNER)
-     MLIRRocmExecutionEngineUtils
-     MLIRJitRunner
-   )
--
-   add_rocmlir_tool(xmir-runner
-     xmir-runner.cpp
-     )

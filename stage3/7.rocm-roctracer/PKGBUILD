@@ -9,7 +9,7 @@ license=('MIT')
 url="https://github.com/RadeonOpenCompute/ROCT-Thunk-Interface.git"
 
 source=(
-    "git+https://github.com/ROCm-Developer-Tools/roctracer.git#branch=rocm-5.7.x"
+    "git+https://github.com/ROCm-Developer-Tools/roctracer.git#branch=amd-master"
 )
 b2sums=('SKIP')
 depends=("rocm-clr=${pkgver}")
@@ -24,12 +24,12 @@ prepare() {
    -DCMAKE_C_COMPILER=/opt/rocm-${pkgver}/bin/clang \
    -DCMAKE_FIND_ROOT_PATH=/opt/rocm-${pkgver}/ \
    -DCMAKE_CXX_COMPILER=/opt/rocm-${pkgver}/bin/hipcc \
-   -DCMAKE_CXX_FLAGS="-L/opt/rocm-${pkgver}/lib  -L/opt/rocm-${pkgver}/hip/lib" \
-   -DCMAKE_MODULE_PATH="/opt/rocm-${pkgver}/hip/cmake/" \
+   -DCMAKE_MODULE_PATH="/opt/rocm-${pkgver}/lib64/cmake/hip/" \
    -DCMAKE_INSTALL_PREFIX=/opt/rocm-${pkgver} \
-   -DCMAKE_EXE_LINKER_FLAGS="-L/opt/rocm-${pkgver}/lib  -L/opt/rocm-${pkgver}/hip/lib" \
+   -DCMAKE_CXX_FLAGS=-D__HIP_PLATFORM_AMD__ \
+   -DCMAKE_C_FLAGS=-D__HIP_PLATFORM_AMD__ \
   -G "Unix Makefiles"
-  sed -i '3921,d' build/hipify/src/device/device_table.h
+  #sed -i '3921,d' build/hipify/src/device/device_table.h
 
 }
 build() {

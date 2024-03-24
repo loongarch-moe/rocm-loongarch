@@ -15,6 +15,7 @@ b2sums=('SKIP')
 depends=(
   "rocm-clr=${pkgver}"
   "rocm-rocBLAS=${pkgver}"
+  "rocm-rocSPARSE=${pkgver}"
 )
 PATH=/opt/rocm-${pkgver}/bin:$PATH
 prepare() {

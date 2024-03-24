@@ -9,8 +9,8 @@ url="https://github.com/RadeonOpenCompute/ROCT-Thunk-Interface.git"
 
 source=(
     "git+https://github.com/ROCm-Developer-Tools/HIPCC.git#branch=develop"
-    "git+https://github.com/ROCm-Developer-Tools/clr.git#branch=rocm-5.7.x"
-    "git+https://github.com/ROCm-Developer-Tools/HIP.git#branch=rocm-5.7.x"
+    "git+https://github.com/ROCm-Developer-Tools/clr.git#branch=develop"
+    "git+https://github.com/ROCm-Developer-Tools/HIP.git#branch=develop"
     "clr.patch"
 )
 b2sums=('SKIP' 'SKIP' 'SKIP' 'SKIP')
@@ -41,17 +41,12 @@ prepare() {
   if [ $CARCH == 'loong64' ];
   then
     cd clr
-    sed -i 's!x86_64-unknown-linux-gnu!loongarch64-unknown-linux-gnu!g' hipamd/src/hip_embed_pch.sh
     git apply ../clr.patch
     cd ..
   fi
 
   mkdir build || true
   cd build
-  if [ -z $AMDGPU_TARGETS ];
-  then
-    OFFLOAD_ARCH_STR=-DOFFLOAD_ARCH_STR="--offload-arch=$AMDGPU_TARGETS"
-  fi
 
   cmake ../clr/ \
    -DHIP_COMMON_DIR=$PWD/../HIP \
@@ -60,22 +55,21 @@ prepare() {
    -DCLR_BUILD_HIP=ON \
    -DCMAKE_BUILD_TYPE=Debug \
    -DCLR_BUILD_OCL=ON \
-   -DBUILD_ICD=ON \
    -DROCM_PATH=/opt/rocm-${pkgver}/ \
    -DCMAKE_C_COMPILER=/opt/rocm-${pkgver}/bin/clang \
    -DCMAKE_FIND_ROOT_PATH=/opt/rocm-${pkgver}/ \
    -DCMAKE_CXX_COMPILER=/opt/rocm-${pkgver}/bin/clang++ \
    -DCMAKE_PREFIX_PATH="/opt/rocm-${pkgver}/;/usr" \
    -DCMAKE_INSTALL_PREFIX="/opt/rocm-${pkgver}" \
-   -DOFFLOAD_ARCH_STR=$OFFLOAD_ARCH_STR \
    -DCMAKE_EXE_LINKER_FLAGS="-L/opt/rocm-${pkgver}/lib" \
+   -DHIP_ENABLE_ROCPROFILER_REGISTER=OFF \
    -G "Unix Makefiles"
   sed -i 's!.bat!!g' hipamd/cmake_install.cmake
 }
 build() {
   mkdir build || true
   cd build
-  cmake --build .
+  make -j$(nproc)
 }
 
 check() {

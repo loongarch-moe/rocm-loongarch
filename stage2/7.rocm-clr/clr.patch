@@ -1,52 +1,149 @@
-diff --git a/rocclr/device/rocm/rocvirtual.cpp b/rocclr/device/rocm/rocvirtual.cpp
-index ed4649998..541f6f40f 100644
---- a/rocclr/device/rocm/rocvirtual.cpp
-+++ b/rocclr/device/rocm/rocvirtual.cpp
-@@ -43,7 +43,9 @@
- #include <string>
- #include <thread>
- #include <vector>
-+#ifdef __x86_64
- #include <immintrin.h>
-+#endif
+diff --git a/hipamd/src/hip_embed_pch.sh b/hipamd/src/hip_embed_pch.sh
+index 9b01da872..45f0f09d1 100755
+--- a/hipamd/src/hip_embed_pch.sh
++++ b/hipamd/src/hip_embed_pch.sh
+@@ -149,14 +149,14 @@ EOF
  
+   cat $tmp/hip_macros.h >> $tmp/pch_wave32.cui &&
  
- /**
-@@ -2789,7 +2791,9 @@ bool VirtualGPU::createVirtualQueue(uint deviceQueueSize)
+-  $LLVM_DIR/bin/clang -cc1 -O3 -emit-pch -triple amdgcn-amd-amdhsa -aux-triple x86_64-unknown-linux-gnu -fcuda-is-device -std=c++17 -fgnuc-version=4.2.1 -o $tmp/hip_wave32.pch -x hip-cpp-output - <$tmp/pch_wave32.cui &&
++  $LLVM_DIR/bin/clang -cc1 -O3 -emit-pch -triple amdgcn-amd-amdhsa -aux-triple loongarch64-unknown-linux-gnu -fcuda-is-device -std=c++17 -fgnuc-version=4.2.1 -o $tmp/hip_wave32.pch -x hip-cpp-output - <$tmp/pch_wave32.cui &&
+ 
+   # For other devices
+   $LLVM_DIR/bin/clang -O3 --hip-path=$HIP_INC_DIR/.. -std=c++17 -nogpulib -isystem $HIP_INC_DIR -isystem $HIP_BUILD_INC_DIR -isystem $HIP_AMD_INC_DIR --cuda-device-only -x hip $tmp/hip_pch.h -E >$tmp/pch_wave64.cui &&
+ 
+   cat $tmp/hip_macros.h >> $tmp/pch_wave64.cui &&
+ 
+-  $LLVM_DIR/bin/clang -cc1 -O3 -emit-pch -triple amdgcn-amd-amdhsa -aux-triple x86_64-unknown-linux-gnu -fcuda-is-device -std=c++17 -fgnuc-version=4.2.1 -o $tmp/hip_wave64.pch -x hip-cpp-output - <$tmp/pch_wave64.cui &&
++  $LLVM_DIR/bin/clang -cc1 -O3 -emit-pch -triple amdgcn-amd-amdhsa -aux-triple loongarch64-unknown-linux-gnu -fcuda-is-device -std=c++17 -fgnuc-version=4.2.1 -o $tmp/hip_wave64.pch -x hip-cpp-output - <$tmp/pch_wave64.cui &&
+ 
+   $LLVM_DIR/bin/llvm-mc -o hip_pch.o $tmp/hip_pch.mcin --filetype=obj &&
+ 
+diff --git a/rocclr/device/rocm/rocdevice.cpp b/rocclr/device/rocm/rocdevice.cpp
+index 5eee23e65..ad2f50e97 100644
+--- a/rocclr/device/rocm/rocdevice.cpp
++++ b/rocclr/device/rocm/rocdevice.cpp
+@@ -1849,16 +1849,16 @@ bool Device::populateOCLDeviceConstants() {
+ 
+   uint8_t memory_properties[8];
+   // Get the memory property from ROCr.
+-  if (HSA_STATUS_SUCCESS != hsa_agent_get_info(bkendDevice_,
+-                              (hsa_agent_info_t) HSA_AMD_AGENT_INFO_MEMORY_PROPERTIES,
+-                              memory_properties)) {
+-    LogError("HSA_AGENT_INFO_AMD_MEMORY_PROPERTIES query failed");
+-  }
++  // if (HSA_STATUS_SUCCESS != hsa_agent_get_info(bkendDevice_,
++  //                             (hsa_agent_info_t) HSA_AMD_AGENT_INFO_MEMORY_PROPERTIES,
++  //                             memory_properties)) {
++  //   LogError("HSA_AGENT_INFO_AMD_MEMORY_PROPERTIES query failed");
++  // }
+ 
+   // Check if the device is APU
+-  if (hsa_flag_isset64(memory_properties, HSA_AMD_MEMORY_PROPERTY_AGENT_IS_APU)) {
+-    info_.hostUnifiedMemory_ = 1;
+-  }
++  // if (hsa_flag_isset64(memory_properties, HSA_AMD_MEMORY_PROPERTY_AGENT_IS_APU)) {
++  //   info_.hostUnifiedMemory_ = 1;
++  // }
  
    return true;
  }
+diff --git a/rocclr/device/rocm/rocvirtual.cpp b/rocclr/device/rocm/rocvirtual.cpp
+index fd9bb7faa..e3178b1bd 100644
+--- a/rocclr/device/rocm/rocvirtual.cpp
++++ b/rocclr/device/rocm/rocvirtual.cpp
+@@ -51,7 +51,17 @@
+ #include <immintrin.h>
+ #endif
+ #endif
 -
-+#if !defined(__x86_64)
-+#include <string.h>
-+#endif
- // ================================================================================================
- __attribute__((optimize("unroll-all-loops"), always_inline))
- static inline void nontemporalMemcpy(void* __restrict dst, const void* __restrict src,
-@@ -2809,6 +2813,7 @@ static inline void nontemporalMemcpy(void* __restrict dst, const void* __restric
-     }
-     size = size % sizeof(__m256i);
-   #endif
-+#if defined(__x86_64)
- 
-   for (auto i = 0u; i != size / sizeof(__m128i); ++i) {
-     _mm_stream_si128(reinterpret_cast<__m128i* __restrict&>(dst)++,
-@@ -2826,6 +2831,10 @@ static inline void nontemporalMemcpy(void* __restrict dst, const void* __restric
++// #ifdef __loongarch_lp64
++// # ifdef __loongarch_asx
++// #  include <lasxintrin.h>
++// # endif
++// # ifdef __loongarch_sx
++// #  include <lsxintrin.h>
++// # endif
++// #endif
++// #if !defined(__x86_64)
++// #include <string.h>
++// #endif
+ /**
+ * HSA image object size in bytes (see HSAIL spec)
+ */
+@@ -2943,6 +2953,67 @@ static inline void nontemporalMemcpy(
      _mm_stream_si32(reinterpret_cast<int* __restrict&>(dst)++,
                      *reinterpret_cast<const int* __restrict&>(src)++);
    }
-+#else
-+   memcpy(dst, src, size);
-+#endif
 +
- }
- 
- // ================================================================================================
++// #elif defined(__loongarch_lp64)
++// # ifdef __loongarch_asx
++//     if(size != 0 && src % (sizeof(__m256i) * 4) == 0 && dst % (sizeof(__m256i) * 4) == 0) {
++//       for (auto i = 0u; i != size / (sizeof(__m256i) * 4); ++i) {
++//           __m256i xv0, xv1, xv2, xv3;
++//           xv0 = __lasx_xvld(src, 0);
++//           xv1 = __lasx_xvld(src, sizeof(__m256i))
++//           xv2 = __lasx_xvld(src, sizeof(__m256i) * 2);
++//           xv3 = __lasx_xvld(src, sizeof(__m256i) * 3);
++//           __lasx_xvst(xv0, dst, 0);
++//           __lasx_xvst(xv1, dst, sizeof(__m256i));
++//           __lasx_xvst(xv2, dst, sizeof(__m256i) * 2);
++//           __lasx_xvst(xv3, dst, sizeof(__m256i) * 3);
++//           src += sizeof(__m256i) * 4;
++//           dst += sizeof(__m256i) * 4;
++//       }
++//       size = size % (sizeof(__m256i) * 4);
++//     }
++//     if (size != 0 && src % (sizeof(__m256i)) == 0 && dst % (sizeof(__m256i)) == 0) {
++//       for (auto i = 0u; i != size / (sizeof(__m256i)); ++i) {
++//           __m256i xv0;
++//           xv0 = __lasx_xvld(src, 0);
++//           __lasx_xvst(xv0, dst, 0);
++//           src += sizeof(__m256i);
++//           dst += sizeof(__m256i);
++//       }
++//       size = size % sizeof(__m256i);
++//     }
++// # endif
++// # ifdef __loongarch_sx
++//     if (size != 0 && src % (sizeof(__m128i) * 4) == 0 && dst % (sizeof(__m128i) * 4) == 0) {
++//       for (auto i = 0u; i != size / (sizeof(__m128i) * 4); ++i) {
++//           __m128i xv0, xv1, xv2, xv3;
++//           xv0 = __lsx_vld(src, 0);
++//           xv1 = __lsx_vld(src, sizeof(__m128i))
++//           xv2 = __lsx_vld(src, sizeof(__m128i) * 2);
++//           xv3 = __lsx_vld(src, sizeof(__m128i) * 3);
++//           __lsx_vst(xv0, dst, 0);
++//           __lsx_vst(xv1, dst, sizeof(__m128i));
++//           __lsx_vst(xv2, dst, sizeof(__m128i) * 2);
++//           __lsx_vst(xv3, dst, sizeof(__m128i) * 3);
++//           src += sizeof(__m128i) * 4;
++//           dst += sizeof(__m128i) * 4
++//       }
++//       size = size % (sizeof(__m128i) * 4);
++//     }
++//     if (size != 0 && src % sizeof(__m128i) == 0 && dst % sizeof(__m128i) == 0) {
++//       for (auto i = 0u; i != size / (sizeof(__m128i)); ++i) {
++//           __m128i xv0;
++//           xv0 = __lsx_vld(src, 0);
++//           __lsx_vst(xv0, dst, 0);
++//           src += sizeof(__m128i);
++//           dst += sizeof(__m128i);
++//       }
++//       size = size % sizeof(__m128i);
++//     }
++// # endif
++//    if (size != 0)
++//       memcpy(dst, src, size);
++
+ #else
+   amd::Os::fastMemcpy(dst, src, size);
+ #endif
 diff --git a/rocclr/os/os_posix.cpp b/rocclr/os/os_posix.cpp
-index e48a4bcfc..d733b15bf 100644
+index 739795e0c..7174b53e7 100644
 --- a/rocclr/os/os_posix.cpp
 +++ b/rocclr/os/os_posix.cpp
-@@ -307,8 +307,10 @@ void Os::currentStackInfo(address* base, size_t* size) {
+@@ -318,8 +318,10 @@ void Os::currentStackInfo(address* base, size_t* size) {
  
    ::pthread_attr_destroy(&threadAttr);
  
