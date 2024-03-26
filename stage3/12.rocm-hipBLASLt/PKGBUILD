@@ -29,7 +29,7 @@ prepare() {
    -DROCM_PATH=/opt/rocm-${pkgver} \
    -DCMAKE_PREFIX_PATH="/opt/rocm-${pkgver}/;/usr" \
    -DCMAKE_INSTALL_PREFIX=/opt/rocm-${pkgver} \
-   -DVIRTUALENV_PYTHON_EXE=/usr/bin/python3.11 \
+   -DVIRTUALENV_PYTHON_EXE=/usr/bin/python3.10 \
    -DCMAKE_EXE_LINKER_FLAGS="-L/opt/rocm-${pkgver}/lib  -L/opt/rocm-${pkgver}/hip/lib" \
   -G "Unix Makefiles"
 }

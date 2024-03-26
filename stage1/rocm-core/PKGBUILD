@@ -5,10 +5,10 @@ pkgrel=999000
 pkgdesc="rocm-core is a utility which can be used to get ROCm release version."
 arch=('loong64' 'x86_64')
 license=('MIT')
-url="https://github.com/RadeonOpenCompute/rocm-core"
+url="https://github.com/ROCm/rocm-core"
 
 source=(
-    "git+https://github.com/RadeonOpenCompute/rocm-core.git"
+    "git+https://github.com/ROCm/rocm-core.git"
 )
 b2sums=('SKIP')
 prepare() {

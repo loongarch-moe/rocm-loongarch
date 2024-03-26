@@ -1,5 +1,5 @@
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 980e305c4..7cb474f68 100644
+index 980e305c4..f2d8c3d04 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -67,7 +67,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
@@ -65,26 +65,12 @@ index 980e305c4..7cb474f68 100644
          ${CMAKE_INSTALL_PREFIX}
          ${CMAKE_INSTALL_PREFIX}/llvm
      PATH_SUFFIXES
-@@ -481,14 +481,14 @@ set(MIOPEN_SYSTEM_FIND_DB_SUFFIX "${MIOPEN_BACKEND}" CACHE PATH "Filename suffix
+@@ -481,7 +481,7 @@ set(MIOPEN_SYSTEM_FIND_DB_SUFFIX "${MIOPEN_BACKEND}" CACHE PATH "Filename suffix
  # Enabled via the MIOPEN_ENABLE_LOGGING_ROCTX env var.
  set(MIOPEN_USE_ROCTRACER ON CACHE BOOL "")
  if(NOT WIN32 AND MIOPEN_USE_ROCTRACER)
 -    find_library(rocTracer roctx64)
--    if(rocTracer)
--        MESSAGE(STATUS "Build with rocTracer: " ${rocTracer})
--        set(MIOPEN_PACKAGE_REQS "${MIOPEN_PACKAGE_REQS}, roctracer")
--    else()
--        message(WARNING "rocTracer cannot be found! Build without rocTracer")
--        set(MIOPEN_USE_ROCTRACER OFF)
--    endif()
 +    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_CXX_FLAGS_RELEASE} /opt/rocm-next/lib64/libroctx64.so")
-+#    if(rocTracer)
-+#        MESSAGE(STATUS "Build with rocTracer: " ${rocTracer})
-+#        set(MIOPEN_PACKAGE_REQS "${MIOPEN_PACKAGE_REQS}, roctracer")
-+#    else()
-+#        message(WARNING "rocTracer cannot be found! Build without rocTracer")
-+#        set(MIOPEN_USE_ROCTRACER OFF)
-+#    endif()
- else()
-     message(STATUS "Build without rocTracer")
-     set(MIOPEN_USE_ROCTRACER OFF)
+     if(rocTracer)
+         MESSAGE(STATUS "Build with rocTracer: " ${rocTracer})
+         set(MIOPEN_PACKAGE_REQS "${MIOPEN_PACKAGE_REQS}, roctracer")

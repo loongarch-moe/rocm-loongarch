@@ -6,10 +6,10 @@ pkgrel=999000
 pkgdesc=""
 arch=('loong64' 'x86_64')
 license=('MIT')
-url="https://github.com/RadeonOpenCompute/ROCT-Thunk-Interface.git"
+url="https://github.com/ROCm/ROCT-Thunk-Interface.git"
 
 source=(
-    "git+https://github.com/ROCmSoftwarePlatform/FunctionalPlus.git"
+    "git+https://github.com/ROCm/FunctionalPlus.git"
 )
 b2sums=('SKIP')
 depends=(

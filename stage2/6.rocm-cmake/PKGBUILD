@@ -5,10 +5,10 @@ pkgrel=999000
 pkgdesc="CMake modules used within the ROCm libraries"
 arch=('loong64' 'x86_64')
 license=('MIT')
-url="https://github.com/RadeonOpenCompute/rocm-cmake"
+url="https://github.com/ROCm/rocm-cmake"
 
 source=(
-    "git+https://github.com/RadeonOpenCompute/rocm-cmake.git#branch=develop"
+    "git+https://github.com/ROCm/rocm-cmake.git#branch=develop"
 )
 b2sums=('SKIP')
 prepare() {

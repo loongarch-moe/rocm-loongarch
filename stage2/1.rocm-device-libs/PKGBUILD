@@ -5,10 +5,10 @@ pkgrel=999000
 pkgdesc="ROCm Device Libraries"
 arch=('loong64' 'x86_64')
 license=('Unknow')
-url="https://github.com/RadeonOpenCompute/ROCm-Device-Libs.git"
+url="https://github.com/ROCm/ROCm-Device-Libs.git"
 
 source=(
-    "git+https://github.com/RadeonOpenCompute/ROCm-Device-Libs.git#branch=amd-stg-open"
+    "git+https://github.com/ROCm/ROCm-Device-Libs.git#branch=amd-stg-open"
 )
 depends=("rocm-llvm=${pkgver}")
 
