@@ -9,7 +9,7 @@ license=('MIT')
 url="https://github.com/ROCm/ROCT-Thunk-Interface.git"
 
 source=(
-    "git+https://github.com/ROCm/MIOpen.git#branch=develop"
+    "git+https://github.com/ROCm/MIOpen.git#branch=release/rocm-rel-5.7.1.1"
     "miopen.patch"
 )
 b2sums=('SKIP' 'SKIP')
@@ -22,24 +22,26 @@ depends=(
 PATH=/opt/rocm-${pkgver}/bin:$PATH
 prepare() {
   cd MIOpen
+    git lfs checkout
     git apply ../miopen.patch
   cd ..
   mkdir build || true
   cd build
   LD_LIBRARY_PATH=/opt/rocm-${pkgver}/lib64:/opt/rocm-${pkgver}/lib:/opt/rocm-${pkgver}/hip/lib:$LD_LIBRARY_PATH cmake ../MIOpen \
    -DMIOPEN_BACKEND=HIP \
-   -DCMAKE_BUILD_TYPE=Debug \
+   -DCMAKE_BUILD_TYPE=RelWithDebInfo \
    -DCMAKE_C_COMPILER=/opt/rocm-${pkgver}/bin/clang \
+   -DMIOPEN_HIP_COMPILER=/opt/rocm-${pkgver}/bin/clang++ \
    -DCMAKE_FIND_ROOT_PATH=/opt/rocm-${pkgver}/ \
-   -DCMAKE_CXX_COMPILER=/opt/rocm-${pkgver}/bin/clang++ \
+   -DCMAKE_CXX_COMPILER=/opt/rocm-${pkgver}/bin/hipcc \
    -DAMDGPU_TARGETS=gfx1030 \
-   -DMIOPEN_CACHE_DIR=$PWD/../miopen-cache/ \
    -DCMAKE_CXX_FLAGS="-mcmodel=extreme" \
-   -DCMAKE_PREFIX_PATH="/opt/rocm-${pkgver}/;/opt/rocm-${pkgver}/lib;/usr" \
+   -DCMAKE_PREFIX_PATH="/opt/rocm-${pkgver}/MLIR/;/opt/rocm-${pkgver}/;/opt/rocm-${pkgver}/lib;/usr" \
    -DCMAKE_INSTALL_PREFIX=/opt/rocm-${pkgver} \
-   -DBoost_USE_STATIC_LIBS=OFF \
    -DBUILD_SHARED_LIBS=ON \
-   -DMIOPEN_USE_ROCTRACER=ON \
+   -DBUILD_DEV=OFF \
+   -DMIOPEN_ENABLE_FIN=OFF \
+   -DMIOPEN_BUILD_DRIVER=ON \
   -G "Unix Makefiles"
 }
 build() {
@@ -48,7 +50,6 @@ build() {
   sed -i 's!-lroctx64!-L/home/xinmu/rocm-loongarch/stage4/03.rocm-rocMLIR/src/build/external/llvm-project/llvm/lib -lLLVMLoongArchAsmParser -lLLVMLoongArchDesc -lLLVMLoongArchDisassembler -lLLVMLoongArchCodeGen -lLLVMLoongArchInfo /opt/rocm-next/lib/libclang.so -lrockCompiler /opt/rocm-next/lib64/libamd_comgr.so /opt/rocm-next/lib64/libroctx64.so!g' src/CMakeFiles/MIOpen.dir/link.txt
   sed -i 's!-lhiprtc!/opt/rocm-next/lib64/libhiprtc.so!g' src/CMakeFiles/MIOpen.dir/link.txt
   sed -i 's!-lrocrand!-L/home/xinmu/rocm-loongarch/stage4/03.rocm-rocMLIR/src/build/external/llvm-project/llvm/lib -lLLVMLoongArchAsmParser -lLLVMLoongArchDesc -lLLVMLoongArchDisassembler -lLLVMLoongArchCodeGen -lLLVMLoongArchInfo /opt/rocm-next/lib/libclang.so -lrockCompiler /opt/rocm-next/lib64/libamd_comgr.so /opt/rocm-next/lib/librocrand-d.so!g' driver/CMakeFiles/MIOpenDriver.dir/link.txt
-  LD_LIBRARY_PATH=/opt/rocm-${pkgver}/lib64:/opt/rocm-${pkgver}/lib:/opt/rocm-${pkgver}/hip/lib:$LD_LIBRARY_PATH make -j$(nproc) generate_kernels
   LD_LIBRARY_PATH=/opt/rocm-${pkgver}/lib64:/opt/rocm-${pkgver}/lib:/opt/rocm-${pkgver}/hip/lib:$LD_LIBRARY_PATH make -j$(nproc) 
 }
 

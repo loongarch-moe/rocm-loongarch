@@ -8,12 +8,16 @@ license=('Unknow')
 url="https://github.com/ROCm/ROCm-Device-Libs.git"
 
 source=(
-    "git+https://github.com/ROCm/ROCm-Device-Libs.git#branch=amd-stg-open"
+    "git+https://github.com/ROCm/ROCm-Device-Libs.git#branch=rocm-5.7.x"
+    "rdl.patch"
 )
 depends=("rocm-llvm=${pkgver}")
 
-b2sums=('SKIP')
+b2sums=('SKIP' 'SKIP')
 prepare() {
+  cd ROCm-Device-Libs
+    git apply ../rdl.patch
+  cd ..
   mkdir build || true
   cd build
   cmake \

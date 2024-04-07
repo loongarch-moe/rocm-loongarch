@@ -8,7 +8,7 @@ license=('MIT')
 url="https://github.com/ROCm/ROCT-Thunk-Interface.git"
 
 source=(
-    "git+https://github.com/ROCm/rocALUTION.git#branch=release/rocm-rel-6.1"
+    "git+https://github.com/ROCm/rocALUTION.git#branch=release/rocm-rel-5.7.1.1"
 )
 b2sums=('SKIP')
 depends=(
@@ -37,7 +37,7 @@ prepare() {
 build() {
   mkdir build || true
   cd build
-  LD_LIBRARY_PATH=/opt/rocm-${pkgver}/lib64:/opt/rocm-${pkgver}/lib:/opt/rocm-${pkgver}/hip/lib:$LD_LIBRARY_PATH make -j16
+  LD_LIBRARY_PATH=/opt/rocm-${pkgver}/lib64:/opt/rocm-${pkgver}/lib:/opt/rocm-${pkgver}/hip/lib:$LD_LIBRARY_PATH make -j$(nproc)
 }
 
 check() {

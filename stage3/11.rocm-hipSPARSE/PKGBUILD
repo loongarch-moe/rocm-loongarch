@@ -9,7 +9,7 @@ license=('MIT')
 url="https://github.com/ROCm/ROCT-Thunk-Interface.git"
 
 source=(
-    "git+https://github.com/ROCm/hipSPARSE.git#branch=develop"
+    "git+https://github.com/ROCm/hipSPARSE.git#branch=release/rocm-rel-5.7.1.1"
 )
 b2sums=('SKIP')
 depends=(

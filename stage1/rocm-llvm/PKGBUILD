@@ -16,14 +16,9 @@ b2sums=('SKIP' 'SKIP')
 #prepare() {
 #echo
 #}
-TARGET="AMDGPU;"
-if [ $CARCH == 'loong64' ];
-then
- TARGET="$TARGET;LoongArch;"
-elif [ $CARCH == 'x86_64' ];
-then
- TARGET="$TARGET;X86;"
-fi
+TARGET="AMDGPU;NVPTX;"
+TARGET="$TARGET;LoongArch;"
+TARGET="$TARGET;X86;"
 prepare() {
   cd llvm-project
     git apply ../loongarch.patch
@@ -34,8 +29,8 @@ prepare() {
   -DCMAKE_C_COMPILER=/opt/rocm-${pkgver}/bin/clang \
   -DCMAKE_CXX_COMPILER=/opt/rocm-${pkgver}/bin/clang++ \
   -DCMAKE_BUILD_TYPE=Release \
-  -DCMAKE_C_FLAGS="-fno-lto -pipe" \
-  -DCMAKE_CXX_FLAGS="-fno-lto -pipe" \
+  -DCMAKE_C_FLAGS="-fno-lto -pipe -mcmodel=medium" \
+  -DCMAKE_CXX_FLAGS="-fno-lto -pipe -mcmodel=medium" \
   -DCMAKE_INSTALL_PREFIX="/opt/rocm-${pkgver}" \
   -DLLVM_ENABLE_ASSERTIONS=1 \
   -DLLVM_TARGETS_TO_BUILD="$TARGET" \

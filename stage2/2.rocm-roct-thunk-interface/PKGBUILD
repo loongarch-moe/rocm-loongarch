@@ -9,7 +9,7 @@ depends=("rocm-llvm=${pkgver}")
 url="https://github.com/ROCm/ROCT-Thunk-Interface.git"
 
 source=(
-    "git+https://github.com/ROCm/ROCT-Thunk-Interface.git#branch=master"
+    "git+https://github.com/ROCm/ROCT-Thunk-Interface.git#branch=rocm-5.7.x"
     "rocm-roct-thunk-interface.patch"
 )
 b2sums=('SKIP' 'SKIP')

@@ -9,7 +9,7 @@ license=('MIT')
 url="https://github.com/ROCm/ROCT-Thunk-Interface.git"
 
 source=(
-    "git+https://github.com/ROCm/ROCdbgapi.git#branch=rocm-6.0.x"
+    "git+https://github.com/ROCm/ROCdbgapi.git#branch=rocm-5.7.x"
 )
 b2sums=('SKIP')
 depends=("rocm-clr=${pkgver}")
@@ -25,7 +25,7 @@ prepare() {
    -DCMAKE_FIND_ROOT_PATH=/opt/rocm-${pkgver}/ \
    -DCMAKE_CXX_COMPILER=/opt/rocm-${pkgver}/bin/hipcc \
    -DCMAKE_CXX_FLAGS="-L/opt/rocm-${pkgver}/lib  -L/opt/rocm-${pkgver}/hip/lib" \
-    -DAMDGPU_TARGETS=$AMDGPU_TARGETS \
+   -DAMDGPU_TARGETS=gfx1030 \
    -DCMAKE_PREFIX_PATH="/opt/rocm-${pkgver}/;/usr" \
    -DCMAKE_INSTALL_PREFIX=/opt/rocm-${pkgver} \
    -DCMAKE_EXE_LINKER_FLAGS="-L/opt/rocm-${pkgver}/lib  -L/opt/rocm-${pkgver}/hip/lib" \

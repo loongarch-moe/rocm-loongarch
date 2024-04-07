@@ -9,16 +9,12 @@ license=('MIT')
 url="https://github.com/ROCm/ROCT-Thunk-Interface.git"
 
 source=(
-    "git+https://github.com/ROCm/rocSPARSE.git#branch=develop"
-    "rocSPARSE.patch"
+    "git+https://github.com/ROCm/rocSPARSE.git#branch=release/rocm-rel-5.7.1.1"
 )
-b2sums=('SKIP' 'SKIP')
+b2sums=('SKIP')
 depends=("rocm-clr=${pkgver}" "rocm-rocPRIM=${pkgver}" "rocm-rccl=${pkgver}")
 PATH=/opt/rocm-${pkgver}/bin:$PATH
 prepare() {
-  cd rocSPARSE
-    git apply ../rocSPARSE.patch
-  cd ..
   sed -i 's!std=f2003!std=f2018!g' rocSPARSE/library/CMakeLists.txt
   mkdir build || true
   cd build
@@ -30,7 +26,7 @@ prepare() {
    -DCMAKE_CXX_FLAGS="-L/opt/rocm-${pkgver}/lib  -L/opt/rocm-${pkgver}/hip/lib" \
    -DCMAKE_PREFIX_PATH="/opt/rocm-${pkgver}/;/usr" \
    -DCMAKE_INSTALL_PREFIX=/opt/rocm-${pkgver} \
-   -DAMDGPU_TARGETS=all \
+   -DAMDGPU_TARGETS=gfx1030 \
    -DCMAKE_EXE_LINKER_FLAGS="-L/opt/rocm-${pkgver}/hip/lib" \
    -DBUILD_SHARED_LIBS=ON \
   -G "Unix Makefiles"

@@ -1,4 +1,3 @@
-
 pkgbase='rocm-rocBLAS'
 pkgname=('rocm-rocBLAS')
 pkgver=next
@@ -9,11 +8,12 @@ license=('MIT')
 url="https://github.com/ROCm/ROCT-Thunk-Interface.git"
 
 source=(
-    "git+https://github.com/ROCm/rocBLAS.git#branch=develop"
-    "git+https://github.com/ROCm/Tensile.git#branch=develop"
+    "git+https://github.com/ROCm/rocBLAS.git#branch=release/rocm-rel-5.7.1.1"
+    "git+https://github.com/ROCm/Tensile.git#branch=release/rocm-rel-5.7.1.1"
     "git+https://github.com/google/googletest.git"
+    "rocBLAS.patch"
 )
-b2sums=('SKIP' 'SKIP' 'SKIP')
+b2sums=('SKIP' 'SKIP' 'SKIP' 'SKIP')
 depends=("rocm-clr=${pkgver}")
 PATH=/opt/rocm-${pkgver}/bin:$PATH
 prepare() {
@@ -24,7 +24,7 @@ prepare() {
     sed -i '236d' Tensile/cmake/TensileConfig.cmake
   cd ..  
   cd rocBLAS
-    sed -i '64d' library/CMakeLists.txt
+    git apply ../rocBLAS.patch
   cd ..
 
   mkdir build || true
@@ -41,7 +41,7 @@ prepare() {
    -DROCM_PATH=/opt/rocm-${pkgver} \
    -DTensile_LIBRARY_FORMAT=yaml \
    -DRUN_HEADER_TESTING=OFF \
-  -DAMDGPU_TARGETS=all \
+   -DAMDGPU_TARGETS=gfx1030 \
    -DTensile_COMPILER=hipcc \
    -DTensile_TEST_LOCAL_PATH=$PWD/../Tensile \
    -DCMAKE_PREFIX_PATH="/opt/rocm-${pkgver}/;/usr" \

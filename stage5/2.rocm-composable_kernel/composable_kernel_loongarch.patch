@@ -1,14 +1,16 @@
 diff --git a/include/ck/ck.hpp b/include/ck/ck.hpp
-index c93d1d063..35df28018 100644
+index cb20ea249..2995f930f 100644
 --- a/include/ck/ck.hpp
 +++ b/include/ck/ck.hpp
-@@ -14,7 +14,8 @@
+@@ -12,7 +12,11 @@
  
  // constant address space for kernel parameter
  // https://llvm.org/docs/AMDGPUUsage.html#address-spaces
--#define CK_CONSTANT_ADDRESS_SPACE __attribute__((address_space(4)))
-+//#define CK_CONSTANT_ADDRESS_SPACE __attribute__((address_space(4)))
++#if !defined(__loongarch_lp64)
+ #define CK_CONSTANT_ADDRESS_SPACE __attribute__((address_space(4)))
++#else
 +#define CK_CONSTANT_ADDRESS_SPACE
++#endif
  
  // launch bounds
  #define CK_USE_LAUNCH_BOUNDS 1

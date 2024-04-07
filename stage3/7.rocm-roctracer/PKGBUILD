@@ -9,7 +9,7 @@ license=('MIT')
 url="https://github.com/ROCm/ROCT-Thunk-Interface.git"
 
 source=(
-    "git+https://github.com/ROCm/roctracer.git#branch=amd-master"
+    "git+https://github.com/ROCm/roctracer.git#branch=rocm-5.7.x"
 )
 b2sums=('SKIP')
 depends=("rocm-clr=${pkgver}")
@@ -35,7 +35,7 @@ prepare() {
 build() {
   mkdir build || true
   cd build
-  LD_LIBRARY_PATH=/opt/rocm-${pkgver}/lib64:/opt/rocm-${pkgver}/lib:/opt/rocm-${pkgver}/hip/lib:$LD_LIBRARY_PATH make -j16
+  LD_LIBRARY_PATH=/opt/rocm-${pkgver}/lib64:/opt/rocm-${pkgver}/lib:/opt/rocm-${pkgver}/hip/lib:$LD_LIBRARY_PATH make -j$(nproc)
 }
 
 check() {

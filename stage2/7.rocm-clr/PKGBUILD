@@ -8,9 +8,9 @@ license=('MIT')
 url="https://github.com/ROCm/ROCT-Thunk-Interface.git"
 
 source=(
-    "git+https://github.com/ROCm/HIPCC.git#branch=develop"
-    "git+https://github.com/ROCm/clr.git#branch=develop"
-    "git+https://github.com/ROCm/HIP.git#branch=develop"
+    "git+https://github.com/ROCm/HIPCC.git#branch=rocm-5.7.x"
+    "git+https://github.com/ROCm/clr.git#branch=rocm-5.7.x"
+    "git+https://github.com/ROCm/HIP.git#branch=rocm-5.7.x"
     "clr.patch"
 )
 b2sums=('SKIP' 'SKIP' 'SKIP' 'SKIP')

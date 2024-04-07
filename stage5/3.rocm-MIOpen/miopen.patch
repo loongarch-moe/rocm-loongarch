@@ -1,0 +1,114 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index b45cb6d2b..6721fa818 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -47,14 +47,14 @@ endif()
+ if(WIN32)
+     set(CMAKE_INSTALL_PREFIX "/opt/rocm/x86_64-w64-mingw32" CACHE PATH "")
+ else()
+-    set(CMAKE_INSTALL_PREFIX "/opt/rocm" CACHE PATH "")
++    set(CMAKE_INSTALL_PREFIX "/opt/rocm-next" CACHE PATH "")
+ endif()
+ 
+ project ( MIOpen C CXX )
+ 
+ enable_testing()
+ 
+-find_package(ROCM 0.7.3 REQUIRED PATHS /opt/rocm)
++find_package(ROCM 0.7.3 REQUIRED PATHS /opt/rocm-next)
+ 
+ include(ROCMInstallTargets)
+ include(ROCMPackageConfigHelpers)
+@@ -125,7 +125,7 @@ else()
+     set(WINE_CMD)
+ endif()
+ 
+-list(APPEND CMAKE_PREFIX_PATH ${CMAKE_INSTALL_PREFIX} ${CMAKE_INSTALL_PREFIX}/llvm ${CMAKE_INSTALL_PREFIX}/hip /opt/rocm /opt/rocm/llvm /opt/rocm/hip)
++list(APPEND CMAKE_PREFIX_PATH ${CMAKE_INSTALL_PREFIX} ${CMAKE_INSTALL_PREFIX}/llvm ${CMAKE_INSTALL_PREFIX}/hip /opt/rocm-next /opt/rocm-next/llvm /opt/rocm-next/hip /opt/rocm-next/MLIR/)
+ 
+ option(ENABLE_HIP_WORKAROUNDS Off)
+ set(MIOPEN_INSTALL_CXX_HEADERS Off CACHE BOOL "Install MIOpen's C++ header interface")
+@@ -177,7 +177,7 @@ if( MIOPEN_BACKEND STREQUAL "OpenCL")
+     find_program(MIOPEN_HIP_COMPILER clang++
+         PATH_SUFFIXES bin
+         PATHS
+-            /opt/rocm/llvm
++            /opt/rocm-next/
+             ${CMAKE_INSTALL_PREFIX}/llvm
+     )
+     if(MIOPEN_HIP_COMPILER)
+@@ -202,7 +202,7 @@ endif()
+ 
+ 
+ # HIP is always required
+-find_package(hip REQUIRED PATHS /opt/rocm)
++find_package(hip REQUIRED PATHS /opt/rocm-next)
+ message(STATUS "Build with HIP ${hip_VERSION}")
+ target_flags(HIP_COMPILER_FLAGS hip::device)
+ # Remove cuda arch flags
+@@ -274,7 +274,7 @@ if( MIOPEN_BACKEND STREQUAL "HIP" OR MIOPEN_BACKEND STREQUAL "HIPOC" OR MIOPEN_B
+     find_program(HIP_OC_COMPILER clang
+         PATH_SUFFIXES bin
+         PATHS
+-            /opt/rocm
++            /opt/rocm-next
+             ${CMAKE_INSTALL_PREFIX}
+     )
+     if(HIP_OC_COMPILER)
+@@ -292,7 +292,7 @@ if( MIOPEN_BACKEND STREQUAL "HIP" OR MIOPEN_BACKEND STREQUAL "HIPOC" OR MIOPEN_B
+     # rocblas
+     set(MIOPEN_USE_ROCBLAS ON CACHE BOOL "")
+     if(MIOPEN_USE_ROCBLAS)
+-        find_package(rocblas REQUIRED PATHS /opt/rocm)
++        find_package(rocblas REQUIRED PATHS /opt/rocm-next/)
+         message(STATUS "Build with rocblas ${rocblas_VERSION}")
+     else()
+         message(STATUS "Build without rocblas")
+@@ -311,7 +311,7 @@ if(MIOPEN_HIP_COMPILER MATCHES ".*clang\\+\\+$")
+     find_program(MIOPEN_OFFLOADBUNDLER_BIN clang-offload-bundler
+         PATH_SUFFIXES bin
+         PATHS
+-            /opt/rocm/llvm
++            /opt/rocm-next/
+             ${CMAKE_INSTALL_PREFIX}/llvm
+     )
+ endif()
+@@ -360,7 +360,7 @@ find_program(MIOPEN_AMDGCN_ASSEMBLER
+     PATHS
+         ${MIOPEN_AMDGCN_ASSEMBLER_PATH}
+         /opt/rocm
+-        /opt/rocm/llvm
++        /opt/rocm-next/
+         ${CMAKE_INSTALL_PREFIX}
+         ${CMAKE_INSTALL_PREFIX}/llvm
+     PATH_SUFFIXES
+@@ -408,7 +408,7 @@ if(MIOPEN_USE_HIPRTC)
+     endif()
+ endif()
+ 
+-option(Boost_USE_STATIC_LIBS "Use boost static libraries" ON)
++option(Boost_USE_STATIC_LIBS "Use boost static libraries" OFF)
+ set(BOOST_COMPONENTS filesystem)
+ add_definitions(-DBOOST_ALL_NO_LIB=1)
+ find_package(Boost REQUIRED COMPONENTS ${BOOST_COMPONENTS})
+@@ -470,7 +470,7 @@ endif()
+ function(unpack_db db_bzip2_file)
+     set(KERNELS_DIR "${CMAKE_SOURCE_DIR}/src/kernels")
+     STRING(REPLACE ".bz2" "" db_file "${db_bzip2_file}")
+-    find_program(UNZIPPER lbunzip2 bunzip2)
++    find_program(UNZIPPER bunzip2)
+     if(EXISTS "${db_file}")
+         message(STATUS "WARNING: ${db_file} already exists and will be overwritten")
+     endif()
+diff --git a/cmake/ClangTidy.cmake b/cmake/ClangTidy.cmake
+index fc3eb7531..210999795 100644
+--- a/cmake/ClangTidy.cmake
++++ b/cmake/ClangTidy.cmake
+@@ -140,6 +140,7 @@ macro(enable_clang_tidy)
+ endmacro()
+ 
+ function(clang_tidy_check TARGET)
++    return()
+     get_target_property(SOURCES ${TARGET} SOURCES)
+     # TODO: Use generator expressions instead
+     # COMMAND ${CLANG_TIDY_COMMAND} $<TARGET_PROPERTY:${TARGET},SOURCES>

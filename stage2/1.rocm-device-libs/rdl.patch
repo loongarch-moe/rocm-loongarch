@@ -1,0 +1,13 @@
+diff --git a/cmake/OCL.cmake b/cmake/OCL.cmake
+index eefdbcc..41401e7 100644
+--- a/cmake/OCL.cmake
++++ b/cmake/OCL.cmake
+@@ -41,7 +41,7 @@ file(REMOVE ${CMAKE_BINARY_DIR}/tmp.cl)
+ if (NOT TEST_CODE_OBJECT_VERSION_NONE_RESULT)
+   set(CLANG_OCL_FLAGS ${CLANG_OCL_FLAGS} -Xclang -mcode-object-version=none)
+ endif()
+-
++set(CLANG_OCL_FLAGS ${CLANG_OCL_FLAGS} -Xclang -target-cpu -Xclang gfx1030)
+ set (BC_EXT .bc)
+ set (LIB_SUFFIX ".lib${BC_EXT}")
+ set (STRIP_SUFFIX ".strip${BC_EXT}")

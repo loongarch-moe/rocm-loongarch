@@ -8,7 +8,7 @@ license=('Unknow')
 url="https://github.com/ROCm/rocm-core"
 
 source=(
-    "git+https://github.com/ROCm/ROCR-Runtime.git#branch=master"
+    "git+https://github.com/ROCm/ROCR-Runtime.git#branch=rocm-5.7.x"
     "rocr-loongarch64.patch"
 )
 b2sums=('SKIP' 'SKIP')

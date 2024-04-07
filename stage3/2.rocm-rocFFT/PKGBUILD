@@ -1,4 +1,3 @@
-
 pkgbase='rocm-rocFFT'
 pkgname=('rocm-rocFFT')
 pkgver=next
@@ -9,7 +8,7 @@ license=('MIT')
 url="https://github.com/ROCm/ROCT-Thunk-Interface.git"
 
 source=(
-    "git+https://github.com/ROCm/rocFFT.git#branch=develop"
+    "git+https://github.com/ROCm/rocFFT.git#branch=release/rocm-rel-5.7.1.1"
     "rocFFT-loong64.patch"
 )
 b2sums=('SKIP' 'SKIP')
