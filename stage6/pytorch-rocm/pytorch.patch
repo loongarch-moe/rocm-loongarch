@@ -1,0 +1,119 @@
+diff --git a/cmake/public/LoadHIP.cmake b/cmake/public/LoadHIP.cmake
+index 75bf146c44..1b6946b965 100644
+--- a/cmake/public/LoadHIP.cmake
++++ b/cmake/public/LoadHIP.cmake
+@@ -1,7 +1,7 @@
+ set(PYTORCH_FOUND_HIP FALSE)
+ 
+ if(NOT DEFINED ENV{ROCM_PATH})
+-  set(ROCM_PATH /opt/rocm)
++  set(ROCM_PATH /opt/rocm-next)
+ else()
+   set(ROCM_PATH $ENV{ROCM_PATH})
+ endif()
+@@ -163,19 +163,19 @@ macro(find_package_and_print_version PACKAGE_NAME)
+ endmacro()
+ 
+ # Find the HIP Package
+-find_package_and_print_version(HIP 1.0)
++find_package_and_print_version(HIP 5.7.23384)
+ 
+ if(HIP_FOUND)
+   set(PYTORCH_FOUND_HIP TRUE)
+ 
+   # Find ROCM version for checks
+   # ROCM 5.0 and later will have header api for version management
+-  if(EXISTS ${ROCM_INCLUDE_DIRS}/rocm_version.h)
++ # if(EXISTS ${ROCM_INCLUDE_DIRS}/rocm_version.h)
+ 
+     set(PROJECT_RANDOM_BINARY_DIR "${PROJECT_BINARY_DIR}")
+     set(file "${PROJECT_BINARY_DIR}/detect_rocm_version.cc")
+     file(WRITE ${file} ""
+-      "#include <rocm_version.h>\n"
++      "#include <rocm-core/rocm_version.h>\n"
+       "#include <cstdio>\n"
+ 
+       "#ifndef ROCM_VERSION_PATCH\n"
+@@ -203,10 +203,10 @@ if(HIP_FOUND)
+     message("\n***** ROCm version from rocm_version.h ****\n")
+ 
+   # ROCM < 4.5, we don't have the header api file, use flat file
+-  else()
+-    file(READ "${ROCM_PATH}/.info/version-dev" ROCM_VERSION_DEV_RAW)
+-    message("\n***** ROCm version from ${ROCM_PATH}/.info/version-dev ****\n")
+-  endif()
++#  else()
++#    file(READ "${ROCM_PATH}/.info/version-dev" ROCM_VERSION_DEV_RAW)
++#    message("\n***** ROCm version from ${ROCM_PATH}/.info/version-dev ****\n")
++#  endif()
+ 
+   string(REGEX MATCH "^([0-9]+)\.([0-9]+)\.([0-9]+).*$" ROCM_VERSION_DEV_MATCH ${ROCM_VERSION_DEV_RAW})
+ 
+@@ -230,13 +230,13 @@ if(HIP_FOUND)
+   message("TORCH_HIP_VERSION: ${TORCH_HIP_VERSION}")
+ 
+   message("\n***** Library versions from dpkg *****\n")
+-  execute_process(COMMAND dpkg -l COMMAND grep rocm-dev COMMAND awk "{print $2 \" VERSION: \" $3}")
+-  execute_process(COMMAND dpkg -l COMMAND grep rocm-libs COMMAND awk "{print $2 \" VERSION: \" $3}")
+-  execute_process(COMMAND dpkg -l COMMAND grep hsakmt-roct COMMAND awk "{print $2 \" VERSION: \" $3}")
+-  execute_process(COMMAND dpkg -l COMMAND grep rocr-dev COMMAND awk "{print $2 \" VERSION: \" $3}")
+-  execute_process(COMMAND dpkg -l COMMAND grep -w hcc COMMAND awk "{print $2 \" VERSION: \" $3}")
+-  execute_process(COMMAND dpkg -l COMMAND grep hip-base COMMAND awk "{print $2 \" VERSION: \" $3}")
+-  execute_process(COMMAND dpkg -l COMMAND grep hip_hcc COMMAND awk "{print $2 \" VERSION: \" $3}")
++#  execute_process(COMMAND dpkg -l COMMAND grep rocm-dev COMMAND awk "{print $2 \" VERSION: \" $3}")
++#  execute_process(COMMAND dpkg -l COMMAND grep rocm-libs COMMAND awk "{print $2 \" VERSION: \" $3}")
++#  execute_process(COMMAND dpkg -l COMMAND grep hsakmt-roct COMMAND awk "{print $2 \" VERSION: \" $3}")
++#  execute_process(COMMAND dpkg -l COMMAND grep rocr-dev COMMAND awk "{print $2 \" VERSION: \" $3}")
++#  execute_process(COMMAND dpkg -l COMMAND grep -w hcc COMMAND awk "{print $2 \" VERSION: \" $3}")
++#  execute_process(COMMAND dpkg -l COMMAND grep hip-base COMMAND awk "{print $2 \" VERSION: \" $3}")
++#  execute_process(COMMAND dpkg -l COMMAND grep hip_hcc COMMAND awk "{print $2 \" VERSION: \" $3}")
+ 
+   message("\n***** Library versions from cmake find_package *****\n")
+ 
+diff --git a/aten/src/ATen/hip/Atomic.cuh b/aten/src/ATen/hip/Atomic.cuh
+index 7912a829b3..49d6c9fcd5 100644
+--- a/aten/src/ATen/hip/Atomic.cuh
++++ b/aten/src/ATen/hip/Atomic.cuh
+@@ -335,7 +335,7 @@ static inline __device__ void gpuAtomicAddNoReturn(double *address, double val)
+ 
+ /* Special case fp32 atomic. */
+ #if defined(USE_ROCM)
+-static inline __device__ void gpuAtomicAddNoReturn(float *address, float val) { atomicAddNoRet(address, val); }
++static inline __device__ void gpuAtomicAddNoReturn(float *address, float val) { atomicAdd(address, val); }
+ #else
+ static inline __device__ void gpuAtomicAddNoReturn(float *address, float val) { gpuAtomicAdd(address, val); }
+ #endif
+diff --git a/cmake/Dependencies.cmake b/cmake/Dependencies.cmake
+index d2e4c4d64a..b17a135295 100644
+--- a/cmake/Dependencies.cmake
++++ b/cmake/Dependencies.cmake
+@@ -1269,7 +1269,6 @@ if(USE_ROCM)
+     list(APPEND HIP_CXX_FLAGS -Wno-duplicate-decl-specifier)
+     list(APPEND HIP_CXX_FLAGS -DCAFFE2_USE_MIOPEN)
+     list(APPEND HIP_CXX_FLAGS -DTHRUST_DEVICE_SYSTEM=THRUST_DEVICE_SYSTEM_HIP)
+-    list(APPEND HIP_CXX_FLAGS -std=c++17)
+     add_definitions(-DROCM_VERSION=${ROCM_VERSION_DEV_INT})
+     add_definitions(-DTORCH_HIP_VERSION=${TORCH_HIP_VERSION})
+     message("TORCH_HIP_VERSION=${TORCH_HIP_VERSION} is added as a compiler defines")
+@@ -1929,7 +1928,7 @@ if(USE_KINETO)
+ 
+   if(NOT LIBKINETO_NOROCTRACER)
+     if(NOT ENV{ROCM_SOURCE_DIR})
+-      set(ENV{ROCM_SOURCE_DIR} "/opt/rocm")
++      set(ENV{ROCM_SOURCE_DIR} "/opt/rocm-next")
+     endif()
+   endif()
+ 
+diff --git a/torch/csrc/dynamo/cpython_defs.h b/torch/csrc/dynamo/cpython_defs.h
+index f0a0e1a88e..266cfccfff 100644
+--- a/torch/csrc/dynamo/cpython_defs.h
++++ b/torch/csrc/dynamo/cpython_defs.h
+@@ -6,7 +6,7 @@
+ // should go in cpython_defs.c. Copying is required when, e.g.,
+ // we need to call internal CPython functions that are not exposed.
+ 
+-#if IS_PYTHON_3_11_PLUS && !(IS_PYTHON_3_12_PLUS)
++#if IS_PYTHON_3_11_PLUS || IS_PYTHON_3_12_PLUS
+ 
+ #include <internal/pycore_frame.h>
+ 
