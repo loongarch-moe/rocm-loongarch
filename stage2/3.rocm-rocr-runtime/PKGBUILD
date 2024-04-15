@@ -8,11 +8,11 @@ license=('Unknow')
 url="https://github.com/ROCm/rocm-core"
 
 source=(
-    "git+https://github.com/ROCm/ROCR-Runtime.git#branch=rocm-5.7.x"
+    "git+https://github.com/ROCm/ROCR-Runtime.git#branch=rocm-6.0.x"
     "rocr-loongarch64.patch"
 )
 b2sums=('SKIP' 'SKIP')
-depends=("rocm-llvm=${pkgver}" "rocm-device-libs=${pkgver}")
+depends=("rocm-llvm=${pkgver}")
 
 PATH=/opt/rocm-${pkgver}/bin:$PATH
 prepare() {

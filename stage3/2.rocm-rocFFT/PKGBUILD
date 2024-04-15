@@ -8,7 +8,7 @@ license=('MIT')
 url="https://github.com/ROCm/ROCT-Thunk-Interface.git"
 
 source=(
-    "git+https://github.com/ROCm/rocFFT.git#branch=release/rocm-rel-5.7.1.1"
+    "git+https://github.com/ROCm/rocFFT.git#branch=release/rocm-rel-6.0"
     "rocFFT-loong64.patch"
 )
 b2sums=('SKIP' 'SKIP')

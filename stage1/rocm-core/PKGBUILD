@@ -16,10 +16,10 @@ prepare() {
   cd build
   cmake ../rocm-core \
   "-DCMAKE_INSTALL_PREFIX=/opt/rocm-${pkgver}" \
-  -DPROJECT_VERSION_MAJOR=5 \
-  -DPROJECT_VERSION_MINOR=7 \
-  -DPROJECT_VERSION_PATCH=0 \
-  -DROCM_VERSION=5.7.0 \
+  -DPROJECT_VERSION_MAJOR=6 \
+  -DPROJECT_VERSION_MINOR=0 \
+  -DPROJECT_VERSION_PATCH=2 \
+  -DROCM_VERSION=6.0.2 \
   -G "Unix Makefiles"
 }
 build() {

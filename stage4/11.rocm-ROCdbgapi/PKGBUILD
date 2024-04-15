@@ -9,7 +9,7 @@ license=('MIT')
 url="https://github.com/ROCm/ROCT-Thunk-Interface.git"
 
 source=(
-    "git+https://github.com/ROCm/ROCdbgapi.git#branch=rocm-5.7.x"
+    "git+https://github.com/ROCm/ROCdbgapi.git#branch=rocm-6.0.x"
 )
 b2sums=('SKIP')
 depends=("rocm-clr=${pkgver}")
@@ -20,7 +20,7 @@ prepare() {
   mkdir build || true
   cd build
   LD_LIBRARY_PATH=/opt/rocm-${pkgver}/lib64:/opt/rocm-${pkgver}/lib:/opt/rocm-${pkgver}/hip/lib:$LD_LIBRARY_PATH cmake ../ROCdbgapi \
-   -DCMAKE_BUILD_TYPE=Debug \
+   -DCMAKE_BUILD_TYPE=RelWithDebInfo \
    -DCMAKE_C_COMPILER=/opt/rocm-${pkgver}/bin/clang \
    -DCMAKE_FIND_ROOT_PATH=/opt/rocm-${pkgver}/ \
    -DCMAKE_CXX_COMPILER=/opt/rocm-${pkgver}/bin/hipcc \

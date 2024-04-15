@@ -1,3 +1,56 @@
+diff --git a/amd/comgr/CMakeLists.txt b/amd/comgr/CMakeLists.txt
+index f49f1157e8d1..e2dcadc9074b 100644
+--- a/amd/comgr/CMakeLists.txt
++++ b/amd/comgr/CMakeLists.txt
+@@ -353,7 +353,12 @@ install(FILES
+ 
+ if(TARGET clangFrontendTool)
+   set(CLANG_LIBS
+-    clangFrontendTool)
++    clangFrontendTool
++    clangFrontend
++    clangDriver
++    clangSerialization
++    clangBasic
++    )
+ else()
+   set(CLANG_LIBS
+     clang-cpp)
+@@ -368,6 +373,21 @@ if (LLVM_LINK_LLVM_DYLIB)
+ else()
+   llvm_map_components_to_libnames(LLVM_LIBS
+     ${LLVM_TARGETS_TO_BUILD}
++    Core
++    CodeGen
++    Option
++    MCParser
++    MC
++    TargetParser
++    Support
++    BinaryFormat
++    MCDisassembler
++    Object
++    Linker
++    BitWriter
++    IRReader
++    BitReader
++    Demangle
+     DebugInfoDWARF
+     Symbolize)
+ endif()
+diff --git a/amd/comgr/test/CMakeLists.txt b/amd/comgr/test/CMakeLists.txt
+index 3bb5aa36336a..3d2fb529222b 100644
+--- a/amd/comgr/test/CMakeLists.txt
++++ b/amd/comgr/test/CMakeLists.txt
+@@ -42,7 +42,7 @@ macro(add_test_input_bitcode name input output)
+   add_custom_command(
+     OUTPUT "${output}"
+     COMMAND "$<TARGET_FILE:clang>" -c -emit-llvm -target amdgcn-amd-amdhsa
+-    -mcpu=gfx900
++    -mcpu=gfx900 -nogpulib
+     ${ARGN} "${CMAKE_CURRENT_SOURCE_DIR}/${input}"
+     -o "${output}"
+     VERBATIM
 diff --git a/clang/lib/Basic/Targets/LoongArch.h b/clang/lib/Basic/Targets/LoongArch.h
 index 3313102492cb..09e8d935ec83 100644
 --- a/clang/lib/Basic/Targets/LoongArch.h

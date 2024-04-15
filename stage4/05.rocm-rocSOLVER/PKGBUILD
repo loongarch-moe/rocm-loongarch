@@ -1,4 +1,3 @@
-
 pkgbase='rocm-rocSOLVER'
 pkgname=('rocm-rocSOLVER')
 pkgver=next
@@ -9,7 +8,7 @@ license=('MIT')
 url="https://github.com/ROCm/ROCT-Thunk-Interface.git"
 
 source=(
-    "git+https://github.com/ROCm/rocSOLVER.git#branch=release/rocm-rel-5.7.1.1"
+    "git+https://github.com/ROCm/rocSOLVER.git#branch=release/rocm-rel-6.0"
 )
 b2sums=('SKIP')
 depends=(
@@ -24,13 +23,12 @@ prepare() {
   mkdir build || true
   cd build
   LD_LIBRARY_PATH=/opt/rocm-${pkgver}/lib64:/opt/rocm-${pkgver}/lib:/opt/rocm-${pkgver}/hip/lib:$LD_LIBRARY_PATH cmake ../rocSOLVER \
-   -DCMAKE_BUILD_TYPE=Debug \
-   -DCMAKE_C_COMPILER=/opt/rocm-${pkgver}/bin/clang \
+   -DCMAKE_BUILD_TYPE=RelWithDebInfo \
    -DCMAKE_FIND_ROOT_PATH=/opt/rocm-${pkgver}/ \
    -DCMAKE_CXX_COMPILER=/opt/rocm-${pkgver}/bin/hipcc \
    -DCMAKE_CXX_FLAGS="-L/opt/rocm-${pkgver}/lib  -L/opt/rocm-${pkgver}/hip/lib" \
    -DCMAKE_PREFIX_PATH="/opt/rocm-${pkgver}/;/usr" \
-   -DAMDGPU_TARGETS=${AMDGPU_TARGETS//,/;} \
+   -DAMDGPU_TARGETS=gfx1030 \
    -DCMAKE_INSTALL_PREFIX=/opt/rocm-${pkgver} \
    -DCMAKE_EXE_LINKER_FLAGS="-L/opt/rocm-${pkgver}/lib  -L/opt/rocm-${pkgver}/hip/lib" \
   -G "Unix Makefiles"

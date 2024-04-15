@@ -8,20 +8,16 @@ license=('MIT')
 url="https://github.com/ROCm/ROCT-Thunk-Interface.git"
 
 source=(
-    "git+https://github.com/ROCm/HIPIFY.git#branch=rocm-5.7.x"
-    "hipify.patch"
+    "git+https://github.com/ROCm/HIPIFY.git#branch=rocm-6.0.x"
 )
-b2sums=('SKIP' 'SKIP')
+b2sums=('SKIP')
 depends=("rocm-clr=${pkgver}")
 PATH=/opt/rocm-${pkgver}/bin:$PATH
 prepare() {
-  cd HIPIFY
-    git apply ../hipify.patch
-  cd ..
   mkdir build || true
   cd build
   LD_LIBRARY_PATH=/opt/rocm-${pkgver}/lib64:/opt/rocm-${pkgver}/lib:/opt/rocm-${pkgver}/hip/lib:$LD_LIBRARY_PATH cmake ../HIPIFY \
-   -DCMAKE_BUILD_TYPE=Debug \
+   -DCMAKE_BUILD_TYPE=RelWithDebInfo \
    -DCMAKE_EXE_LINKER_FLAGS="-L/opt/rocm-${pkgver}/lib -L/opt/rocm-${pkgver}/hip/lib" \
    -DCMAKE_CXX_FLAGS="-I/opt/rocm-${pkgver}/include" \
    -DCMAKE_FIND_ROOT_PATH=/opt/rocm-${pkgver}/ \

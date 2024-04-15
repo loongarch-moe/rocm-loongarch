@@ -1,20 +1,17 @@
 diff --git a/src/libhsakmt.ver b/src/libhsakmt.ver
-index dc17215..5e65b8c 100644
+index 15c2916..c04cefe 100644
 --- a/src/libhsakmt.ver
 +++ b/src/libhsakmt.ver
-@@ -75,6 +75,10 @@ hsaKmtSetXNACKMode;
- hsaKmtGetXNACKMode;
- hsaKmtOpenSMI;
- hsaKmtExportDMABufHandle;
-+hsaKmtWaitOnEvent_Ext;
-+hsaKmtReplaceAsanHeaderPage;
-+hsaKmtReturnAsanHeaderPage;
-+hsaKmtWaitOnMultipleEvents_Ext;
+@@ -81,6 +81,7 @@ hsaKmtWaitOnEvent_Ext;
+ hsaKmtWaitOnMultipleEvents_Ext;
+ hsaKmtReplaceAsanHeaderPage;
+ hsaKmtReturnAsanHeaderPage;
++hsaKmtGetAMDGPUDeviceHandle;
  
  local: *;
  };
 diff --git a/src/queues.c b/src/queues.c
-index b800681..c9dd92a 100644
+index f72f6d6..a7b9409 100644
 --- a/src/queues.c
 +++ b/src/queues.c
 @@ -134,7 +134,9 @@ static void get_doorbell_map_info(uint32_t node_id,

@@ -8,14 +8,13 @@ license=('MIT')
 url="https://github.com/ROCm/ROCT-Thunk-Interface.git"
 
 source=(
-    "git+https://github.com/ROCm/composable_kernel.git#branch=release/rocm-rel-5.7.1.1"
+    "git+https://github.com/ROCm/composable_kernel.git#branch=release/rocm-rel-6.0"
     "composable_kernel_loongarch.patch"
 )
 b2sums=('SKIP' 'SKIP')
 depends=(
   "rocm-clr=${pkgver}"
   "rocm-rocBLAS=${pkgver}"
-  "rocm-rocMLIR=${pkgver}"
 )
 PATH=/opt/rocm-${pkgver}/bin:$PATH
 prepare() {
@@ -42,7 +41,7 @@ prepare() {
 build() {
   mkdir build || true
   cd build
-  make -j12
+  make -j$(( $(nproc) / 2 + 1 ))
 }
 
 check() {

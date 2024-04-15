@@ -8,7 +8,7 @@ license=('MIT')
 url="https://github.com/ROCm/ROCT-Thunk-Interface.git"
 
 source=(
-    "git+https://github.com/ROCm/rccl.git#branch=release/rocm-rel-5.7.1.1"
+    "git+https://github.com/ROCm/rccl.git#branch=release/rocm-rel-6.0"
     "rccl-loongarch64.patch"
 )
 b2sums=('SKIP' 'SKIP')
@@ -17,13 +17,12 @@ PATH=/opt/rocm-${pkgver}/bin:$PATH
 prepare() {
   cd rccl
     git apply ../rccl-loongarch64.patch
-    sed -i 's!-lamdhip64!libamdhip64.so!g' tools/MultiRank/README.mpi
   cd ..
   rm -rf build || true
   mkdir build || true
   cd build
   LD_LIBRARY_PATH=/opt/rocm-${pkgver}/lib64:/opt/rocm-${pkgver}/lib:/opt/rocm-${pkgver}/hip/lib:$LD_LIBRARY_PATH cmake ../rccl \
-   -DCMAKE_BUILD_TYPE=Debug \
+   -DCMAKE_BUILD_TYPE=RelWithDebInfo \
    -DCMAKE_C_COMPILER=/opt/rocm-${pkgver}/bin/clang \
    -DCMAKE_FIND_ROOT_PATH=/opt/rocm-${pkgver}/ \
    -DCMAKE_CXX_COMPILER=/opt/rocm-${pkgver}/bin/hipcc \
@@ -38,7 +37,7 @@ prepare() {
 build() {
   mkdir build || true
   cd build
-  LD_LIBRARY_PATH=/opt/rocm-${pkgver}/lib64:/opt/rocm-${pkgver}/lib:/opt/rocm-${pkgver}/hip/lib:$LD_LIBRARY_PATH make -j16
+  LD_LIBRARY_PATH=/opt/rocm-${pkgver}/lib64:/opt/rocm-${pkgver}/lib:/opt/rocm-${pkgver}/hip/lib:$LD_LIBRARY_PATH make -j$(nproc)
 }
 
 check() {

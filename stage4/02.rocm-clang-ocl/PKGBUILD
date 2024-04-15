@@ -9,7 +9,7 @@ license=('MIT')
 url="https://github.com/ROCm/ROCT-Thunk-Interface.git"
 
 source=(
-    "git+https://github.com/ROCm/clang-ocl.git#branch=rocm-5.7.x"
+    "git+https://github.com/ROCm/clang-ocl.git#branch=rocm-6.0.x"
 )
 b2sums=('SKIP')
 depends=("rocm-clr=${pkgver}")

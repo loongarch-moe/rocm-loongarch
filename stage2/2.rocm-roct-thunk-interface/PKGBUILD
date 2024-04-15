@@ -9,7 +9,7 @@ depends=("rocm-llvm=${pkgver}")
 url="https://github.com/ROCm/ROCT-Thunk-Interface.git"
 
 source=(
-    "git+https://github.com/ROCm/ROCT-Thunk-Interface.git#branch=rocm-5.7.x"
+    "git+https://github.com/ROCm/ROCT-Thunk-Interface.git#branch=rocm-6.0.x"
     "rocm-roct-thunk-interface.patch"
 )
 b2sums=('SKIP' 'SKIP')
@@ -21,7 +21,7 @@ cd ..
   mkdir build || true
   cd build
   cmake ../ROCT-Thunk-Interface \
-   -DCMAKE_BUILD_TYPE=Debug \
+   -DCMAKE_BUILD_TYPE=RelWithDebInfo \
    -DCMAKE_C_COMPILER=/opt/rocm-${pkgver}/bin/clang \
    -DCMAKE_CXX_COMPILER=/opt/rocm-${pkgver}/bin/clang++ \
    -DCMAKE_INSTALL_PREFIX=/opt/rocm-${pkgver} \
