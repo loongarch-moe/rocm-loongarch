@@ -1,6 +1,6 @@
 
-pkgbase='rocm-rocRAND'
-pkgname=('rocm-rocRAND')
+pkgbase='rocm-hipRAND'
+pkgname=('rocm-hipRAND')
 pkgver=next
 pkgrel=999000
 pkgdesc="rocm-core is a utility which can be used to get ROCm release version."
@@ -9,15 +9,15 @@ license=('MIT')
 url="https://github.com/ROCm/ROCT-Thunk-Interface.git"
 
 source=(
-    "git+https://github.com/ROCm/rocRAND.git#branch=release/rocm-rel-6.0"
+    "git+https://github.com/ROCm/hipRAND.git#branch=release/rocm-rel-6.0"
 )
-b2sums=('SKIP' )
-depends=("rocm-clr=${pkgver}")
+b2sums=('SKIP')
+depends=("rocm-clr=${pkgver}" "rocm-rocRAND")
 PATH=/opt/rocm-${pkgver}/bin:$PATH
 prepare() {
   mkdir build || true
   cd build
-  LD_LIBRARY_PATH=/opt/rocm-${pkgver}/lib64:/opt/rocm-${pkgver}/lib:/opt/rocm-${pkgver}/hip/lib:$LD_LIBRARY_PATH cmake ../rocRAND \
+  LD_LIBRARY_PATH=/opt/rocm-${pkgver}/lib64:/opt/rocm-${pkgver}/lib:/opt/rocm-${pkgver}/hip/lib:$LD_LIBRARY_PATH cmake ../hipRAND \
    -DCMAKE_BUILD_TYPE=RelWithDebInfo \
    -DCMAKE_C_COMPILER=/opt/rocm-${pkgver}/bin/clang \
    -DCMAKE_FIND_ROOT_PATH=/opt/rocm-${pkgver}/ \
@@ -34,6 +34,7 @@ build() {
   mkdir build || true
   cd build
   LD_LIBRARY_PATH=/opt/rocm-${pkgver}/lib64:/opt/rocm-${pkgver}/lib:/opt/rocm-${pkgver}/hip/lib:$LD_LIBRARY_PATH make -j$(nproc)
+
 }
 
 check() {
@@ -49,5 +50,6 @@ echo
 package() {
   cd build
   LD_LIBRARY_PATH=/opt/rocm-${pkgver}/lib64:/opt/rocm-${pkgver}/lib:/opt/rocm-${pkgver}/hip/lib:$LD_LIBRARY_PATH make DESTDIR="$pkgdir/" install
+
 }
 
