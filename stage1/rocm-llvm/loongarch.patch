@@ -1,8 +1,8 @@
 diff --git a/amd/comgr/CMakeLists.txt b/amd/comgr/CMakeLists.txt
-index f49f1157e8d1..e2dcadc9074b 100644
+index 8994b182e4ae..f8dea7f5ff72 100644
 --- a/amd/comgr/CMakeLists.txt
 +++ b/amd/comgr/CMakeLists.txt
-@@ -353,7 +353,12 @@ install(FILES
+@@ -362,7 +362,12 @@ install(FILES
  
  if(TARGET clangFrontendTool)
    set(CLANG_LIBS
@@ -16,7 +16,7 @@ index f49f1157e8d1..e2dcadc9074b 100644
  else()
    set(CLANG_LIBS
      clang-cpp)
-@@ -368,6 +373,21 @@ if (LLVM_LINK_LLVM_DYLIB)
+@@ -377,6 +382,21 @@ if (LLVM_LINK_LLVM_DYLIB)
  else()
    llvm_map_components_to_libnames(LLVM_LIBS
      ${LLVM_TARGETS_TO_BUILD}
@@ -39,7 +39,7 @@ index f49f1157e8d1..e2dcadc9074b 100644
      Symbolize)
  endif()
 diff --git a/amd/comgr/test/CMakeLists.txt b/amd/comgr/test/CMakeLists.txt
-index 3bb5aa36336a..3d2fb529222b 100644
+index f0e4df4bc9e1..65e4d4f85617 100644
 --- a/amd/comgr/test/CMakeLists.txt
 +++ b/amd/comgr/test/CMakeLists.txt
 @@ -42,7 +42,7 @@ macro(add_test_input_bitcode name input output)
@@ -51,6 +51,55 @@ index 3bb5aa36336a..3d2fb529222b 100644
      ${ARGN} "${CMAKE_CURRENT_SOURCE_DIR}/${input}"
      -o "${output}"
      VERBATIM
+diff --git a/amd/hipcc/src/hipBin_amd.h b/amd/hipcc/src/hipBin_amd.h
+index 57d009804cfe..f53ee4a4be9e 100644
+--- a/amd/hipcc/src/hipBin_amd.h
++++ b/amd/hipcc/src/hipBin_amd.h
+@@ -209,7 +209,7 @@ void HipBinAmd::constructCompilerPath() {
+     } else {
+       compilerPath = getRoccmPath();
+       hipClangPath = compilerPath;
+-      hipClangPath /= "lib/llvm/bin";
++      hipClangPath /= "bin";
+     }
+ 
+     compilerPath = hipClangPath.string();
+diff --git a/clang/include/clang/Basic/Builtins.def b/clang/include/clang/Basic/Builtins.def
+index 4dcbaf8a7bea..4fbbd52a92b3 100644
+--- a/clang/include/clang/Basic/Builtins.def
++++ b/clang/include/clang/Basic/Builtins.def
+@@ -175,6 +175,7 @@ BUILTIN(__builtin_nansf, "fcC*" , "FnUE")
+ BUILTIN(__builtin_nansl, "LdcC*", "FnUE")
+ BUILTIN(__builtin_nansf16, "xcC*", "FnUE")
+ BUILTIN(__builtin_nansf128, "LLdcC*", "FnUE")
++BUILTIN(__builtin_nansq, "LLdcC*", "FnUE")
+ BUILTIN(__builtin_powi , "ddi"  , "Fnc")
+ BUILTIN(__builtin_powif, "ffi"  , "Fnc")
+ BUILTIN(__builtin_powil, "LdLdi", "Fnc")
+diff --git a/clang/lib/AST/ExprConstant.cpp b/clang/lib/AST/ExprConstant.cpp
+index 0884988c48b4..104e4ac89721 100644
+--- a/clang/lib/AST/ExprConstant.cpp
++++ b/clang/lib/AST/ExprConstant.cpp
+@@ -14419,6 +14419,7 @@ bool FloatExprEvaluator::VisitCallExpr(const CallExpr *E) {
+   case Builtin::BI__builtin_nansl:
+   case Builtin::BI__builtin_nansf16:
+   case Builtin::BI__builtin_nansf128:
++  case Builtin::BI__builtin_nansq:
+     if (!TryEvaluateBuiltinNaN(Info.Ctx, E->getType(), E->getArg(0),
+                                true, Result))
+       return Error(E);
+diff --git a/clang/lib/AST/Interp/InterpBuiltin.cpp b/clang/lib/AST/Interp/InterpBuiltin.cpp
+index 754ca96b0c64..bb6fabcfee76 100644
+--- a/clang/lib/AST/Interp/InterpBuiltin.cpp
++++ b/clang/lib/AST/Interp/InterpBuiltin.cpp
+@@ -671,6 +671,7 @@ bool InterpretBuiltin(InterpState &S, CodePtr OpPC, const Function *F,
+   case Builtin::BI__builtin_nansl:
+   case Builtin::BI__builtin_nansf16:
+   case Builtin::BI__builtin_nansf128:
++  case Builtin::BI__builtin_nansq:
+     if (!interp__builtin_nan(S, OpPC, Frame, F, /*Signaling=*/true))
+       return false;
+     break;
 diff --git a/clang/lib/Basic/Targets/LoongArch.h b/clang/lib/Basic/Targets/LoongArch.h
 index 3313102492cb..09e8d935ec83 100644
 --- a/clang/lib/Basic/Targets/LoongArch.h
@@ -65,7 +114,7 @@ index 3313102492cb..09e8d935ec83 100644
  
    bool setCPU(const std::string &Name) override {
 diff --git a/clang/lib/CodeGen/BackendUtil.cpp b/clang/lib/CodeGen/BackendUtil.cpp
-index 8c666e2cb463..7c4b42a69498 100644
+index 13be9ce72d4d..dec302553269 100644
 --- a/clang/lib/CodeGen/BackendUtil.cpp
 +++ b/clang/lib/CodeGen/BackendUtil.cpp
 @@ -273,6 +273,7 @@ getCodeModel(const CodeGenOptions &CodeGenOpts) {
@@ -77,10 +126,10 @@ index 8c666e2cb463..7c4b42a69498 100644
                             .Default(~0u);
    assert(CodeModel != ~0u && "invalid code model!");
 diff --git a/clang/lib/Driver/ToolChains/HIPUtility.cpp b/clang/lib/Driver/ToolChains/HIPUtility.cpp
-index f692458b775d..91e8ebfd1016 100644
+index 82f56277bf7d..500908e47d6b 100644
 --- a/clang/lib/Driver/ToolChains/HIPUtility.cpp
 +++ b/clang/lib/Driver/ToolChains/HIPUtility.cpp
-@@ -24,7 +24,11 @@ using namespace llvm::opt;
+@@ -36,7 +36,11 @@ using llvm::dyn_cast;
  #endif
  
  namespace {
@@ -92,7 +141,7 @@ index f692458b775d..91e8ebfd1016 100644
  } // namespace
  
  // Constructs a triple string for clang offload bundler.
-@@ -52,7 +56,12 @@ void HIP::constructHIPFatbinCommand(Compilation &C, const JobAction &JA,
+@@ -292,7 +296,12 @@ void HIP::constructHIPFatbinCommand(Compilation &C, const JobAction &JA,
  
    // ToDo: Remove the dummy host binary entry which is required by
    // clang-offload-bundler.
@@ -106,23 +155,23 @@ index f692458b775d..91e8ebfd1016 100644
    // For code object version 2 and 3, the offload kind in bundle ID is 'hip'
    // for backward compatibility. For code object version 4 and greater, the
 diff --git a/clang/lib/Driver/ToolChains/Linux.cpp b/clang/lib/Driver/ToolChains/Linux.cpp
-index 930585efd02a..9f7b6869a808 100644
+index 57368104c914..714a8f0d5756 100644
 --- a/clang/lib/Driver/ToolChains/Linux.cpp
 +++ b/clang/lib/Driver/ToolChains/Linux.cpp
-@@ -965,7 +965,7 @@ void Linux::AddHIPRuntimeLibArgs(const ArgList &Args,
+@@ -969,7 +969,7 @@ void Linux::AddHIPRuntimeLibArgs(const ArgList &Args,
      CmdArgs.append(
          {"-rpath", Args.MakeArgString(RocmInstallation->getLibPath())});
  
 -  CmdArgs.push_back("-lamdhip64");
-+  CmdArgs.push_back("/opt/rocm-next/lib64/libamdhip64.so");
++  CmdArgs.push_back("/opt/rocm-6.2.2/lib64/libamdhip64.so");
  }
  
  void Linux::AddIAMCUIncludeArgs(const ArgList &DriverArgs,
 diff --git a/clang/tools/clang-linker-wrapper/ClangLinkerWrapper.cpp b/clang/tools/clang-linker-wrapper/ClangLinkerWrapper.cpp
-index 2fd0b64c36ae..f5be0d31d81f 100644
+index 4e9b5b8ba9f5..f78f6b3b332c 100644
 --- a/clang/tools/clang-linker-wrapper/ClangLinkerWrapper.cpp
 +++ b/clang/tools/clang-linker-wrapper/ClangLinkerWrapper.cpp
-@@ -335,9 +335,17 @@ fatbinary(ArrayRef<std::pair<StringRef, StringRef>> InputFiles,
+@@ -336,15 +336,22 @@ fatbinary(ArrayRef<std::pair<StringRef, StringRef>> InputFiles,
    SmallVector<StringRef, 16> CmdArgs;
    CmdArgs.push_back(*OffloadBundlerPath);
    CmdArgs.push_back("-type=o");
@@ -132,6 +181,12 @@ index 2fd0b64c36ae..f5be0d31d81f 100644
    CmdArgs.push_back("-bundle-align=4096");
 -
 +#endif
+   if (Args.hasArg(OPT_compress))
+     CmdArgs.push_back("-compress");
+   if (auto *Arg = Args.getLastArg(OPT_compression_level_eq))
+     CmdArgs.push_back(
+         Args.MakeArgString(Twine("-compression-level=") + Arg->getValue()));
+-
 +#if defined(__x86_64)
    SmallVector<StringRef> Targets = {"-targets=host-x86_64-unknown-linux"};
 +#elif defined(__loongarch64)
@@ -141,7 +196,7 @@ index 2fd0b64c36ae..f5be0d31d81f 100644
    for (const auto &[File, Arch] : InputFiles)
      Targets.push_back(Saver.save("hipv4-amdgcn-amd-amdhsa--" + Arch));
    CmdArgs.push_back(Saver.save(llvm::join(Targets, ",")));
-@@ -462,6 +470,7 @@ Expected<StringRef> linkDevice(ArrayRef<StringRef> InputFiles,
+@@ -489,6 +496,7 @@ Expected<StringRef> linkDevice(ArrayRef<StringRef> InputFiles,
    case Triple::aarch64_be:
    case Triple::ppc64:
    case Triple::ppc64le:
@@ -149,50 +204,11 @@ index 2fd0b64c36ae..f5be0d31d81f 100644
      return generic::clang(InputFiles, Args);
    default:
      return createStringError(inconvertibleErrorCode(),
-diff --git a/llvm/lib/Target/AMDGPU/AMDGPUAsmPrinter.cpp b/llvm/lib/Target/AMDGPU/AMDGPUAsmPrinter.cpp
-index eb30f31af6d6..67cc858a182c 100644
---- a/llvm/lib/Target/AMDGPU/AMDGPUAsmPrinter.cpp
-+++ b/llvm/lib/Target/AMDGPU/AMDGPUAsmPrinter.cpp
-@@ -1238,6 +1238,14 @@ bool AMDGPUAsmPrinter::PrintAsmOperand(const MachineInstr *MI, unsigned OpNo,
- void AMDGPUAsmPrinter::getAnalysisUsage(AnalysisUsage &AU) const {
-   AU.addRequired<AMDGPUResourceUsageAnalysis>();
-   AU.addPreserved<AMDGPUResourceUsageAnalysis>();
-+
-+  // The Dummy pass is necessary because AMDGPUResourceUsageAnalysis will pop
-+  // the CGSCC pass manager off of the active pass managers stack. Adding the
-+  // Dummy pass will re-insert the CGSCC pass manager into said stack again
-+  // through CallGraphSCCPass::assignPassManager.
-+  AU.addRequired<DummyCGSCCPass>();
-+  AU.addPreserved<DummyCGSCCPass>();
-+
-   AsmPrinter::getAnalysisUsage(AU);
- }
- 
-diff --git a/llvm/lib/Target/AMDGPU/AMDGPUResourceUsageAnalysis.cpp b/llvm/lib/Target/AMDGPU/AMDGPUResourceUsageAnalysis.cpp
-index db5d2bbcf5bb..5c1c8801585c 100644
---- a/llvm/lib/Target/AMDGPU/AMDGPUResourceUsageAnalysis.cpp
-+++ b/llvm/lib/Target/AMDGPU/AMDGPUResourceUsageAnalysis.cpp
-@@ -151,9 +151,12 @@ bool AMDGPUResourceUsageAnalysis::runOnModule(Module &M) {
- 
-     SIFunctionResourceInfo &Info = CI.first->second;
-     MachineFunction *MF = MMI.getMachineFunction(*F);
--    assert(MF && "function must have been generated already");
--    Info = analyzeResourceUsage(*MF, TM);
--    HasIndirectCall |= Info.HasIndirectCall;
-+    assert((MF || TPC->requiresCodeGenSCCOrder()) &&
-+           "function must have been generated already");
-+    if (MF) {
-+      Info = analyzeResourceUsage(*MF, TM);
-+      HasIndirectCall |= Info.HasIndirectCall;
-+    }
-   }
- 
-   if (HasIndirectCall)
 diff --git a/llvm/lib/Target/LoongArch/LoongArchISelLowering.cpp b/llvm/lib/Target/LoongArch/LoongArchISelLowering.cpp
-index d297d115d59c..e0928d7eb9a4 100644
+index 70f782b81270..3d06492134b3 100644
 --- a/llvm/lib/Target/LoongArch/LoongArchISelLowering.cpp
 +++ b/llvm/lib/Target/LoongArch/LoongArchISelLowering.cpp
-@@ -303,6 +303,19 @@ LoongArchTargetLowering::LoongArchTargetLowering(const TargetMachine &TM,
+@@ -325,6 +325,19 @@ LoongArchTargetLowering::LoongArchTargetLowering(const TargetMachine &TM,
    setTargetDAGCombine(ISD::OR);
    setTargetDAGCombine(ISD::SRL);
  
@@ -212,3 +228,15 @@ index d297d115d59c..e0928d7eb9a4 100644
    // Set DAG combine for 'LSX' feature.
  
    if (Subtarget.hasExtLSX())
+diff --git a/llvm/tools/llvm-split/CMakeLists.txt b/llvm/tools/llvm-split/CMakeLists.txt
+index 0579298462d1..1104e3145952 100644
+--- a/llvm/tools/llvm-split/CMakeLists.txt
++++ b/llvm/tools/llvm-split/CMakeLists.txt
+@@ -11,6 +11,7 @@ set(LLVM_LINK_COMPONENTS
+   MC
+   Support
+   Target
++  TargetParser
+   )
+ 
+ add_llvm_tool(llvm-split

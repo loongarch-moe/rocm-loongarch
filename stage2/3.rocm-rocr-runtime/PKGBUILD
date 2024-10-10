@@ -1,15 +1,15 @@
 pkgbase='rocm-rocr-runtime'
 pkgname=('rocm-rocr-runtime')
-pkgver=next
-pkgrel=999000
+pkgver=6.2.2
+pkgrel=622000
 pkgdesc="rocm-core is a utility which can be used to get ROCm release version."
 arch=('loong64' 'x86_64')
 license=('Unknow')
 url="https://github.com/ROCm/rocm-core"
 
 source=(
-    "git+https://github.com/ROCm/ROCR-Runtime.git#branch=rocm-6.0.x"
-    "rocr-loongarch64.patch"
+    "git+https://github.com/ROCm/ROCR-Runtime.git#tag=rocm-$pkgver"
+    "rocr-unsupport.patch"
 )
 b2sums=('SKIP' 'SKIP')
 depends=("rocm-llvm=${pkgver}")
@@ -19,7 +19,7 @@ prepare() {
   if [ $CARCH == 'loong64' ];
   then
     cd ROCR-Runtime
-    git apply ../rocr-loongarch64.patch
+    git apply ../rocr-unsupport.patch
     cd ..
   fi
   mkdir build || true

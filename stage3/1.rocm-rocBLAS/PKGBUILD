@@ -1,15 +1,15 @@
 pkgbase='rocm-rocBLAS'
 pkgname=('rocm-rocBLAS')
-pkgver=next
-pkgrel=999000
+pkgver=6.2.2
+pkgrel=622000
 pkgdesc="rocm-core is a utility which can be used to get ROCm release version."
 arch=('loong64' 'x86_64')
 license=('MIT')
 url="https://github.com/ROCm/ROCT-Thunk-Interface.git"
 
 source=(
-    "git+https://github.com/ROCm/rocBLAS.git#branch=release/rocm-rel-6.0"
-    "git+https://github.com/ROCm/Tensile.git#branch=release/rocm-rel-6.0"
+    "git+https://github.com/ROCm/rocBLAS.git#tag=rocm-$pkgver"
+    "git+https://github.com/ROCm/Tensile.git#tag=rocm-$pkgver"
     "git+https://github.com/google/googletest.git"
     "rocBLAS.patch"
 )
@@ -36,18 +36,18 @@ prepare() {
    -DCMAKE_CXX_COMPILER=/opt/rocm-${pkgver}/bin/hipcc \
    -DCMAKE_CXX_FLAGS="-L/opt/rocm-${pkgver}/lib  -L/opt/rocm-${pkgver}/hip/lib" \
    -DTensile_LOGIC=asm_full \
-   -DTensile_ARCHITECTURE=all \
+   -DTensile_ARCHITECTURE=gfx1034 \
    -DTensile_CODE_OBJECT_VERSION=V5 \
    -DROCM_PATH=/opt/rocm-${pkgver} \
    -DTensile_LIBRARY_FORMAT=yaml \
    -DRUN_HEADER_TESTING=OFF \
-   -DAMDGPU_TARGETS=gfx1030 \
+   -DAMDGPU_TARGETS=gfx1034 \
    -DTensile_COMPILER=hipcc \
    -DTensile_TEST_LOCAL_PATH=$PWD/../Tensile \
    -DCMAKE_PREFIX_PATH="/opt/rocm-${pkgver}/;/usr" \
    -DCMAKE_INSTALL_PREFIX=/opt/rocm-${pkgver} \
-   -DVIRTUALENV_PYTHON_EXE=/usr/bin/python3.12 \
-   -DTensile_ROOT=$PWD/virtualenv/lib/python3.12/site-packages/Tensile \
+   -DVIRTUALENV_PYTHON_EXE=/usr/bin/python3.13 \
+   -DTensile_ROOT=$PWD/virtualenv/lib/python3.13/site-packages/Tensile \
    -DCMAKE_EXE_LINKER_FLAGS="-L/opt/rocm-${pkgver}/lib  -L/opt/rocm-${pkgver}/hip/lib" \
   -G "Unix Makefiles"
 }

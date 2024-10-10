@@ -1,7 +1,7 @@
 pkgbase='rocm-roct-thunk-interface'
 pkgname=('rocm-roct-thunk-interface')
-pkgver=next
-pkgrel=999000
+pkgver=6.2.2
+pkgrel=622000
 pkgdesc=" Radeon Open Compute Thunk Interface "
 arch=('loong64' 'x86_64')
 license=('MIT')
@@ -9,15 +9,10 @@ depends=("rocm-llvm=${pkgver}")
 url="https://github.com/ROCm/ROCT-Thunk-Interface.git"
 
 source=(
-    "git+https://github.com/ROCm/ROCT-Thunk-Interface.git#branch=rocm-6.0.x"
-    "rocm-roct-thunk-interface.patch"
+    "git+https://github.com/ROCm/ROCT-Thunk-Interface.git#tag=rocm-$pkgver"
 )
-b2sums=('SKIP' 'SKIP')
+b2sums=('SKIP')
 prepare() {
-cd ROCT-Thunk-Interface
-git apply ../rocm-roct-thunk-interface.patch
-cd ..
-
   mkdir build || true
   cd build
   cmake ../ROCT-Thunk-Interface \
@@ -35,60 +30,7 @@ build() {
 }
 
 check() {
-#  cd "ROCT-Thunk-Interface"
-  mkdir test || true
-# init
-  cd build
-#  make DESTDIR="../test/dist" install
-  cd ..
-# init check
-  cd test/
-  mkdir kfdtest || true
-  cd kfdtest
-  LIBHSAKMT_PATH=$PWD/../dist/opt/rocm-${pkgver}/ cmake ../../ROCT-Thunk-Interface/tests/kfdtest/ \
-   -DCMAKE_BUILD_TYPE=Debug \
-   -DCMAKE_C_COMPILER=/opt/rocm-${pkgver}/bin/clang \
-   -DCMAKE_CXX_COMPILER=/opt/rocm-${pkgver}/bin/clang++ \
-   -DCMAKE_INSTALL_PREFIX=/opt/rocm-${pkgver} \
-   -DLLVM_DIR=/opt/rocm-${pkgver} \
-  "-DCMAKE_PREFIX_PATH=/opt/rocm-${pkgver}/;/usr" \
-  -G Ninja
-#  ninja 
-# OOM
-#  BIN_DIR=$PWD LD_LIBRARY_PATH=/opt/rocm-${pkgver}/lib64:/opt/rocm-${pkgver}/lib:/opt/rocm-${pkgver}/hip/lib:$LD_LIBRARY_PATH ./run_kfdtest.sh
-  cd ..
-
-  mkdir rdma_test || true
-  cd rdma_test
-  cmake ../../ROCT-Thunk-Interface/tests/rdma/simple/app/ \
-   -DCMAKE_BUILD_TYPE=Debug \
-   -DCMAKE_CXX_FLAGS=-I$PWD/../dist/opt/rocm-${pkgver}/include \
-   -DCMAKE_C_FLAGS=-I$PWD/../dist/opt/rocm-${pkgver}/include \
-   -DCMAKE_EXE_LINKER_FLAGS="-L/opt/rocm-${pkgver}/lib -L$PWD/../dist/opt/rocm-${pkgver}/lib64 -ldrm -ldrm_amdgpu -lnuma" \
-   -DCMAKE_C_COMPILER=/opt/rocm-${pkgver}/bin/clang \
-   -DCMAKE_CXX_COMPILER=/opt/rocm-${pkgver}/bin/clang++ \
-   -DCMAKE_INSTALL_PREFIX=/opt/rocm-${pkgver} \
-  "-DCMAKE_PREFIX_PATH=/opt/rocm-${pkgver}/;/usr" \
-  -G Ninja
-#  ninja 
-# nocheck rdma
-#  LD_LIBRARY_PATH=/opt/rocm-${pkgver}/lib64:/opt/rocm-${pkgver}/lib:/opt/rocm-${pkgver}/hip/lib:$LD_LIBRARY_PATH ./rdma_test
-  cd ..
-  mkdir reopen ||true
-  cd reopen
-    cmake ../../ROCT-Thunk-Interface/tests/reopen/ \
-   -DCMAKE_BUILD_TYPE=Debug \
-   -DCMAKE_CXX_FLAGS=-I$PWD/../dist/opt/rocm-${pkgver}/include \
-   -DCMAKE_C_FLAGS=-I$PWD/../dist/opt/rocm-${pkgver}/include \
-   -DCMAKE_EXE_LINKER_FLAGS="-L/opt/rocm-${pkgver}/lib -L$PWD/../dist/opt/rocm-${pkgver}/lib64 " \
-   -DCMAKE_C_COMPILER=/opt/rocm-${pkgver}/bin/clang \
-   -DCMAKE_CXX_COMPILER=/opt/rocm-${pkgver}/bin/clang++ \
-   -DCMAKE_INSTALL_PREFIX=/opt/rocm-${pkgver} \
-  "-DCMAKE_PREFIX_PATH=/opt/rocm-${pkgver}/;/usr" \
-  -G Ninja
-#  ninja
-# no shared
-#  LD_LIBRARY_PATH=/opt/rocm-${pkgver}/lib64:/opt/rocm-${pkgver}/lib:/opt/rocm-${pkgver}/hip/lib:$LD_LIBRARY_PATH:$PWD/../dist/opt/rocm-${pkgver} ./kmtreopen
+echo
 }
 
 #packaging() {

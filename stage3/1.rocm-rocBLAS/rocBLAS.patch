@@ -1,9 +1,9 @@
 diff --git a/clients/benchmarks/CMakeLists.txt b/clients/benchmarks/CMakeLists.txt
-index aba616c98..db0073216 100644
+index 0bfd30afc..e953a974c 100644
 --- a/clients/benchmarks/CMakeLists.txt
 +++ b/clients/benchmarks/CMakeLists.txt
-@@ -113,14 +113,6 @@ else( )
-   endif()
+@@ -97,14 +97,6 @@ if( BUILD_WITH_TENSILE )
+   target_link_libraries( rocblas-gemm-tune PRIVATE ${COMMON_LINK_LIBS} )
  endif()
  
 -if( CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
@@ -14,48 +14,33 @@ index aba616c98..db0073216 100644
 -  endif()
 -endif()
 -
- target_compile_definitions( rocblas-bench PRIVATE ROCBLAS_BENCH ROCM_USE_FLOAT16 ROCBLAS_INTERNAL_API ROCBLAS_NO_DEPRECATED_WARNINGS ${TENSILE_DEFINES} )
+ target_compile_options(rocblas-bench PRIVATE $<$<COMPILE_LANGUAGE:CXX>:${COMMON_CXX_OPTIONS}>)
  if( BUILD_WITH_TENSILE )
-   target_compile_definitions( rocblas-gemm-tune PRIVATE ROCBLAS_BENCH ROCM_USE_FLOAT16 ROCBLAS_INTERNAL_API ROCBLAS_NO_DEPRECATED_WARNINGS ${TENSILE_DEFINES} )
+   target_compile_options(rocblas-gemm-tune PRIVATE $<$<COMPILE_LANGUAGE:CXX>:${COMMON_CXX_OPTIONS}>)
 diff --git a/clients/gtest/CMakeLists.txt b/clients/gtest/CMakeLists.txt
-index 9f17fb28e..768a198fc 100644
+index 8352276c5..3a3f003ca 100644
 --- a/clients/gtest/CMakeLists.txt
 +++ b/clients/gtest/CMakeLists.txt
-@@ -169,11 +169,6 @@ else( )
-   target_link_libraries( rocblas-test PRIVATE hip::host hip::device )
- endif( )
+@@ -165,10 +165,6 @@ else()
+ endif()
+ target_link_libraries( rocblas-test PRIVATE ${COMMON_LINK_LIBS} )
  
 -if( CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 -  # GCC or hip-clang needs specific flag to turn on f16c intrinsics
 -  target_compile_options( rocblas-test PRIVATE -mf16c )
 -endif( )
--
- target_compile_definitions( rocblas-test PRIVATE ROCM_USE_FLOAT16 ROCBLAS_INTERNAL_API ROCBLAS_NO_DEPRECATED_WARNINGS )
- 
  target_compile_options(rocblas-test PRIVATE $<$<COMPILE_LANGUAGE:CXX>:${COMMON_CXX_OPTIONS}>)
+ 
+ target_compile_definitions( rocblas-test PRIVATE ROCM_USE_FLOAT16 ROCBLAS_INTERNAL_API ROCBLAS_NO_DEPRECATED_WARNINGS )
 diff --git a/clients/samples/CMakeLists.txt b/clients/samples/CMakeLists.txt
-index c39fe0e84..ca72b1a81 100644
+index 2f6caeaf1..e00e455f6 100644
 --- a/clients/samples/CMakeLists.txt
 +++ b/clients/samples/CMakeLists.txt
-@@ -114,7 +114,6 @@ foreach( exe ${sample_list_all} )
+@@ -116,7 +116,6 @@ foreach( exe ${sample_list_all} )
  
    if( CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
      # GCC or hip-clang needs specific flags to turn on f16c intrinsics
 -    target_compile_options( ${exe} PRIVATE -mf16c )
      target_compile_definitions( ${exe} PRIVATE ROCBLAS_INTERNAL_API )
    endif( )
- 
-diff --git a/library/src/CMakeLists.txt b/library/src/CMakeLists.txt
-index 6acedfb27..f1367b625 100755
---- a/library/src/CMakeLists.txt
-+++ b/library/src/CMakeLists.txt
-@@ -423,9 +423,6 @@ endif()
- 
- #  -fno-gpu-rdc compiler option was used with hcc, so revisit feature at some point
- 
--# GCC or hip-clang needs specific flags to turn on f16c intrinsics
--target_compile_options( rocblas PRIVATE -mf16c )
--
- # Do not allow Variable Length Arrays (use unique_ptr instead)
- target_compile_options( rocblas PRIVATE -Werror=vla )
  

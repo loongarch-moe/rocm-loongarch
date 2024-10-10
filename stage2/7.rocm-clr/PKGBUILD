@@ -1,15 +1,15 @@
 pkgbase='rocm-clr'
 pkgname=('rocm-clr')
-pkgver=next
-pkgrel=999000
+pkgver=6.2.2
+pkgrel=622000
 pkgdesc="rocm-core is a utility which can be used to get ROCm release version."
 arch=('loong64' 'x86_64')
 license=('MIT')
 url="https://github.com/ROCm/ROCT-Thunk-Interface.git"
 
 source=(
-    "git+https://github.com/ROCm/HIP.git#branch=rocm-6.0.x"
-    "git+https://github.com/ROCm/clr.git#branch=rocm-6.0.x"
+    "git+https://github.com/ROCm/HIP.git#tag=rocm-$pkgver"
+    "git+https://github.com/ROCm/clr.git#tag=rocm-$pkgver"
     "clr.patch"
 )
 b2sums=('SKIP' 'SKIP' 'SKIP')
@@ -21,12 +21,9 @@ depends=("rocm-llvm=${pkgver}"
 )
 
 prepare() {
-  if [ $CARCH == 'loong64' ];
-  then
     cd clr
     git apply ../clr.patch
     cd ..
-  fi
 
   mkdir build || true
   cd build
@@ -78,7 +75,7 @@ echo
 package() {
   cd build
   make DESTDIR="$pkgdir/" install
-  cd $pkgdir/opt/rocm-next/bin
+  cd $pkgdir/opt/rocm-$pkgver/bin
   rm hipcc hipcc.bin hipcc.pl hipconfig hipconfig.bin hipconfig.pl hipvars.pm
 #  cmake --install . --prefix "$pkgdir"/opt/rocm-${pkgver}
 }

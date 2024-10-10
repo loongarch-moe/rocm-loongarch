@@ -1,14 +1,14 @@
 pkgbase='rocm-llvm'
 pkgname=('rocm-llvm')
-pkgver=next
-pkgrel=999000
+pkgver=6.2.2
+pkgrel=622000
 pkgdesc="rocm-core is a utility which can be used to get ROCm release version."
 arch=('loong64' 'x86_64')
 license=('Apache')
 url="https://github.com/ROCm/llvm-project"
 provides=('rocm-compilersupport' 'rocm-device-libs')
 source=(
-    "git+https://github.com/ROCm/llvm-project.git#branch=amd-stg-open"
+    "git+https://github.com/ROCm/llvm-project.git#tag=rocm-$pkgver"
     "loongarch.patch"
 )
 b2sums=('SKIP' 'SKIP')
@@ -25,8 +25,8 @@ prepare() {
   mkdir build || true
   cd build
   cmake \
-  -DCMAKE_C_COMPILER=/opt/rocm-${pkgver}/bin/clang \
-  -DCMAKE_CXX_COMPILER=/opt/rocm-${pkgver}/bin/clang++ \
+  -DCMAKE_C_COMPILER=clang \
+  -DCMAKE_CXX_COMPILER=clang++ \
   -DCMAKE_BUILD_TYPE=RelWithDebInfo \
   -DCMAKE_C_FLAGS="-fno-lto -pipe -mcmodel=medium" \
   -DCMAKE_CXX_FLAGS="-fno-lto -pipe -mcmodel=medium" \
@@ -40,7 +40,7 @@ prepare() {
   -DLLVM_EXTERNAL_DEVICE_LIBS_SOURCE_DIR=$PWD/../llvm-project/amd/device-libs/ \
   -DHIP_PLATFORM='amd' \
   -DPROJECT_VERSION_MAJOR=6 \
-  -DPROJECT_VERSION_MINOR=0 \
+  -DPROJECT_VERSION_MINOR=2 \
   -DPROJECT_VERSION_PATCH=2 \
   -DBUILD_SHARED_LIBS=ON \
   -G "Ninja" \
