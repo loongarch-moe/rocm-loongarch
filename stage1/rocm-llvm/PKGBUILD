@@ -24,12 +24,17 @@ prepare() {
   cd ..
   mkdir build || true
   cd build
+  EXT_CFLAGS="-pipe"
+  if [ $CARCH == 'loong64' ];
+  then
+    EXT_CFLAGS="-mcmodel=medium $EXT_CFLAGS"
+  fi
   cmake \
   -DCMAKE_C_COMPILER=clang \
   -DCMAKE_CXX_COMPILER=clang++ \
   -DCMAKE_BUILD_TYPE=RelWithDebInfo \
-  -DCMAKE_C_FLAGS="-fno-lto -pipe -mcmodel=medium" \
-  -DCMAKE_CXX_FLAGS="-fno-lto -pipe -mcmodel=medium" \
+  -DCMAKE_C_FLAGS="$EXT_CFLAGS" \
+  -DCMAKE_CXX_FLAGS="$EXT_CFLAGS" \
   -DCMAKE_INSTALL_PREFIX="/opt/rocm-${pkgver}" \
   -DLLVM_ENABLE_ASSERTIONS=1 \
   -DLLVM_TARGETS_TO_BUILD="$TARGET" \
