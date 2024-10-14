@@ -1,0 +1,38 @@
+name: rocm-core
+
+on:
+  push:
+    paths:
+      - 'stage1/rocm-core/*'
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: '手动构建rocm-core'
+      tags:
+        description: '手动构建rocm-core'
+
+jobs:
+  loongarch64-build-rocm-core:
+    runs-on: [self-hosted, loongarch64-real]
+    steps:
+    - uses: actions/checkout@v4
+    - name: remove_pkg
+      run: sh -c "pacman -Q -q|grep '^rocm'|xargs pacman --noconfirm -R "
+    - name: install_pkg
+      run: sh -c "echo 'rocm-core no need dep'"
+    - name: makepkg
+      run: sh -c 'cd stage1/rocm-core/;makepkg -Cf'
+    - name: post-to-localrepo
+      run: sh -c 'cd stage1/rocm-core/;cp -f *.pkg.tar.gz /opt/localrepo'
+  amd64-build-rocm-core:
+    runs-on: [self-hosted, amd64-real]
+    steps:
+    - uses: actions/checkout@v4
+    - name: remove_pkg
+      run: sh -c "pacman -Q -q|grep '^rocm'|xargs pacman --noconfirm -R "
+    - name: install_pkg
+      run: sh -c "echo 'rocm-core no need dep'"
+    - name: makepkg
+      run: sh -c 'cd stage1/rocm-core/;makepkg -Cf'
+    - name: post-to-localrepo
+      run: sh -c 'cd stage1/rocm-core/;cp -f *.pkg.tar.gz /opt/localrepo'
