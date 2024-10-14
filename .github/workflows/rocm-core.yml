@@ -17,7 +17,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: remove_pkg
-      run: sh -c "pacman -Q -q|grep '^rocm'|xargs pacman --noconfirm -R "
+      run: sh -c "pacman -Q -q|grep '^rocm'|sudo xargs pacman --noconfirm -R "
     - name: install_pkg
       run: sh -c "echo 'rocm-core no need dep'"
     - name: makepkg
@@ -29,7 +29,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: remove_pkg
-      run: sh -c "pacman -Q -q|grep '^rocm'|xargs pacman --noconfirm -R "
+      run: sh -c "pacman -Q -q|grep '^rocm'|sudo xargs pacman --noconfirm -R "
     - name: install_pkg
       run: sh -c "echo 'rocm-core no need dep'"
     - name: makepkg
