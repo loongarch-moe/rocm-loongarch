@@ -17,22 +17,26 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: remove_pkg
-      run: sh -c "pacman -Q -q|grep '^rocm'|sudo xargs pacman --noconfirm -R "
+      run: sh -c "pacman -Q -q|grep '^rocm'|sudo xargs pacman --noconfirm -R " || true
     - name: install_pkg
-      run: sh -c "echo 'rocm-core no need dep'"
+      run: echo 'rocm-core no need dep'
     - name: makepkg
-      run: sh -c 'cd stage1/rocm-core/;makepkg -Cf'
+      run: makepkg -Cf
+      working-directory: ./stage1/rocm-core/
     - name: post-to-localrepo
-      run: sh -c 'cd stage1/rocm-core/;cp -f *.pkg.tar.gz /opt/localrepo'
+      run: cp -f *.pkg.tar.gz /opt/localrepo
+      working-directory: ./stage1/rocm-core/
   amd64-build-rocm-core:
     runs-on: [self-hosted, amd64-real]
     steps:
     - uses: actions/checkout@v4
     - name: remove_pkg
-      run: sh -c "pacman -Q -q|grep '^rocm'|sudo xargs pacman --noconfirm -R "
+      run: sh -c "pacman -Q -q|grep '^rocm'|sudo xargs pacman --noconfirm -R " || true
     - name: install_pkg
-      run: sh -c "echo 'rocm-core no need dep'"
+      run: echo 'rocm-core no need dep'
     - name: makepkg
-      run: sh -c 'cd stage1/rocm-core/;makepkg -Cf'
+      run: makepkg -Cf
+      working-directory: ./stage1/rocm-core/
     - name: post-to-localrepo
-      run: sh -c 'cd stage1/rocm-core/;cp -f *.pkg.tar.gz /opt/localrepo'
+      run: cp -f *.pkg.tar.gz /opt/localrepo
+      working-directory: ./stage1/rocm-core/
