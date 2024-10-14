@@ -7,7 +7,7 @@ index 51faaffc..00f1f08e 100644
      set( ROCFFT_RTC_LINK_LIBS "${HIP_PATH}/lib/hiprtc.lib" )
    else()
 -    set( ROCFFT_RTC_LINK_LIBS -L${ROCM_PATH}/lib -lhiprtc -ldl )
-+    set( ROCFFT_RTC_LINK_LIBS -L${ROCM_PATH}/lib /opt/rocm-next/lib64/libhiprtc.so -ldl )
++    set( ROCFFT_RTC_LINK_LIBS -L${ROCM_PATH}/lib /opt/rocm-6.2.2/lib64/libhiprtc.so -ldl )
    endif()
  endif()
  

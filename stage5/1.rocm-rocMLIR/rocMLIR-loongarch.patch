@@ -1,8 +1,8 @@
 diff --git a/external/llvm-project/clang/lib/Basic/Targets/LoongArch.h b/external/llvm-project/clang/lib/Basic/Targets/LoongArch.h
-index 52c4ce425368..fbb7cff21c19 100644
+index 68572843f2d7..c46b7982e6dc 100644
 --- a/external/llvm-project/clang/lib/Basic/Targets/LoongArch.h
 +++ b/external/llvm-project/clang/lib/Basic/Targets/LoongArch.h
-@@ -38,6 +38,8 @@ public:
+@@ -44,6 +44,8 @@ public:
      SuitableAlign = 128;
      WCharType = SignedInt;
      WIntType = UnsignedInt;
@@ -10,12 +10,12 @@ index 52c4ce425368..fbb7cff21c19 100644
 +    HasFloat16 = true;
    }
  
-   StringRef getABI() const override { return ABI; }
+   bool setCPU(const std::string &Name) override {
 diff --git a/external/llvm-project/clang/lib/CodeGen/BackendUtil.cpp b/external/llvm-project/clang/lib/CodeGen/BackendUtil.cpp
-index 458756509b3a..5a06ab6fffbf 100644
+index 22c3f8642ad8..a1d1604113b2 100644
 --- a/external/llvm-project/clang/lib/CodeGen/BackendUtil.cpp
 +++ b/external/llvm-project/clang/lib/CodeGen/BackendUtil.cpp
-@@ -298,6 +298,7 @@ getCodeModel(const CodeGenOptions &CodeGenOpts) {
+@@ -302,6 +302,7 @@ getCodeModel(const CodeGenOptions &CodeGenOpts) {
                             .Case("kernel", llvm::CodeModel::Kernel)
                             .Case("medium", llvm::CodeModel::Medium)
                             .Case("large", llvm::CodeModel::Large)
@@ -24,10 +24,10 @@ index 458756509b3a..5a06ab6fffbf 100644
                             .Default(~0u);
    assert(CodeModel != ~0u && "invalid code model!");
 diff --git a/external/llvm-project/clang/lib/Driver/ToolChains/HIPUtility.cpp b/external/llvm-project/clang/lib/Driver/ToolChains/HIPUtility.cpp
-index 8b9d8db90ffa..31fef17f6dbb 100644
+index 08c647dfcb6f..6ee38abcac17 100644
 --- a/external/llvm-project/clang/lib/Driver/ToolChains/HIPUtility.cpp
 +++ b/external/llvm-project/clang/lib/Driver/ToolChains/HIPUtility.cpp
-@@ -24,7 +24,7 @@ using namespace llvm::opt;
+@@ -36,7 +36,7 @@ using llvm::dyn_cast;
  #endif
  
  namespace {
@@ -36,7 +36,7 @@ index 8b9d8db90ffa..31fef17f6dbb 100644
  } // namespace
  
  // Constructs a triple string for clang offload bundler.
-@@ -52,7 +52,12 @@ void HIP::constructHIPFatbinCommand(Compilation &C, const JobAction &JA,
+@@ -227,7 +227,12 @@ void HIP::constructHIPFatbinCommand(Compilation &C, const JobAction &JA,
  
    // ToDo: Remove the dummy host binary entry which is required by
    // clang-offload-bundler.
@@ -50,33 +50,44 @@ index 8b9d8db90ffa..31fef17f6dbb 100644
    // For code object version 2 and 3, the offload kind in bundle ID is 'hip'
    // for backward compatibility. For code object version 4 and greater, the
 diff --git a/external/llvm-project/clang/tools/clang-linker-wrapper/ClangLinkerWrapper.cpp b/external/llvm-project/clang/tools/clang-linker-wrapper/ClangLinkerWrapper.cpp
-index c553cf86da8e..751b98acecac 100644
+index 1de1a30a718f..6c811de81b64 100644
 --- a/external/llvm-project/clang/tools/clang-linker-wrapper/ClangLinkerWrapper.cpp
 +++ b/external/llvm-project/clang/tools/clang-linker-wrapper/ClangLinkerWrapper.cpp
-@@ -338,9 +338,13 @@ fatbinary(ArrayRef<std::pair<StringRef, StringRef>> InputFiles,
+@@ -404,15 +404,23 @@ fatbinary(ArrayRef<std::pair<StringRef, StringRef>> InputFiles,
    SmallVector<StringRef, 16> CmdArgs;
    CmdArgs.push_back(*OffloadBundlerPath);
    CmdArgs.push_back("-type=o");
--  CmdArgs.push_back("-bundle-align=4096");
--
-+  CmdArgs.push_back("-bundle-align=65536");
 +#if defined(__x86_64)
-   SmallVector<StringRef> Targets = {"-targets=host-x86_64-unknown-linux"};
+   CmdArgs.push_back("-bundle-align=4096");
+-
 +#elif defined(__loongarch64)
-+  SmallVector<StringRef> Targets = {"-targets=host-loongarch64-unknown-linux"};
++  CmdArgs.push_back("-bundle-align=65536");
++#else
++#endif
+   if (Args.hasArg(OPT_compress))
+     CmdArgs.push_back("-compress");
+   if (auto *Arg = Args.getLastArg(OPT_compression_level_eq))
+     CmdArgs.push_back(
+         Args.MakeArgString(Twine("-compression-level=") + Arg->getValue()));
+-
+-  SmallVector<StringRef> Targets = {"-targets=host-x86_64-unknown-linux"};
++#if defined(__x86_64)
++   SmallVector<StringRef> Targets = {"-targets=host-x86_64-unknown-linux"};
++#elif defined(__loongarch64)
++   SmallVector<StringRef> Targets = {"-targets=host-loongarch64-unknown-linux"};
 +#else
 +#endif
    for (const auto &[File, Arch] : InputFiles)
      Targets.push_back(Saver.save("hipv4-amdgcn-amd-amdhsa--" + Arch));
    CmdArgs.push_back(Saver.save(llvm::join(Targets, ",")));
 diff --git a/external/llvm-project/llvm/lib/Target/LoongArch/LoongArchISelLowering.cpp b/external/llvm-project/llvm/lib/Target/LoongArch/LoongArchISelLowering.cpp
-index 62ce24d942fa..55680602b9d9 100644
+index 285d5c2a63b2..42608171e5d2 100644
 --- a/external/llvm-project/llvm/lib/Target/LoongArch/LoongArchISelLowering.cpp
 +++ b/external/llvm-project/llvm/lib/Target/LoongArch/LoongArchISelLowering.cpp
-@@ -203,6 +203,20 @@ LoongArchTargetLowering::LoongArchTargetLowering(const TargetMachine &TM,
-   setTargetDAGCombine(ISD::AND);
-   setTargetDAGCombine(ISD::OR);
-   setTargetDAGCombine(ISD::SRL);
+@@ -326,6 +326,20 @@ LoongArchTargetLowering::LoongArchTargetLowering(const TargetMachine &TM,
+                         VT, Expand);
+     }
+   }
 +    // Lower f16 conversion operations into library calls
 +  setOperationAction(ISD::FP16_TO_FP,        MVT::f32,   Expand);
 +  setOperationAction(ISD::FP_TO_FP16,        MVT::f32,   Expand);
@@ -91,9 +102,9 @@ index 62ce24d942fa..55680602b9d9 100644
 +  setLoadExtAction(ISD::EXTLOAD, MVT::f64, MVT::f16, Expand);
 +  setTruncStoreAction(MVT::f64, MVT::f16, Expand);
 +
- }
  
- bool LoongArchTargetLowering::isOffsetFoldingLegal(
+   // Set DAG combine for LA32 and LA64.
+ 
 diff --git a/mlir/tools/xmir-runner/CMakeLists.txt b/mlir/tools/xmir-runner/CMakeLists.txt
 index 81f484a51ce5..d3cfbb4f0480 100644
 --- a/mlir/tools/xmir-runner/CMakeLists.txt

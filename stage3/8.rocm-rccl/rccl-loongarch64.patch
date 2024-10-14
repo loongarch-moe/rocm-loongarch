@@ -1,17 +1,17 @@
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 53842875..e261af96 100644
+index 475a65df..bdec2db5 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -601,7 +601,6 @@ if(DEMANGLE_DIR)
+@@ -620,7 +620,6 @@ if(${hipcc_version_string} VERSION_GREATER_EQUAL "6.1.33591")
  endif()
  
  ## Set RCCL compile options
 -target_compile_options(rccl PRIVATE -parallel-jobs=12)
+ target_compile_options(rccl PRIVATE -Werror=uninitialized -Werror=sometimes-uninitialized)
  target_compile_options(rccl PRIVATE -Wno-format-nonliteral)
  target_compile_options(rccl PRIVATE -fgpu-rdc)               # Generate relocatable device code (required for extern __shared__)
- target_compile_options(rccl PRIVATE -fvisibility=hidden)     # Set symbol visibility to hidden by default
-@@ -634,7 +633,6 @@ endif()
- target_link_libraries(rccl PRIVATE -fgpu-rdc)               # Required when linking relocatable device code
+@@ -662,7 +661,6 @@ target_link_libraries(rccl PRIVATE   dl)
+ target_link_libraries(rccl PRIVATE   ${ROCM_SMI_LIBRARIES})
  
  ## Set RCCL link options
 -target_link_options(rccl PRIVATE -parallel-jobs=16)       # Use multiple threads to link
@@ -19,7 +19,7 @@ index 53842875..e261af96 100644
    target_link_options(rccl PRIVATE -fuse-ld=lld)
  endif()
 diff --git a/src/include/gdrwrap.h b/src/include/gdrwrap.h
-index f532a705..e0da2bdf 100644
+index 669cbace..f7ffac14 100644
 --- a/src/include/gdrwrap.h
 +++ b/src/include/gdrwrap.h
 @@ -41,7 +41,7 @@ static inline void wc_store_fence(void) { asm volatile("sync") ; }
@@ -31,19 +31,6 @@ index f532a705..e0da2bdf 100644
  #ifdef __cplusplus
  #include <atomic>
  static inline void wc_store_fence(void) { std::atomic_thread_fence(std::memory_order_release); }
-diff --git a/src/include/msccl/msccl_struct.h b/src/include/msccl/msccl_struct.h
-index 4ce0b3e6..cf6386dc 100644
---- a/src/include/msccl/msccl_struct.h
-+++ b/src/include/msccl/msccl_struct.h
-@@ -64,7 +64,7 @@ struct mscclThreadBlock {
-   int16_t channelId; // associated channel. -1 indicates a thread block with only local copies
- }; // 5384 bytes
- 
--static_assert(sizeof(struct mscclThreadBlock) % sizeof(uint64_t) == 0, "Sanity check: sizeof(struct mscclThreadBlock) % sizeof(uint64_t) != 0");
-+static_assert(sizeof(struct mscclThreadBlock) % sizeof(uint64_t) == 0, "Sanity check: sizeof(struct mscclThreadBlock) \\% sizeof(uint64_t) != 0");
- 
- struct mscclFlag {
-   uint64_t flag;
 diff --git a/tools/MultiRank/README.mpi b/tools/MultiRank/README.mpi
 index 4672aa9e..7af63883 100755
 --- a/tools/MultiRank/README.mpi

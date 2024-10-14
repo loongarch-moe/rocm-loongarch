@@ -1,14 +1,14 @@
 pkgbase='rocm-rccl'
 pkgname=('rocm-rccl')
-pkgver=next
-pkgrel=999000
+pkgver=6.2.2
+pkgrel=622000
 pkgdesc="rocm-core is a utility which can be used to get ROCm release version."
 arch=('loong64' 'x86_64')
 license=('MIT')
 url="https://github.com/ROCm/ROCT-Thunk-Interface.git"
 
 source=(
-    "git+https://github.com/ROCm/rccl.git#branch=release/rocm-rel-6.0"
+    "git+https://github.com/ROCm/rccl.git#tag=rocm-$pkgver"
     "rccl-loongarch64.patch"
 )
 b2sums=('SKIP' 'SKIP')
@@ -21,7 +21,7 @@ prepare() {
   rm -rf build || true
   mkdir build || true
   cd build
-  LD_LIBRARY_PATH=/opt/rocm-${pkgver}/lib64:/opt/rocm-${pkgver}/lib:/opt/rocm-${pkgver}/hip/lib:$LD_LIBRARY_PATH cmake ../rccl \
+  ROCM_PATH=/opt/rocm-$pkgver LD_LIBRARY_PATH=/opt/rocm-${pkgver}/lib64:/opt/rocm-${pkgver}/lib:/opt/rocm-${pkgver}/hip/lib:$LD_LIBRARY_PATH cmake ../rccl \
    -DCMAKE_BUILD_TYPE=RelWithDebInfo \
    -DCMAKE_C_COMPILER=/opt/rocm-${pkgver}/bin/clang \
    -DCMAKE_FIND_ROOT_PATH=/opt/rocm-${pkgver}/ \
