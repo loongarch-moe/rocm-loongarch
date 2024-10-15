@@ -16,6 +16,7 @@ jobs:
     runs-on: [self-hosted, loongarch64-real]
     steps:
     - uses: actions/checkout@v4
+      clean: false
     - name: remove_pkg
       run: sh -c "pacman -Q -q|grep '^rocm'|sudo xargs pacman --noconfirm -R " || true
     - name: install_pkg
@@ -30,6 +31,7 @@ jobs:
     runs-on: [self-hosted, amd64-real]
     steps:
     - uses: actions/checkout@v4
+      clean: false
     - name: remove_pkg
       run: sh -c "pacman -Q -q|grep '^rocm'|sudo xargs pacman --noconfirm -R " || true
     - name: install_pkg
