@@ -24,10 +24,10 @@ jobs:
       run: sudo pacman --noconfirm -U /opt/localrepo/rocm-core*.tar.gz /opt/localrepo/rocm-llvm*.tar.gz
     - name: makepkg
       run: makepkg -Cf
-      working-directory: ./stage1/rocm-llvm/
+      working-directory: ./stage2/2.rocm-roct-thunk-interface/
     - name: post-to-localrepo
       run: cp -f *.pkg.tar.gz /opt/localrepo
-      working-directory: ./stage1/rocm-llvm/
+      working-directory: ./stage2/2.rocm-roct-thunk-interface/
   amd64-build-rocm-roct-thunk-interface:
     runs-on: [self-hosted, amd64-real]
     steps:
