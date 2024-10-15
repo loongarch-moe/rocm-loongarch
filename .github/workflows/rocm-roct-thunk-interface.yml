@@ -14,7 +14,6 @@ on:
 jobs:
   loongarch64-build-rocm-roct-thunk-interface:
     runs-on: [self-hosted, loongarch64-real]
-    needs: loongarch64-build-rocm-llvm
     steps:
     - uses: actions/checkout@v4
       with:
@@ -31,7 +30,6 @@ jobs:
       working-directory: ./stage1/rocm-llvm/
   amd64-build-rocm-roct-thunk-interface:
     runs-on: [self-hosted, amd64-real]
-    needs: amd64-build-rocm-llvm
     steps:
     - uses: actions/checkout@v4
       with:
