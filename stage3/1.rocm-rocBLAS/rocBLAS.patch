@@ -44,3 +44,17 @@ index 2f6caeaf1..e00e455f6 100644
      target_compile_definitions( ${exe} PRIVATE ROCBLAS_INTERNAL_API )
    endif( )
  
+diff --git a/library/CMakeLists.txt b/library/CMakeLists.txt
+index 90a75dd39..cf9a3a53c 100755
+--- a/library/CMakeLists.txt
++++ b/library/CMakeLists.txt
+@@ -60,9 +60,6 @@ function( rocblas_library_settings lib_target_ )
+     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+   )
+ 
+-  # GCC or hip-clang needs specific flags to turn on f16c intrinsics
+-  target_compile_options( ${lib_target_} PRIVATE -mf16c )
+-
+   # Do not allow Variable Length Arrays (use unique_ptr instead)
+   target_compile_options( ${lib_target_} PRIVATE -Werror=vla )
+ 

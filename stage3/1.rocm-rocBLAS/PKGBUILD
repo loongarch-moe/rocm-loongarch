@@ -24,7 +24,10 @@ prepare() {
     sed -i '236d' Tensile/cmake/TensileConfig.cmake
   cd ..  
   cd rocBLAS
-    git apply ../rocBLAS.patch
+    if [ $CARCH == 'loong64' ];
+    then
+      git apply ../rocBLAS.patch
+    fi
   cd ..
 
   mkdir build || true
