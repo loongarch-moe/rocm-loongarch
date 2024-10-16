@@ -23,7 +23,7 @@ jobs:
     - name: install_pkg
       run: |
           sudo pacman --noconfirm -U /opt/localrepo/rocm-core*.tar.gz /opt/localrepo/rocm-llvm*.tar.gz
-          sudo pacman --noconfirm -U /opt/localrepo/rocm-roct-thunk-interface*.tar.gz /opt/localrepo/rocm-rocr-runtime*.tar.gz /opt/localrepo/rocminfo*.tar.gz /opt/localrepo/rocm-clr*.tar.gz /opt/localrepo/rocm-cmake*.tar.gz
+          sudo pacman --noconfirm -U /opt/localrepo/rocm-roct-thunk-interface*.tar.gz /opt/localrepo/rocm-rocr-runtime*.tar.gz /opt/localrepo/rocminfo*.tar.gz /opt/localrepo/rocm-cmake*.tar.gz
     - name: makepkg
       run: makepkg -Cf
       working-directory: ./stage2/7.rocm-clr/
@@ -41,7 +41,7 @@ jobs:
     - name: install_pkg
       run: |
           sudo pacman --noconfirm -U /opt/localrepo/rocm-core*.tar.gz /opt/localrepo/rocm-llvm*.tar.gz
-          sudo pacman --noconfirm -U /opt/localrepo/rocm-roct-thunk-interface*.tar.gz /opt/localrepo/rocm-rocr-runtime*.tar.gz /opt/localrepo/rocminfo*.tar.gz /opt/localrepo/rocm-clr*.tar.gz /opt/localrepo/rocm-cmake*.tar.gz
+          sudo pacman --noconfirm -U /opt/localrepo/rocm-roct-thunk-interface*.tar.gz /opt/localrepo/rocm-rocr-runtime*.tar.gz /opt/localrepo/rocminfo*.tar.gz /opt/localrepo/rocm-cmake*.tar.gz
     - name: makepkg
       run: makepkg -Cf
       working-directory: ./stage2/7.rocm-clr/
