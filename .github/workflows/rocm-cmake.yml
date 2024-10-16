@@ -1,0 +1,46 @@
+name: rocm-cmake
+
+on:
+  push:
+    paths:
+      - 'stage2/6.rocm-cmake/*'
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: '手动构建rocm-cmake'
+      tags:
+        description: '手动构建rocm-cmake'
+
+jobs:
+  loongarch64-build-rocm-cmake:
+    runs-on: [self-hosted, loongarch64-real]
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        clean: false
+    - name: remove_pkg
+      run: sh -c "pacman -Q -q|grep '^rocm'|sudo xargs pacman --noconfirm -R " || true
+    - name: install_pkg
+      run: echo 'rocm-cmake no need dep'
+    - name: makepkg
+      run: makepkg -Cf
+      working-directory: ./stage2/6.rocm-cmake/
+    - name: post-to-localrepo
+      run: cp -f *.pkg.tar.gz /opt/localrepo
+      working-directory: ./stage2/6.rocm-cmake/
+  amd64-build-rocm-cmake:
+    runs-on: [self-hosted, amd64-real]
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        clean: false
+    - name: remove_pkg
+      run: sh -c "pacman -Q -q|grep '^rocm'|sudo xargs pacman --noconfirm -R " || true
+    - name: install_pkg
+      run: echo 'rocm-cmake no need dep'
+    - name: makepkg
+      run: makepkg -Cf
+      working-directory: ./stage2/6.rocm-cmake/
+    - name: post-to-localrepo
+      run: cp -f *.pkg.tar.gz /opt/localrepo
+      working-directory: ./stage2/6.rocm-cmake/

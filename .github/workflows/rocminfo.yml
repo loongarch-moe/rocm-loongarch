@@ -1,0 +1,46 @@
+name: rocminfo
+
+on:
+  push:
+    paths:
+      - 'stage2/5.rocminfo/*'
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: '手动构建rocminfo'
+      tags:
+        description: '手动构建rocminfo'
+
+jobs:
+  loongarch64-build-rocminfo:
+    runs-on: [self-hosted, loongarch64-real]
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        clean: false
+    - name: remove_pkg
+      run: sh -c "pacman -Q -q|grep '^rocm'|sudo xargs pacman --noconfirm -R " || true
+    - name: install_pkg
+      run: sudo pacman --noconfirm -U /opt/localrepo/rocm-core*.tar.gz /opt/localrepo/rocm-llvm*.tar.gz /opt/localrepo/rocm-roct-thunk-interface*.tar.gz /opt/localrepo/rocm-rocr-runtime*.tar.gz
+    - name: makepkg
+      run: makepkg -Cf
+      working-directory: ./stage2/5.rocminfo/
+    - name: post-to-localrepo
+      run: cp -f *.pkg.tar.gz /opt/localrepo
+      working-directory: ./stage2/5.rocminfo/
+  amd64-build-rocminfo:
+    runs-on: [self-hosted, amd64-real]
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        clean: false
+    - name: remove_pkg
+      run: sh -c "pacman -Q -q|grep '^rocm'|sudo xargs pacman --noconfirm -R " || true
+    - name: install_pkg
+      run: sudo pacman --noconfirm -U /opt/localrepo/rocm-core*.tar.gz /opt/localrepo/rocm-llvm*.tar.gz /opt/localrepo/rocm-roct-thunk-interface*.tar.gz /opt/localrepo/rocm-rocr-runtime*.tar.gz
+    - name: makepkg
+      run: makepkg -Cf
+      working-directory: ./stage2/5.rocminfo/
+    - name: post-to-localrepo
+      run: cp -f *.pkg.tar.gz /opt/localrepo
+      working-directory: ./stage2/5.rocminfo/
