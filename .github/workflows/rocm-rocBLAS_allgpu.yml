@@ -1,0 +1,45 @@
+name: rocm-rocBLAS_allgpu
+
+on:
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: '手动构建rocm-rocBLAS(所有支持的显卡架构)'
+      tags:
+        description: '手动构建rocm-rocBLAS(所有支持的显卡架构)'
+
+jobs:
+  loongarch64-build-rocm-rocBLAS:
+    runs-on: [self-hosted, loongarch64-real]
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        clean: false
+    - name: remove_pkg
+      run: sh -c "pacman -Q -q|grep '^rocm'|sudo xargs pacman --noconfirm -R " || true
+    - name: install_pkg
+      run: |
+          sudo pacman --noconfirm -U /opt/localrepo/rocm-core*.tar.gz /opt/localrepo/rocm-llvm*.tar.gz
+          sudo pacman --noconfirm -U /opt/localrepo/rocm-roct-thunk-interface*.tar.gz /opt/localrepo/rocm-rocr-runtime*.tar.gz /opt/localrepo/rocminfo*.tar.gz /opt/localrepo/rocm-cmake*.tar.gz /opt/localrepo/rocm-clr*.tar.gz
+    - name: makepkg
+      run: |
+          sed -i '/gfx1030/d' PKGBUILD
+          makepkg -Cf
+      working-directory: ./stage3/1.rocm-rocBLAS/
+  amd64-build-rocm-rocBLAS:
+    runs-on: [self-hosted, amd64-real]
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        clean: false
+    - name: remove_pkg
+      run: sh -c "pacman -Q -q|grep '^rocm'|sudo xargs pacman --noconfirm -R " || true
+    - name: install_pkg
+      run: |
+          sudo pacman --noconfirm -U /opt/localrepo/rocm-core*.tar.gz /opt/localrepo/rocm-llvm*.tar.gz
+          sudo pacman --noconfirm -U /opt/localrepo/rocm-roct-thunk-interface*.tar.gz /opt/localrepo/rocm-rocr-runtime*.tar.gz /opt/localrepo/rocminfo*.tar.gz /opt/localrepo/rocm-cmake*.tar.gz /opt/localrepo/rocm-clr*.tar.gz
+    - name: makepkg
+      run: |
+          sed '/gfx1030/d' PKGBUILD
+          makepkg -Cf
+      working-directory: ./stage3/1.rocm-rocBLAS/
