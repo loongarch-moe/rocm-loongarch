@@ -21,9 +21,13 @@ depends=("rocm-llvm=${pkgver}"
 )
 
 prepare() {
-    cd clr
+  cd clr
     git apply ../clr.patch
-    cd ..
+    if [ $CARCH == 'loong64' ];
+    then
+      sed -i 's!x86_64-unknown-linux-gnu!loongarch64-unknown-linux-gnu!g' hipamd/src/hip_embed_pch.sh
+    fi
+  cd ..
 
   mkdir build || true
   cd build

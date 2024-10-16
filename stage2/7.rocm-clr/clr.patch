@@ -1,24 +1,3 @@
-diff --git a/hipamd/src/hip_embed_pch.sh b/hipamd/src/hip_embed_pch.sh
-index 9b01da872..45f0f09d1 100755
---- a/hipamd/src/hip_embed_pch.sh
-+++ b/hipamd/src/hip_embed_pch.sh
-@@ -149,14 +149,14 @@ EOF
- 
-   cat $tmp/hip_macros.h >> $tmp/pch_wave32.cui &&
- 
--  $LLVM_DIR/bin/clang -cc1 -O3 -emit-pch -triple amdgcn-amd-amdhsa -aux-triple x86_64-unknown-linux-gnu -fcuda-is-device -std=c++17 -fgnuc-version=4.2.1 -o $tmp/hip_wave32.pch -x hip-cpp-output - <$tmp/pch_wave32.cui &&
-+  $LLVM_DIR/bin/clang -cc1 -O3 -emit-pch -triple amdgcn-amd-amdhsa -aux-triple loongarch64-unknown-linux-gnu -fcuda-is-device -std=c++17 -fgnuc-version=4.2.1 -o $tmp/hip_wave32.pch -x hip-cpp-output - <$tmp/pch_wave32.cui &&
- 
-   # For other devices
-   $LLVM_DIR/bin/clang -O3 --hip-path=$HIP_INC_DIR/.. -std=c++17 -nogpulib -isystem $HIP_INC_DIR -isystem $HIP_BUILD_INC_DIR -isystem $HIP_AMD_INC_DIR --cuda-device-only -x hip $tmp/hip_pch.h -E >$tmp/pch_wave64.cui &&
- 
-   cat $tmp/hip_macros.h >> $tmp/pch_wave64.cui &&
- 
--  $LLVM_DIR/bin/clang -cc1 -O3 -emit-pch -triple amdgcn-amd-amdhsa -aux-triple x86_64-unknown-linux-gnu -fcuda-is-device -std=c++17 -fgnuc-version=4.2.1 -o $tmp/hip_wave64.pch -x hip-cpp-output - <$tmp/pch_wave64.cui &&
-+  $LLVM_DIR/bin/clang -cc1 -O3 -emit-pch -triple amdgcn-amd-amdhsa -aux-triple loongarch64-unknown-linux-gnu -fcuda-is-device -std=c++17 -fgnuc-version=4.2.1 -o $tmp/hip_wave64.pch -x hip-cpp-output - <$tmp/pch_wave64.cui &&
- 
-   $LLVM_DIR/bin/llvm-mc -o hip_pch.o $tmp/hip_pch.mcin --filetype=obj &&
- 
 diff --git a/hipamd/src/hip_graph_internal.cpp b/hipamd/src/hip_graph_internal.cpp
 index ebcf4c91e..fac22ffd3 100644
 --- a/hipamd/src/hip_graph_internal.cpp
@@ -27,13 +6,13 @@ index ebcf4c91e..fac22ffd3 100644
                   kernarg_pool_size_graph_ != 0) {
          address dev_ptr = kernarg_pool_graph_ + kernarg_pool_size_graph_;
          auto kSentinel = *reinterpret_cast<volatile unsigned char*>(dev_ptr - 1);
-+#if defined(_M_AMD64)
++#if defined(__x86_64__)
          _mm_sfence();
 +#else
 +        asm("dbar 0");
 +#endif
          *(dev_ptr - 1) = kSentinel;
-+#if defined(_M_AMD64)
++#if defined(__x86_64__)
          _mm_mfence();
 +#else
 +        asm("dbar 0");
@@ -49,13 +28,13 @@ index 169e81e65..b589e253c 100644
            auto kSentinel = *reinterpret_cast<volatile int*>(dev().info().hdpMemFlushCntl);
          } else if (kernArgImpl == KernelArgImpl::DeviceKernelArgsReadback &&
                     argSize != 0) {
-+#if defined(_M_AMD64)
++#if defined(__x86_64__)
            _mm_sfence();
 +#else
 +          asm("dbar 0");
 +#endif
            *(argBuffer + argSize - 1) = *(parameters + argSize - 1);
-+#if defined(_M_AMD64)
++#if defined(__x86_64__)
            _mm_mfence();
 +#else
 +          asm("dbar 0");
