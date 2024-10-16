@@ -1,0 +1,50 @@
+name: rocm-rocBLAS
+
+on:
+  push:
+    paths:
+      - 'stage3/1.rocm-rocBLAS/*'
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: '手动构建rocm-rocBLAS'
+      tags:
+        description: '手动构建rocm-rocBLAS'
+
+jobs:
+  loongarch64-build-rocm-rocBLAS:
+    runs-on: [self-hosted, loongarch64-real]
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        clean: false
+    - name: remove_pkg
+      run: sh -c "pacman -Q -q|grep '^rocm'|sudo xargs pacman --noconfirm -R " || true
+    - name: install_pkg
+      run: |
+          sudo pacman --noconfirm -U /opt/localrepo/rocm-core*.tar.gz /opt/localrepo/rocm-llvm*.tar.gz
+          sudo pacman --noconfirm -U /opt/localrepo/rocm-roct-thunk-interface*.tar.gz /opt/localrepo/rocm-rocr-runtime*.tar.gz /opt/localrepo/rocminfo*.tar.gz /opt/localrepo/rocm-cmake*.tar.gz /opt/localrepo/rocm-clr*.tar.gz
+    - name: makepkg
+      run: makepkg -Cf
+      working-directory: ./stage3/1.rocm-rocBLAS/
+    - name: post-to-localrepo
+      run: cp -f *.pkg.tar.gz /opt/localrepo
+      working-directory: ./stage3/1.rocm-rocBLAS/
+  amd64-build-rocm-rocBLAS:
+    runs-on: [self-hosted, amd64-real]
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        clean: false
+    - name: remove_pkg
+      run: sh -c "pacman -Q -q|grep '^rocm'|sudo xargs pacman --noconfirm -R " || true
+    - name: install_pkg
+      run: |
+          sudo pacman --noconfirm -U /opt/localrepo/rocm-core*.tar.gz /opt/localrepo/rocm-llvm*.tar.gz
+          sudo pacman --noconfirm -U /opt/localrepo/rocm-roct-thunk-interface*.tar.gz /opt/localrepo/rocm-rocr-runtime*.tar.gz /opt/localrepo/rocminfo*.tar.gz /opt/localrepo/rocm-cmake*.tar.gz /opt/localrepo/rocm-clr*.tar.gz
+    - name: makepkg
+      run: makepkg -Cf
+      working-directory: ./stage3/1.rocm-rocBLAS/
+    - name: post-to-localrepo
+      run: cp -f *.pkg.tar.gz /opt/localrepo
+      working-directory: ./stage3/1.rocm-rocBLAS/
