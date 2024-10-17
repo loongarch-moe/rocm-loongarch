@@ -33,16 +33,16 @@ jobs:
           sudo pacman --noconfirm -U /opt/localrepo/rocm-roct-thunk-interface*.tar.gz /opt/localrepo/rocm-rocr-runtime*.tar.gz /opt/localrepo/rocminfo*.tar.gz /opt/localrepo/rocm-cmake*.tar.gz /opt/localrepo/rocm-clr*.tar.gz
     - name: makepkg
       run: makepkg -Cf
-      working-directory: ${{ vars.SRC_DIR }}
+      working-directory: ${{ env.SRC_DIR }}
       env:
-        AMDGPU_TARGETS: ${{ vars.GFX90x_TARGETS }}
+        AMDGPU_TARGETS: ${{ env.GFX90x_TARGETS }}
     - name: post-to-localrepo
       run: |
           mkdir /opt/localrepo/$TARGETS_DIR
           cp -f *.pkg.tar.gz /opt/localrepo/$TARGETS_DIR
-      working-directory: ${{ vars.SRC_DIR }}
+      working-directory: ${{ env.SRC_DIR }}
       env:
-        TARGETS_DIR: ${{ var.TARGETS_DIR }}
+        TARGETS_DIR: ${{ env.TARGETS_DIR }}
   loongarch64-build-rocm-rocBLAS_gfx94x:
     runs-on: [self-hosted, loongarch64-real]
     env:
@@ -59,14 +59,14 @@ jobs:
           sudo pacman --noconfirm -U /opt/localrepo/rocm-roct-thunk-interface*.tar.gz /opt/localrepo/rocm-rocr-runtime*.tar.gz /opt/localrepo/rocminfo*.tar.gz /opt/localrepo/rocm-cmake*.tar.gz /opt/localrepo/rocm-clr*.tar.gz
     - name: makepkg
       run: makepkg -Cf
-      working-directory: ${{ vars.SRC_DIR }}
+      working-directory: ${{ env.SRC_DIR }}
       env:
-        AMDGPU_TARGETS: ${{ vars.GFX94x_TARGETS }}
+        AMDGPU_TARGETS: ${{ env.GFX94x_TARGETS }}
     - name: post-to-localrepo
       run: |
           mkdir /opt/localrepo/$TARGETS_DIR
           cp -f *.pkg.tar.gz /opt/localrepo/$TARGETS_DIR
-      working-directory: ${{ vars.SRC_DIR }}
+      working-directory: ${{ env.SRC_DIR }}
       env:
         TARGETS_DIR: ${{ env.TARGETS_DIR }}
 
@@ -86,16 +86,16 @@ jobs:
           sudo pacman --noconfirm -U /opt/localrepo/rocm-roct-thunk-interface*.tar.gz /opt/localrepo/rocm-rocr-runtime*.tar.gz /opt/localrepo/rocminfo*.tar.gz /opt/localrepo/rocm-cmake*.tar.gz /opt/localrepo/rocm-clr*.tar.gz
     - name: makepkg
       run: makepkg -Cf
-      working-directory: ${{ vars.SRC_DIR }}
+      working-directory: ${{ env.SRC_DIR }}
       env:
-        AMDGPU_TARGETS: ${{ vars.GFX1xxx_TARGETS }}
+        AMDGPU_TARGETS: ${{ env.GFX1xxx_TARGETS }}
     - name: post-to-localrepo
       run: |
           mkdir /opt/localrepo/$TARGETS_DIR
           cp -f *.pkg.tar.gz /opt/localrepo/$TARGETS_DIR
-      working-directory: ${{ vars.SRC_DIR }}
+      working-directory: ${{ env.SRC_DIR }}
       env:
-        TARGETS_DIR: ${{ var.TARGETS_DIR }}
+        TARGETS_DIR: ${{ env.TARGETS_DIR }}
 
   amd64-build-rocm-rocBLAS_gfx90x:
     runs-on: [self-hosted, amd64-real]
@@ -113,14 +113,14 @@ jobs:
           sudo pacman --noconfirm -U /opt/localrepo/rocm-roct-thunk-interface*.tar.gz /opt/localrepo/rocm-rocr-runtime*.tar.gz /opt/localrepo/rocminfo*.tar.gz /opt/localrepo/rocm-cmake*.tar.gz /opt/localrepo/rocm-clr*.tar.gz
     - name: makepkg
       run: makepkg -Cf
-      working-directory: ${{ vars.SRC_DIR }}
+      working-directory: ${{ env.SRC_DIR }}
       env:
-        AMDGPU_TARGETS: ${{ vars.GFX90x_TARGETS }}
+        AMDGPU_TARGETS: ${{ env.GFX90x_TARGETS }}
     - name: post-to-localrepo
       run: |
           mkdir /opt/localrepo/$TARGETS_DIR
           cp -f *.pkg.tar.gz /opt/localrepo/$TARGETS_DIR
-      working-directory: ${{ vars.SRC_DIR }}
+      working-directory: ${{ env.SRC_DIR }}
       env:
         TARGETS_DIR: ${{ env.TARGETS_DIR }}
   amd64-build-rocm-rocBLAS_gfx94x:
@@ -139,14 +139,14 @@ jobs:
           sudo pacman --noconfirm -U /opt/localrepo/rocm-roct-thunk-interface*.tar.gz /opt/localrepo/rocm-rocr-runtime*.tar.gz /opt/localrepo/rocminfo*.tar.gz /opt/localrepo/rocm-cmake*.tar.gz /opt/localrepo/rocm-clr*.tar.gz
     - name: makepkg
       run: makepkg -Cf
-      working-directory: ${{ vars.SRC_DIR }}
+      working-directory: ${{ env.SRC_DIR }}
       env:
-        AMDGPU_TARGETS: ${{ vars.GFX94x_TARGETS }}
+        AMDGPU_TARGETS: ${{ env.GFX94x_TARGETS }}
     - name: post-to-localrepo
       run: |
           mkdir /opt/localrepo/$TARGETS_DIR
           cp -f *.pkg.tar.gz /opt/localrepo/$TARGETS_DIR
-      working-directory: ${{ vars.SRC_DIR }}
+      working-directory: ${{ env.SRC_DIR }}
       env:
         TARGETS_DIR: ${{ env.TARGETS_DIR }}
 
@@ -166,13 +166,13 @@ jobs:
           sudo pacman --noconfirm -U /opt/localrepo/rocm-roct-thunk-interface*.tar.gz /opt/localrepo/rocm-rocr-runtime*.tar.gz /opt/localrepo/rocminfo*.tar.gz /opt/localrepo/rocm-cmake*.tar.gz /opt/localrepo/rocm-clr*.tar.gz
     - name: makepkg
       run: makepkg -Cf
-      working-directory: ${{ vars.SRC_DIR }}
+      working-directory: ${{ env.SRC_DIR }}
       env:
-        AMDGPU_TARGETS: ${{ vars.GFX1xxx_TARGETS }}
+        AMDGPU_TARGETS: ${{ env.GFX1xxx_TARGETS }}
     - name: post-to-localrepo
       run: |
           mkdir /opt/localrepo/$TARGETS_DIR
           cp -f *.pkg.tar.gz /opt/localrepo/$TARGETS_DIR
-      working-directory: ${{ vars.SRC_DIR }}
+      working-directory: ${{ env.SRC_DIR }}
       env:
         TARGETS_DIR: ${{ env.TARGETS_DIR }}
