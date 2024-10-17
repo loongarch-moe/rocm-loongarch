@@ -11,8 +11,8 @@ on:
       tags:
         description: '手动构建rocm-rocBLAS'
 env:
-  GFX90x_TARGETS: "gfx900;gfx906:xnack-;gfx908:xnack-;gfx90a:xnack+;gfx90a:xnack-;"
-  GFX94x_TARGETS: "gfx940;gfx941;gfx942;"
+  GFX90x_TARGETS: "gfx900;gfx906:xnack-;gfx908:xnack-;gfx90a:xnack+;gfx90a:xnack-"
+  GFX94x_TARGETS: "gfx940;gfx941;gfx942"
   GFX1xxx_TARGETS: "gfx1010;gfx1012;gfx1030;gfx1100;gfx1101;gfx1102"
   SRC_DIR: ./stage3/1.rocm-rocBLAS/
 
