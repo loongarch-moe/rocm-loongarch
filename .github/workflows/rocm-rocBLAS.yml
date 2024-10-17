@@ -11,14 +11,6 @@ on:
       tags:
         description: '手动构建rocm-rocBLAS'
 env:
-  GCN4_TARGETS: "gfx803"
-  GCN5_TARGETS: "gfx900;gfx906:xnack-"
-  RDNA_TARGETS: "gfx1010;gfx1012"
-  RDNA2_TARGETS: "gfx1030"
-  RDNA3_TARGETS: "gfx1100;gfx1101;gfx1102"
-  CDNA_TARGETS: "gfx908:xnack-"
-  CDNA2_TARGETS: "gfx90a:xnack+;gfx90a:xnack-"
-  CDNA3_TARGETS: "gfx940;gfx941;gfx942"
   SRC_DIR: ./stage3/1.rocm-rocBLAS/
 
 jobs:
@@ -27,19 +19,19 @@ jobs:
       matrix:
         targets:
           - NAME: RDNA2
-            AMDGPU_TARGETS: ${{ env.RDNA2_TARGETS }}
+            AMDGPU_TARGETS: "gfx1030"
             TARGETS_DIR: rdna2
           - NAME: RDNA3
-            AMDGPU_TARGETS: ${{ env.RDNA3_TARGETS }}
+            AMDGPU_TARGETS: "gfx1100;gfx1101;gfx1102"
             TARGETS_DIR: rdna3
           - NAME: CDNA
-            AMDGPU_TARGETS: ${{ env.CDNA_TARGETS }}
+            AMDGPU_TARGETS: "gfx908:xnack-"
             TARGETS_DIR: cdna
           - NAME: CDNA2
-            AMDGPU_TARGETS: ${{ env.CDNA2_TARGETS }}
+            AMDGPU_TARGETS: "gfx90a:xnack+;gfx90a:xnack-"
             TARGETS_DIR: cdna2
           - NAME: CDNA3
-            AMDGPU_TARGETS: ${{ env.CDNA3_TARGETS }}
+            AMDGPU_TARGETS: "gfx940;gfx941;gfx942"
             TARGETS_DIR: cdna3
         archs: [loongarch64-real, amd64-real]
     runs-on: ${{ matrix.archs }}
@@ -67,3 +59,4 @@ jobs:
       working-directory: ${{ env.SRC_DIR }}
       env:
         TARGETS_DIR: ${{ env.TARGETS_DIR }}
+
