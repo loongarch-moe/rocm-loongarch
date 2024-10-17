@@ -39,12 +39,12 @@ prepare() {
    -DCMAKE_CXX_COMPILER=/opt/rocm-${pkgver}/bin/hipcc \
    -DCMAKE_CXX_FLAGS="-L/opt/rocm-${pkgver}/lib  -L/opt/rocm-${pkgver}/hip/lib" \
    -DTensile_LOGIC=asm_full \
-   -DTensile_ARCHITECTURE=gfx1030 \
+   -DTensile_ARCHITECTURE=$AMDGPU_TARGERS \
    -DTensile_CODE_OBJECT_VERSION=V5 \
    -DROCM_PATH=/opt/rocm-${pkgver} \
    -DTensile_LIBRARY_FORMAT=yaml \
    -DRUN_HEADER_TESTING=OFF \
-   -DAMDGPU_TARGETS=gfx1030 \
+   -DAMDGPU_TARGETS=$AMDGPU_TARGERS \
    -DTensile_COMPILER=hipcc \
    -DTensile_TEST_LOCAL_PATH=$PWD/../Tensile \
    -DCMAKE_PREFIX_PATH="/opt/rocm-${pkgver}/;/usr" \
