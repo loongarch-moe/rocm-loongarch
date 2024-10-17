@@ -68,7 +68,7 @@ jobs:
           cp -f *.pkg.tar.gz /opt/localrepo/$TARGETS_DIR
       working-directory: ${{ vars.SRC_DIR }}
       env:
-        TARGETS_DIR: ${{ var.TARGETS_DIR }}
+        TARGETS_DIR: ${{ env.TARGETS_DIR }}
 
   loongarch64-build-rocm-rocBLAS_gfx1xxx:
     runs-on: [self-hosted, loongarch64-real]
@@ -122,7 +122,7 @@ jobs:
           cp -f *.pkg.tar.gz /opt/localrepo/$TARGETS_DIR
       working-directory: ${{ vars.SRC_DIR }}
       env:
-        TARGETS_DIR: ${{ var.TARGETS_DIR }}
+        TARGETS_DIR: ${{ env.TARGETS_DIR }}
   amd64-build-rocm-rocBLAS_gfx94x:
     runs-on: [self-hosted, amd64-real]
     env:
@@ -148,7 +148,7 @@ jobs:
           cp -f *.pkg.tar.gz /opt/localrepo/$TARGETS_DIR
       working-directory: ${{ vars.SRC_DIR }}
       env:
-        TARGETS_DIR: ${{ var.TARGETS_DIR }}
+        TARGETS_DIR: ${{ env.TARGETS_DIR }}
 
   amd64-build-rocm-rocBLAS_gfx1xxx:
     runs-on: [self-hosted, amd64-real]
@@ -175,4 +175,4 @@ jobs:
           cp -f *.pkg.tar.gz /opt/localrepo/$TARGETS_DIR
       working-directory: ${{ vars.SRC_DIR }}
       env:
-        TARGETS_DIR: ${{ var.TARGETS_DIR }}
+        TARGETS_DIR: ${{ env.TARGETS_DIR }}
