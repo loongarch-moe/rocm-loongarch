@@ -15,6 +15,7 @@ env:
 
 jobs:
   rocm-rocBLAS:
+    timeout-minutes: 1440
     strategy:
       matrix:
         targets:
