@@ -1,0 +1,38 @@
+name: rocm-roctracer
+
+on:
+  push:
+    paths:
+      - 'stage3/7.rocm-roctracer/*'
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: '手动构建rocm-roctracer'
+      tags:
+        description: '手动构建rocm-roctracer'
+env:
+  SRC_DIR: ./stage3/7.rocm-roctracer/
+
+jobs:
+  rocm-roctracer:
+    strategy:
+      matrix:
+        archs: [loongarch64-real, amd64-real]
+    runs-on: ${{ matrix.archs }}
+    timeout-minutes: 1440
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        clean: false
+    - name: remove_pkg
+      run: sh -c "pacman -Q -q|grep '^rocm'|sudo xargs pacman --noconfirm -R " || true
+    - name: install_pkg
+      run: |
+          sudo pacman --noconfirm -U /opt/localrepo/rocm-core*.tar.gz /opt/localrepo/rocm-llvm*.tar.gz
+          sudo pacman --noconfirm -U /opt/localrepo/rocm-roct-thunk-interface*.tar.gz /opt/localrepo/rocm-rocr-runtime*.tar.gz /opt/localrepo/rocminfo*.tar.gz /opt/localrepo/rocm-cmake*.tar.gz /opt/localrepo/rocm-clr*.tar.gz
+    - name: makepkg
+      run: makepkg -Cf
+      working-directory: ${{ env.SRC_DIR }}
+    - name: post-to-localrepo
+      run: cp -f *.pkg.tar.gz /opt/localrepo
+      working-directory: ${{ env.SRC_DIR }}
