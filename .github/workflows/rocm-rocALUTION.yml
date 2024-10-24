@@ -1,0 +1,63 @@
+name: rocm-rocALUTION
+
+on:
+  push:
+    paths:
+      - 'stage4/17.rocm-rocALUTION/*'
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: '手动构建rocm-rocALUTION'
+      tags:
+        description: '手动构建rocm-rocALUTION'
+env:
+  SRC_DIR: ./stage4/17.rocm-rocALUTION/
+
+jobs:
+  rocm-rocALUTION:
+    timeout-minutes: 1440
+    strategy:
+      matrix:
+        targets:
+          - NAME: RDNA2
+            AMDGPU_TARGETS: "gfx1030"
+            TARGETS_DIR: rdna2
+          - NAME: RDNA3
+            AMDGPU_TARGETS: "gfx1100;gfx1101;gfx1102"
+            TARGETS_DIR: rdna3
+          - NAME: CDNA
+            AMDGPU_TARGETS: "gfx908:xnack-"
+            TARGETS_DIR: cdna
+          - NAME: CDNA2
+            AMDGPU_TARGETS: "gfx90a:xnack+;gfx90a:xnack-"
+            TARGETS_DIR: cdna2
+          - NAME: CDNA3
+            AMDGPU_TARGETS: "gfx940;gfx941;gfx942"
+            TARGETS_DIR: cdna3
+        archs: [loongarch64-real, amd64-real]
+    runs-on: ${{ matrix.archs }}
+    env:
+      TARGETS_DIR: ${{ matrix.targets.TARGETS_DIR }}
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        clean: false
+    - name: remove_pkg
+      run: sh -c "pacman -Q -q|grep '^rocm'|sudo xargs pacman --noconfirm -R " || true
+    - name: install_pkg
+      run: |
+          sudo pacman --noconfirm -U /opt/localrepo/rocm-core*.tar.gz /opt/localrepo/rocm-llvm*.tar.gz
+          sudo pacman --noconfirm -U /opt/localrepo/rocm-roct-thunk-interface*.tar.gz /opt/localrepo/rocm-rocr-runtime*.tar.gz /opt/localrepo/rocminfo*.tar.gz /opt/localrepo/rocm-cmake*.tar.gz /opt/localrepo/rocm-clr*.tar.gz
+    - name: makepkg
+      run: makepkg -Cf
+      working-directory: ${{ env.SRC_DIR }}
+      env:
+        AMDGPU_TARGETS: ${{ matrix.targets.AMDGPU_TARGETS }}
+    - name: post-to-localrepo
+      run: |
+          mkdir /opt/localrepo/$TARGETS_DIR || true
+          cp -f *.pkg.tar.gz /opt/localrepo/$TARGETS_DIR
+      working-directory: ${{ env.SRC_DIR }}
+      env:
+        TARGETS_DIR: ${{ env.TARGETS_DIR }}
+
