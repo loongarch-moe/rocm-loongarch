@@ -1,30 +1,30 @@
 diff --git a/hipamd/src/hip_graph_internal.cpp b/hipamd/src/hip_graph_internal.cpp
-index ebcf4c91e..fac22ffd3 100644
+index 4f074ece4..e878505bd 100644
 --- a/hipamd/src/hip_graph_internal.cpp
 +++ b/hipamd/src/hip_graph_internal.cpp
-@@ -443,9 +443,17 @@ hipError_t GraphExec::CaptureAQLPackets() {
-                  kernarg_pool_size_graph_ != 0) {
-         address dev_ptr = kernarg_pool_graph_ + kernarg_pool_size_graph_;
-         auto kSentinel = *reinterpret_cast<volatile unsigned char*>(dev_ptr - 1);
+@@ -988,9 +988,17 @@ void GraphKernelArgManager::ReadBackOrFlush() {
+       address dev_ptr =
+           kernarg_graph_.back().kernarg_pool_addr_ + kernarg_graph_.back().kernarg_pool_size_;
+       auto kSentinel = *reinterpret_cast<volatile unsigned char*>(dev_ptr - 1);
 +#if defined(__x86_64__)
-         _mm_sfence();
+       _mm_sfence();
 +#else
-+        asm("dbar 0");
++      asm("dbar 0");
 +#endif
-         *(dev_ptr - 1) = kSentinel;
+       *(dev_ptr - 1) = kSentinel;
 +#if defined(__x86_64__)
-         _mm_mfence();
+       _mm_mfence();
 +#else
-+        asm("dbar 0");
++      asm("dbar 0");
 +#endif
-         kSentinel = *reinterpret_cast<volatile unsigned char*>(dev_ptr - 1);
-       }
+       kSentinel = *reinterpret_cast<volatile unsigned char*>(dev_ptr - 1);
      }
+   }
 diff --git a/rocclr/device/rocm/rocvirtual.cpp b/rocclr/device/rocm/rocvirtual.cpp
-index 169e81e65..b589e253c 100644
+index 878e591d6..e3ceb75e4 100644
 --- a/rocclr/device/rocm/rocvirtual.cpp
 +++ b/rocclr/device/rocm/rocvirtual.cpp
-@@ -3247,9 +3247,18 @@ bool VirtualGPU::submitKernelInternal(const amd::NDRangeContainer& sizes,
+@@ -3280,9 +3280,18 @@ bool VirtualGPU::submitKernelInternal(const amd::NDRangeContainer& sizes,
            auto kSentinel = *reinterpret_cast<volatile int*>(dev().info().hdpMemFlushCntl);
          } else if (kernArgImpl == KernelArgImpl::DeviceKernelArgsReadback &&
                     argSize != 0) {
@@ -43,18 +43,17 @@ index 169e81e65..b589e253c 100644
            auto kSentinel = *reinterpret_cast<volatile unsigned char*>(
                argBuffer + argSize - 1);
          }
-diff --git a/rocclr/os/os_posix.cpp b/rocclr/os/os_posix.cpp
-index 739795e0c..7174b53e7 100644
---- a/rocclr/os/os_posix.cpp
-+++ b/rocclr/os/os_posix.cpp
-@@ -318,8 +318,10 @@ void Os::currentStackInfo(address* base, size_t* size) {
- 
-   ::pthread_attr_destroy(&threadAttr);
- 
-+#if !defined(__loongarch64)
-   assert(Os::currentStackPtr() >= *base - *size && Os::currentStackPtr() < *base &&
-          "just checking");
-+#endif
- }
- 
- void Os::setCurrentThreadName(const char* name) { ::prctl(PR_SET_NAME, name); }
+diff --git a/rocclr/os/os.hpp b/rocclr/os/os.hpp
+index 8509cc362..d9c2edb56 100644
+--- a/rocclr/os/os.hpp
++++ b/rocclr/os/os.hpp
+@@ -358,6 +358,9 @@ ALWAYSINLINE address Os::currentStackPtr() {
+ #elif defined(ATI_ARCH_ARM)
+       "mov %0,sp"
+       : "=r"(value)
++#elif defined(__loongarch_lp64)
++      "addi.d %0,sp,0"
++      : "=r"(value)
+ #else
+       ""
+ #endif

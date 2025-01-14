@@ -1,0 +1,13 @@
+diff --git a/library/src/CMakeLists.txt b/library/src/CMakeLists.txt
+index 51faaffc..00f1f08e 100644
+--- a/library/src/CMakeLists.txt
++++ b/library/src/CMakeLists.txt
+@@ -46,7 +46,7 @@ else()
+   if( WIN32 )
+     set( ROCFFT_RTC_LINK_LIBS "${HIP_PATH}/lib/hiprtc.lib" )
+   else()
+-    set( ROCFFT_RTC_LINK_LIBS -L${ROCM_PATH}/lib -lhiprtc -ldl )
++    set( ROCFFT_RTC_LINK_LIBS -L${ROCM_PATH}/lib /opt/rocm-6.3.1/lib64/libhiprtc.so -ldl )
+   endif()
+ endif()
+ 

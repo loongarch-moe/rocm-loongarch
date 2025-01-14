@@ -1,0 +1,31 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index a573099d..ec93e2b5 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -29,7 +29,7 @@ if(MSCCLPP_BYPASS_GPU_CHECK)
+     elseif(MSCCLPP_USE_ROCM)
+         message("Bypassing GPU check: using AMD/ROCm.")
+         # Temporal fix for rocm5.6
+-        set(CMAKE_PREFIX_PATH "/opt/rocm;${CMAKE_PREFIX_PATH}")
++        set(CMAKE_PREFIX_PATH "/opt/rocm-6.3.1;${CMAKE_PREFIX_PATH}")
+         find_package(hip REQUIRED)
+     else()
+         message(FATAL_ERROR "Bypassing GPU check: neither NVIDIA/CUDA nor AMD/ROCm is specified.")
+diff --git a/cmake/CheckAmdGpu.cmake b/cmake/CheckAmdGpu.cmake
+index 3b26bfa5..9cf92a91 100644
+--- a/cmake/CheckAmdGpu.cmake
++++ b/cmake/CheckAmdGpu.cmake
+@@ -3,10 +3,10 @@
+ 
+ set(AMD_FOUND "FALSE")
+ 
+-set(CMAKE_PREFIX_PATH "/opt/rocm;${CMAKE_PREFIX_PATH}")
++set(CMAKE_PREFIX_PATH "/opt/rocm-6.3.1;${CMAKE_PREFIX_PATH}")
+ # Temporal fix for rocm5.6
+-set(ENV{amd_comgr_DIR} "/opt/rocm/lib/cmake/amd_comgr")
+-set(ENV{AMDDeviceLibs_DIR} "/opt/rocm/lib/cmake/AMDDeviceLibs")
++set(ENV{amd_comgr_DIR} "/opt/rocm-6.3.1/lib64/cmake/amd_comgr")
++set(ENV{AMDDeviceLibs_DIR} "/opt/rocm-6.3.1/lib64/cmake/AMDDeviceLibs")
+ 
+ find_package(hip QUIET)
+ 

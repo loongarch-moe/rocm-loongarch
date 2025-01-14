@@ -1,0 +1,56 @@
+pkgbase='rocm--mscclpp'
+pkgname=('rocm--mscclpp')
+pkgver=6.3.1
+pkgrel=631000
+pkgdesc="MSCCL++: A GPU-driven communication stack for scalable AI applications"
+arch=('loong64' 'x86_64' 'riscv64')
+license=('MIT')
+url="https://github.com/microsoft/mscclpp"
+
+source=(
+    "git+https://github.com/microsoft/mscclpp#tag=v0.6.0"
+    "mscclpp.patch"
+)
+b2sums=('SKIP' 'SKIP')
+depends=("rocm-llvm" "rocm-rocr-runtime" "rocm-clr")
+
+PATH=/opt/rocm-${pkgver}/bin:$PATH
+LD_LIBRARY_PATH=/opt/rocm-${pkgver}/lib64/:$LD_LIBRARY_PATH
+prepare() {
+  cd mscclpp
+    git apply ../mscclpp.patch
+  cd ..
+  mkdir build || true
+  cd build
+  LD_LIBRARY_PATH=/opt/rocm-${pkgver}/lib64/:$LD_LIBRARY_PATH cmake "../mscclpp" \
+   -DCMAKE_BUILD_TYPE=Release \
+   -DCMAKE_C_COMPILER=/opt/rocm-${pkgver}/bin/clang \
+   -DCMAKE_CXX_COMPILER=/opt/rocm-${pkgver}/bin/hipcc \
+   -DCMAKE_PREFIX_PATH="/opt/rocm-${pkgver}/;/usr" \
+  "-DCMAKE_INSTALL_PREFIX=/opt/rocm-${pkgver}" \
+   -DCMAKE_INSTALL_RPATH="/opt/rocm-${pkgver}/lib;/opt/rocm-${pkgver}/lib64" \
+   -DCMAKE_BUILD_RPATH="/opt/rocm-${pkgver}/lib;/opt/rocm-${pkgver}/lib64" \
+   -DCMAKE_CXX_FLAGS="-stdlib=libc++" \
+   -DBUILD_RPATH_USE_ORIGIN=OFF \
+  -G 'Unix Makefiles'
+}
+build() {
+  cd build
+  make -j $(nproc)
+}
+
+check() {
+  cd build
+#  ninja test
+#make check
+#echo
+}
+
+#packaging() {
+
+#}
+package() {
+  cd build
+  make DESTDIR="$pkgdir/" install
+}
+
