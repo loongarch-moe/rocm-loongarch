@@ -1,0 +1,72 @@
+pkgbase='rocm-rocFFT'
+pkgname=('rocm-rocFFT')
+pkgver=6.3.1
+pkgrel=631000
+pkgdesc="rocm-core is a utility which can be used to get ROCm release version."
+arch=('loong64' 'x86_64' 'riscv64')
+license=('MIT')
+url="https://github.com/ROCm/ROCT-Thunk-Interface.git"
+
+source=(
+    "git+https://github.com/ROCm/rocFFT.git#tag=rocm-$pkgver"
+    "rocFFT-loong64.patch"
+)
+b2sums=('SKIP' 'SKIP')
+depends=("rocm-clr=${pkgver}")
+PATH=/opt/rocm-${pkgver}/bin:$PATH
+prepare() {
+  cd rocFFT
+    git apply ../rocFFT-loong64.patch
+  cd ..
+  mkdir build || true
+  cd build
+  if [ -n $AMDGPU_TARGETS ] && [ $AMDGPU_TARGETS != 'all' ]; then 
+    targetSet=( -DAMDGPU_TARGETS=$AMDGPU_TARGETS -DTensile_ARCHITECTURE=$AMDGPU_TARGETS )
+  else
+    targetSet=( )
+  fi
+  cmake ../rocFFT \
+   -DCMAKE_BUILD_TYPE=Release \
+   -DCMAKE_INSTALL_RPATH="/opt/rocm-${pkgver}/lib;/opt/rocm-${pkgver}/lib/llvm/lib;/opt/rocm-${pkgver}/lib64" \
+   -DCMAKE_CXX_FLAGS="-parallel-jobs=$(nproc) -I/opt/rocm-${pkgver}/include -stdlib=libc++ -fopenmp" \
+   -DCMAKE_C_COMPILER=/opt/rocm-${pkgver}/lib/llvm/bin/clang \
+   -DCMAKE_CXX_COMPILER=/opt/rocm-${pkgver}/bin/hipcc \
+   -DCMAKE_LINKER_TYPE=LLD \
+   -DROCM_PATH=/opt/rocm-${pkgver} \
+   -DCMAKE_FIND_ROOT_PATH=/opt/rocm-${pkgver}/ \
+   -DCMAKE_PREFIX_PATH="/opt/rocm-${pkgver}/;/opt/rocm-${pkgver}/;/usr" \
+   -DCMAKE_INSTALL_PREFIX=/opt/rocm-${pkgver} \
+   -DCMAKE_EXE_LINKER_FLAGS="-L/opt/rocm-${pkgver}/lib  -L/opt/rocm-${pkgver}/hip/lib" \
+   -DCMAKE_INSTALL_RPATH="/opt/rocm-${pkgver}/lib;/opt/rocm-${pkgver}/lib64" \
+   -DCMAKE_BUILD_RPATH="/opt/rocm-${pkgver}/lib;/opt/rocm-${pkgver}/lib64" \
+   -DBUILD_RPATH_USE_ORIGIN=OFF \
+   -DCMAKE_INSTALL_RPATH_USE_LINK_PATH=ON \
+   ${targetSet[@]} \
+   -G "Unix Makefiles"
+#   -DAMDGPU_TARGETS=$AMDGPU_TARGETS \
+
+}
+build() {
+  mkdir build || true
+  cd build
+  make -j $(nproc)
+}
+
+check() {
+#  cd "ROCm-CompilerSupport"
+#  cd build
+#  make ctest
+# dep: hiprand
+#   -DBUILD_CLIENTS_TESTS=on \
+
+echo
+}
+
+#packaging() {
+
+#}
+package() {
+  cd build
+  make DESTDIR="$pkgdir/" install
+}
+

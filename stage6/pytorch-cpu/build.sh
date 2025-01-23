@@ -1,7 +1,5 @@
 #!/bin/bash
 export ROCM_HOME=/opt/rocm-next/
-export CUPY_INSTALL_USE_HIP=1
-export HCC_AMDGPU_TARGET=gfx1030
 export CC=$ROCM_HOME/bin/clang
 export CXX=$ROCM_HOME/bin/clang++
 function _fetch() {
@@ -276,9 +274,9 @@ function package(){
 
 function main(){
   fetch
-  prepare
-  build
-  package
+#  prepare
+#  build
+#  package
 }
 main
 

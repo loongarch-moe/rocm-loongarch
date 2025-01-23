@@ -1,0 +1,383 @@
+diff --git a/flang-legacy/CMakeLists.txt b/flang-legacy/CMakeLists.txt
+index 98710420d..8b8ec3997 100644
+--- a/flang-legacy/CMakeLists.txt
++++ b/flang-legacy/CMakeLists.txt
+@@ -21,72 +21,94 @@ add_executable(flang-legacy
+ 
+ target_include_directories(flang-legacy
+    PUBLIC
+-   ${CMAKE_SOURCE_DIR}/llvm-legacy/llvm/include
+-   ${CMAKE_SOURCE_DIR}/llvm-legacy/clang/include
+-   ${CMAKE_BINARY_DIR}/llvm-legacy/tools/clang/include
+-   ${CMAKE_BINARY_DIR}/llvm-legacy/include
++     /opt/rocm-6.3.1/lib/llvm/include/llvm
++     /opt/rocm-6.3.1/lib/llvm/include/clang
++     /opt/rocm-6.3.1/lib/llvm/include
++#   ${CMAKE_SOURCE_DIR}/llvm-legacy/llvm/include
++#   ${CMAKE_SOURCE_DIR}/llvm-legacy/clang/include
++#   ${CMAKE_BINARY_DIR}/llvm-legacy/tools/clang/include
++#   ${CMAKE_BINARY_DIR}/llvm-legacy/include
+ )
+ 
+ target_link_libraries(flang-legacy
+-  PRIVATE 
+-      ${CMAKE_BINARY_DIR}/llvm-legacy/lib/libLLVMAggressiveInstCombine.a
+-      ${CMAKE_BINARY_DIR}/llvm-legacy/lib/libLLVMAMDGPUAsmParser.a
+-      ${CMAKE_BINARY_DIR}/llvm-legacy/lib/libLLVMAMDGPUCodeGen.a
+-      ${CMAKE_BINARY_DIR}/llvm-legacy/lib/libLLVMAMDGPUDesc.a
+-      ${CMAKE_BINARY_DIR}/llvm-legacy/lib/libLLVMAMDGPUDisassembler.a
+-      ${CMAKE_BINARY_DIR}/llvm-legacy/lib/libLLVMAMDGPUInfo.a
+-      ${CMAKE_BINARY_DIR}/llvm-legacy/lib/libLLVMAMDGPUTargetMCA.a
+-      ${CMAKE_BINARY_DIR}/llvm-legacy/lib/libLLVMAMDGPUUtils.a
+-      ${CMAKE_BINARY_DIR}/llvm-legacy/lib/libLLVMAnalysis.a
+-      ${CMAKE_BINARY_DIR}/llvm-legacy/lib/libLLVMAsmParser.a
+-      ${CMAKE_BINARY_DIR}/llvm-legacy/lib/libLLVMBinaryFormat.a
+-      ${CMAKE_BINARY_DIR}/llvm-legacy/lib/libLLVMBitReader.a
+-      ${CMAKE_BINARY_DIR}/llvm-legacy/lib/libLLVMBitstreamReader.a
+-      ${CMAKE_BINARY_DIR}/llvm-legacy/lib/libLLVMCFGuard.a
+-      ${CMAKE_BINARY_DIR}/llvm-legacy/lib/libLLVMCodeGen.a
+-      ${CMAKE_BINARY_DIR}/llvm-legacy/lib/libLLVMCore.a
+-      ${CMAKE_BINARY_DIR}/llvm-legacy/lib/libLLVMDebugInfoCodeView.a
+-      ${CMAKE_BINARY_DIR}/llvm-legacy/lib/libLLVMDebuginfod.a
+-      ${CMAKE_BINARY_DIR}/llvm-legacy/lib/libLLVMDebugInfoDWARF.a
+-      ${CMAKE_BINARY_DIR}/llvm-legacy/lib/libLLVMDebugInfoGSYM.a
+-      ${CMAKE_BINARY_DIR}/llvm-legacy/lib/libLLVMDebugInfoMSF.a
+-      ${CMAKE_BINARY_DIR}/llvm-legacy/lib/libLLVMDebugInfoPDB.a
+-      ${CMAKE_BINARY_DIR}/llvm-legacy/lib/libLLVMDemangle.a
+-      ${CMAKE_BINARY_DIR}/llvm-legacy/lib/libLLVMFrontendOpenACC.a
+-      ${CMAKE_BINARY_DIR}/llvm-legacy/lib/libLLVMFrontendOpenMP.a
+-      ${CMAKE_BINARY_DIR}/llvm-legacy/lib/libLLVMGlobalISel.a
+-      ${CMAKE_BINARY_DIR}/llvm-legacy/lib/libLLVMInstCombine.a
+-      ${CMAKE_BINARY_DIR}/llvm-legacy/lib/libLLVMipo.a
+-      ${CMAKE_BINARY_DIR}/llvm-legacy/lib/libLLVMIRReader.a
+-      ${CMAKE_BINARY_DIR}/llvm-legacy/lib/libLLVMMC.a
+-      ${CMAKE_BINARY_DIR}/llvm-legacy/lib/libLLVMMCDisassembler.a
+-      ${CMAKE_BINARY_DIR}/llvm-legacy/lib/libLLVMMCParser.a
+-      ${CMAKE_BINARY_DIR}/llvm-legacy/lib/libLLVMMIRParser.a
+-      ${CMAKE_BINARY_DIR}/llvm-legacy/lib/libLLVMObjCARCOpts.a
+-      ${CMAKE_BINARY_DIR}/llvm-legacy/lib/libLLVMObject.a
+-      ${CMAKE_BINARY_DIR}/llvm-legacy/lib/libLLVMOption.a
+-      ${CMAKE_BINARY_DIR}/llvm-legacy/lib/libLLVMPasses.a
+-      ${CMAKE_BINARY_DIR}/llvm-legacy/lib/libLLVMProfileData.a
+-      ${CMAKE_BINARY_DIR}/llvm-legacy/lib/libLLVMRemarks.a
+-      ${CMAKE_BINARY_DIR}/llvm-legacy/lib/libLLVMScalarOpts.a
+-      ${CMAKE_BINARY_DIR}/llvm-legacy/lib/libLLVMSelectionDAG.a
+-      ${CMAKE_BINARY_DIR}/llvm-legacy/lib/libLLVMSupport.a
+-      ${CMAKE_BINARY_DIR}/llvm-legacy/lib/libLLVMTarget.a
+-      ${CMAKE_BINARY_DIR}/llvm-legacy/lib/libLLVMTextAPI.a
+-      ${CMAKE_BINARY_DIR}/llvm-legacy/lib/libLLVMTransformUtils.a
+-      ${CMAKE_BINARY_DIR}/llvm-legacy/lib/libLLVMVectorize.a
+-      ${CMAKE_BINARY_DIR}/llvm-legacy/lib/libLLVMWindowsDriver.a
+-      ${CMAKE_BINARY_DIR}/llvm-legacy/lib/libLLVMWindowsManifest.a
+-      ${CMAKE_BINARY_DIR}/llvm-legacy/lib/libLLVMX86AsmParser.a
+-      ${CMAKE_BINARY_DIR}/llvm-legacy/lib/libLLVMX86CodeGen.a
+-      ${CMAKE_BINARY_DIR}/llvm-legacy/lib/libLLVMX86Desc.a
+-      ${CMAKE_BINARY_DIR}/llvm-legacy/lib/libLLVMX86Info.a
+-      ${CMAKE_BINARY_DIR}/llvm-legacy/lib/libclangBasic.a
+-      ${CMAKE_BINARY_DIR}/llvm-legacy/lib/libclangDriver.a
+-      ${CMAKE_BINARY_DIR}/llvm-legacy/lib/libclangEdit.a
+-      ${CMAKE_BINARY_DIR}/llvm-legacy/lib/libclangFrontend.a
+-      ${CMAKE_BINARY_DIR}/llvm-legacy/lib/libclangLex.a
+-      ${CMAKE_BINARY_DIR}/llvm-legacy/lib/libclangSerialization.a
++  PRIVATE
++/opt/rocm-6.3.1/lib/llvm//lib/libLLVMAggressiveInstCombine.so
++/opt/rocm-6.3.1/lib/llvm//lib/libLLVMAMDGPUAsmParser.so
++/opt/rocm-6.3.1/lib/llvm//lib/libLLVMAMDGPUCodeGen.so
++/opt/rocm-6.3.1/lib/llvm//lib/libLLVMAMDGPUDesc.so
++/opt/rocm-6.3.1/lib/llvm//lib/libLLVMAMDGPUDisassembler.so
++/opt/rocm-6.3.1/lib/llvm//lib/libLLVMAMDGPUInfo.so
++/opt/rocm-6.3.1/lib/llvm//lib/libLLVMAMDGPUTargetMCA.so
++/opt/rocm-6.3.1/lib/llvm//lib/libLLVMAMDGPUUtils.so
++/opt/rocm-6.3.1/lib/llvm//lib/libLLVMAnalysis.so
++/opt/rocm-6.3.1/lib/llvm//lib/libLLVMAsmParser.so
++/opt/rocm-6.3.1/lib/llvm//lib/libLLVMBinaryFormat.so
++/opt/rocm-6.3.1/lib/llvm//lib/libLLVMBitReader.so
++/opt/rocm-6.3.1/lib/llvm//lib/libLLVMBitstreamReader.so
++/opt/rocm-6.3.1/lib/llvm//lib/libLLVMCFGuard.so
++/opt/rocm-6.3.1/lib/llvm//lib/libLLVMCodeGen.so
++/opt/rocm-6.3.1/lib/llvm//lib/libLLVMCore.so
++/opt/rocm-6.3.1/lib/llvm//lib/libLLVMDebugInfoCodeView.so
++/opt/rocm-6.3.1/lib/llvm//lib/libLLVMDebuginfod.so
++/opt/rocm-6.3.1/lib/llvm//lib/libLLVMDebugInfoDWARF.so
++/opt/rocm-6.3.1/lib/llvm//lib/libLLVMDebugInfoGSYM.so
++/opt/rocm-6.3.1/lib/llvm//lib/libLLVMDebugInfoMSF.so
++/opt/rocm-6.3.1/lib/llvm//lib/libLLVMDebugInfoPDB.so
++/opt/rocm-6.3.1/lib/llvm//lib/libLLVMDemangle.so
++/opt/rocm-6.3.1/lib/llvm//lib/libLLVMFrontendOpenACC.so
++/opt/rocm-6.3.1/lib/llvm//lib/libLLVMFrontendOpenMP.so
++/opt/rocm-6.3.1/lib/llvm//lib/libLLVMGlobalISel.so
++/opt/rocm-6.3.1/lib/llvm//lib/libLLVMInstCombine.so
++/opt/rocm-6.3.1/lib/llvm//lib/libLLVMipo.so
++/opt/rocm-6.3.1/lib/llvm//lib/libLLVMIRReader.so
++/opt/rocm-6.3.1/lib/llvm//lib/libLLVMMC.so
++/opt/rocm-6.3.1/lib/llvm//lib/libLLVMMCDisassembler.so
++/opt/rocm-6.3.1/lib/llvm//lib/libLLVMMCParser.so
++/opt/rocm-6.3.1/lib/llvm//lib/libLLVMMIRParser.so
++/opt/rocm-6.3.1/lib/llvm//lib/libLLVMObjCARCOpts.so
++/opt/rocm-6.3.1/lib/llvm//lib/libLLVMObject.so
++/opt/rocm-6.3.1/lib/llvm//lib/libLLVMOption.so
++/opt/rocm-6.3.1/lib/llvm//lib/libLLVMPasses.so
++/opt/rocm-6.3.1/lib/llvm//lib/libLLVMProfileData.so
++/opt/rocm-6.3.1/lib/llvm//lib/libLLVMRemarks.so
++/opt/rocm-6.3.1/lib/llvm//lib/libLLVMScalarOpts.so
++/opt/rocm-6.3.1/lib/llvm//lib/libLLVMSelectionDAG.so
++/opt/rocm-6.3.1/lib/llvm//lib/libLLVMSupport.so
++/opt/rocm-6.3.1/lib/llvm//lib/libLLVMTarget.so
++/opt/rocm-6.3.1/lib/llvm//lib/libLLVMTargetParser.so
++/opt/rocm-6.3.1/lib/llvm//lib/libLLVMTextAPI.so
++/opt/rocm-6.3.1/lib/llvm//lib/libLLVMTransformUtils.so
++/opt/rocm-6.3.1/lib/llvm//lib/libLLVMVectorize.so
++/opt/rocm-6.3.1/lib/llvm//lib/libLLVMWindowsDriver.so
++/opt/rocm-6.3.1/lib/llvm//lib/libLLVMWindowsManifest.so
++/opt/rocm-6.3.1/lib/llvm//lib/libLLVMX86AsmParser.so
++/opt/rocm-6.3.1/lib/llvm//lib/libLLVMX86CodeGen.so
++/opt/rocm-6.3.1/lib/llvm//lib/libLLVMX86Desc.so
++/opt/rocm-6.3.1/lib/llvm//lib/libLLVMX86Info.so
++
++/opt/rocm-6.3.1/lib/llvm//lib/libLLVMLoongArchAsmParser.so
++/opt/rocm-6.3.1/lib/llvm//lib/libLLVMLoongArchCodeGen.so
++/opt/rocm-6.3.1/lib/llvm//lib/libLLVMLoongArchDesc.so
++/opt/rocm-6.3.1/lib/llvm//lib/libLLVMLoongArchDisassembler.so
++/opt/rocm-6.3.1/lib/llvm//lib/libLLVMLoongArchInfo.so
++
++/opt/rocm-6.3.1/lib/llvm//lib/libLLVMRISCVAsmParser.so
++/opt/rocm-6.3.1/lib/llvm//lib/libLLVMRISCVCodeGen.so
++/opt/rocm-6.3.1/lib/llvm//lib/libLLVMRISCVDesc.so
++/opt/rocm-6.3.1/lib/llvm//lib/libLLVMRISCVDisassembler.so
++/opt/rocm-6.3.1/lib/llvm//lib/libLLVMRISCVInfo.so
++/opt/rocm-6.3.1/lib/llvm//lib/libLLVMRISCVTargetMCA.so
++/opt/rocm-6.3.1/lib/llvm//lib/libLLVMNVPTXCodeGen.so
++/opt/rocm-6.3.1/lib/llvm//lib/libLLVMNVPTXDesc.so
++/opt/rocm-6.3.1/lib/llvm//lib/libLLVMNVPTXInfo.so
++
++/opt/rocm-6.3.1/lib/llvm//lib/libclangBasic.so
++/opt/rocm-6.3.1/lib/llvm//lib/libclangDriver.so
++/opt/rocm-6.3.1/lib/llvm//lib/libclangEdit.so
++/opt/rocm-6.3.1/lib/llvm//lib/libclangFrontend.so
++/opt/rocm-6.3.1/lib/llvm//lib/libclangLex.so
++/opt/rocm-6.3.1/lib/llvm//lib/libclangSerialization.so
++
+   pthread
+   dl
+   tinfo
+diff --git a/flang-legacy/flang-legacy.cpp b/flang-legacy/flang-legacy.cpp
+index 06209b312..07e172d38 100644
+--- a/flang-legacy/flang-legacy.cpp
++++ b/flang-legacy/flang-legacy.cpp
+@@ -37,7 +37,7 @@
+ #include "llvm/Support/CrashRecoveryContext.h"
+ #include "llvm/Support/ErrorHandling.h"
+ #include "llvm/Support/FileSystem.h"
+-#include "llvm/Support/Host.h"
++#include "llvm/TargetParser/Host.h"
+ #include "llvm/Support/InitLLVM.h"
+ #include "llvm/Support/Path.h"
+ #include "llvm/Support/PrettyStackTrace.h"
+@@ -252,9 +252,9 @@ static void SetBackdoorDriverOutputsFromEnvVars(Driver &TheDriver) {
+   TheDriver.CCPrintOptions =
+       CheckEnvVar("CC_PRINT_OPTIONS", "CC_PRINT_OPTIONS_FILE",
+                   TheDriver.CCPrintOptionsFilename);
+-  TheDriver.CCPrintHeaders =
+-      CheckEnvVar("CC_PRINT_HEADERS", "CC_PRINT_HEADERS_FILE",
+-                  TheDriver.CCPrintHeadersFilename);
++//  TheDriver.CCPrintHeaders =
++//      CheckEnvVar("CC_PRINT_HEADERS", "CC_PRINT_HEADERS_FILE",
++//                  TheDriver.CCPrintHeadersFilename);
+   TheDriver.CCLogDiagnostics =
+       CheckEnvVar("CC_LOG_DIAGNOSTICS", "CC_LOG_DIAGNOSTICS_FILE",
+                   TheDriver.CCLogDiagnosticsFilename);
+@@ -415,7 +415,7 @@ int main(int Argc, char **Argv) {
+   // prepended or appended.
+   if (ClangCLMode) {
+     // Arguments in "CL" are prepended.
+-    llvm::Optional<std::string> OptCL = llvm::sys::Process::GetEnv("CL");
++    std::optional<std::string> OptCL = llvm::sys::Process::GetEnv("CL");
+     if (OptCL) {
+       SmallVector<const char *, 8> PrependedOpts;
+       getCLEnvVarOptions(OptCL.value(), Saver, PrependedOpts);
+@@ -424,7 +424,7 @@ int main(int Argc, char **Argv) {
+       Args.insert(Args.begin() + 1, PrependedOpts.begin(), PrependedOpts.end());
+     }
+     // Arguments in "_CL_" are appended.
+-    llvm::Optional<std::string> Opt_CL_ = llvm::sys::Process::GetEnv("_CL_");
++    std::optional<std::string> Opt_CL_ = llvm::sys::Process::GetEnv("_CL_");
+     if (Opt_CL_) {
+       SmallVector<const char *, 8> AppendedOpts;
+       getCLEnvVarOptions(Opt_CL_.value(), Saver, AppendedOpts);
+@@ -492,12 +492,12 @@ int main(int Argc, char **Argv) {
+ 
+   Driver::ReproLevel ReproLevel = Driver::ReproLevel::OnCrash;
+   if (Arg *A = C->getArgs().getLastArg(options::OPT_gen_reproducer_eq)) {
+-    auto Level = llvm::StringSwitch<Optional<Driver::ReproLevel>>(A->getValue())
++    auto Level = llvm::StringSwitch<std::optional<Driver::ReproLevel>>(A->getValue())
+                      .Case("off", Driver::ReproLevel::Off)
+                      .Case("crash", Driver::ReproLevel::OnCrash)
+                      .Case("error", Driver::ReproLevel::OnError)
+                      .Case("always", Driver::ReproLevel::Always)
+-                     .Default(None);
++                     .Default(Driver::ReproLevel::Off);
+     if (!Level) {
+       llvm::errs() << "Unknown value for " << A->getSpelling() << ": '"
+                    << A->getValue() << "'\n";
+diff --git a/runtime/libpgmath/lib/common/fltfenv.c b/runtime/libpgmath/lib/common/fltfenv.c
+index 09090cc17..586fd9c4e 100644
+--- a/runtime/libpgmath/lib/common/fltfenv.c
++++ b/runtime/libpgmath/lib/common/fltfenv.c
+@@ -507,7 +507,93 @@ __fenv_feraiseexcept(int exc)
+ {
+   return feraiseexcept(exc);
+ }
++#if defined(__loongarch_lp64)
+ 
++#include <fenv.h>
++/* Mask for enabling exceptions and for the CAUSE bits.  */
++#define ENABLE_MASK 0x0000001FU
++#define CAUSE_MASK 0x1F000000U
++
++/* Shift for FE_* flags to get up to the ENABLE bits and the CAUSE bits.  */
++#define ENABLE_SHIFT 16
++#define CAUSE_SHIFT 8
++#include <fpu_control.h>
++int
++feenableexcept (int excepts)
++{
++  unsigned int new_exc, old_exc;
++
++  /* Get the current control word.  */
++  _FPU_GETCW (new_exc);
++
++  old_exc = (new_exc & ENABLE_MASK) << ENABLE_SHIFT;
++
++  excepts &= FE_ALL_EXCEPT;
++
++  new_exc |= excepts >> ENABLE_SHIFT;
++  _FPU_SETCW (new_exc);
++
++  return old_exc;
++}
++
++int
++fedisableexcept (int excepts)
++{
++  unsigned int new_exc, old_exc;
++
++  /* Get the current control word.  */
++  _FPU_GETCW (new_exc);
++
++  old_exc = (new_exc & ENABLE_MASK) << ENABLE_SHIFT;
++
++  excepts &= FE_ALL_EXCEPT;
++
++  new_exc &= ~(excepts >> ENABLE_SHIFT);
++  _FPU_SETCW (new_exc);
++
++  return old_exc;
++}
++
++int
++fetestexcept (int excepts)
++{
++  int cw;
++
++  /* Get current control word.  */
++  _FPU_GETCW (cw);
++
++  return cw & excepts & FE_ALL_EXCEPT;
++}
++#if 0
++int
++fegetexceptflag (fexcept_t *flagp, int excepts)
++{
++  fpu_control_t temp;
++
++  /* Get the current exceptions.  */
++  _FPU_GETCW (temp);
++
++  /* We only save the relevant bits here.  In particular, care has to be
++     taken with the CAUSE bits, as an inadvertent restore later on could
++     generate unexpected exceptions.  */
++
++  *flagp = temp & excepts & FE_ALL_EXCEPT;
++
++  /* Success.  */
++  return 0;
++}
++#endif
++int
++fegetexcept (void)
++{
++  unsigned int exc;
++
++  /* Get the current control word.  */
++  _FPU_GETCW (exc);
++
++  return (exc & ENABLE_MASK) << ENABLE_SHIFT;
++}
++#endif
+ int
+ __fenv_feenableexcept(int exc)
+ {
+diff --git a/runtime/libpgmath/lib/common/mthdecls.h b/runtime/libpgmath/lib/common/mthdecls.h
+index a8662ff75..dd97fc8ad 100644
+--- a/runtime/libpgmath/lib/common/mthdecls.h
++++ b/runtime/libpgmath/lib/common/mthdecls.h
+@@ -589,7 +589,6 @@ float __mth_i_floor(float);
+ int __mth_i_idnint(double d);
+ int __mth_i_mod(int i, int j);
+ int __mth_i_nint(float d);
+-int __mth_i_qnint(__float128 q);
+ int __mth_i_ipowi(int x, int i);
+ 
+ double __mth_i_dacos(double d);
+diff --git a/runtime/libpgmath/lib/generic/CMakeLists.txt b/runtime/libpgmath/lib/generic/CMakeLists.txt
+index 9c77cda9c..13b9574fb 100644
+--- a/runtime/libpgmath/lib/generic/CMakeLists.txt
++++ b/runtime/libpgmath/lib/generic/CMakeLists.txt
+@@ -56,7 +56,6 @@ set(GENERIC_SRCS
+   dsqrt.c
+   dtan.c
+   dcotan.c
+-  dcan.c
+   dtanh.c
+   exp.c
+   fabs.c
+@@ -66,7 +65,6 @@ set(GENERIC_SRCS
+   log.c
+   mthi64.c
+   nint.c
+-  qnint.c
+   remainder.c
+   round.c
+   rpowr.c
+diff --git a/runtime/libpgmath/lib/generic/mthi64.c b/runtime/libpgmath/lib/generic/mthi64.c
+index b22e610cd..1fa35a403 100644
+--- a/runtime/libpgmath/lib/generic/mthi64.c
++++ b/runtime/libpgmath/lib/generic/mthi64.c
+@@ -51,14 +51,14 @@ typedef unsigned int UINT;
+ 
+ #define __mth_i_kmul(a, b) (a) * (b)
+ 
+-INT __mth_i_kcmp(), __mth_i_kucmp(), __mth_i_kcmpz(), __mth_i_kucmpz();
++INT __mth_i_kcmp(INT op1, INT op2, INT op3, INT op4), __mth_i_kucmp(UINT op1, UINT op2, UINT op3,UINT op4), __mth_i_kcmpz(INT op1, INT op2), __mth_i_kucmpz(register UINT op1, register UINT op2);
+ VOID __mth_i_krshift();
+ VOID __mth_i_klshift();
+ VOID __mth_i_kurshift();
+-VOID __utl_i_add64(), __utl_i_div64();
++VOID __utl_i_add64(DBLINT64 arg1,DBLINT64 arg2,DBLINT64 result), __utl_i_div64(DBLINT64 arg1, DBLINT64 arg2, DBLINT64 result);
+ VOID __utl_i_sub64(DBLINT64 arg1, DBLINT64 arg2, DBLINT64 result);
+-VOID __utl_i_mul64(), __utl_i_udiv64();
+-static VOID neg64(), shf64(), shf128by1();
++VOID __utl_i_mul64(DBLINT64 arg1, DBLINT64 arg2, DBLINT64 result), __utl_i_udiv64(DBLUINT64 arg1, DBLUINT64 arg2, DBLUINT64 result);
++static VOID neg64(DBLINT64 arg, DBLINT64 result), shf64(DBLINT64 arg, int count, DBLINT64 result), shf128by1(INT arg[4], INT result[4]);
+ 
+ /*
+  *  Add 2 64-bit integers
+@@ -800,7 +800,7 @@ static VOID ufprnd(u, bits)
+     UFP *u; /* Number to round */
+ int bits;   /* Number of bits of precision */
+ {
+-  VOID ufpnorm();
++  VOID ufpnorm(register UFP *u);
+ 
+   ufpnorm(u);
+   manrnd(u->fman, bits + 12); /* Binary point is 12 bits over */

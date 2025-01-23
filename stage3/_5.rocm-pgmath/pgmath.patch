@@ -1,0 +1,162 @@
+diff --git a/runtime/libpgmath/lib/common/fltfenv.c b/runtime/libpgmath/lib/common/fltfenv.c
+index 09090cc17..586fd9c4e 100644
+--- a/runtime/libpgmath/lib/common/fltfenv.c
++++ b/runtime/libpgmath/lib/common/fltfenv.c
+@@ -507,7 +507,93 @@ __fenv_feraiseexcept(int exc)
+ {
+   return feraiseexcept(exc);
+ }
++#if defined(__loongarch_lp64)
+ 
++#include <fenv.h>
++/* Mask for enabling exceptions and for the CAUSE bits.  */
++#define ENABLE_MASK 0x0000001FU
++#define CAUSE_MASK 0x1F000000U
++
++/* Shift for FE_* flags to get up to the ENABLE bits and the CAUSE bits.  */
++#define ENABLE_SHIFT 16
++#define CAUSE_SHIFT 8
++#include <fpu_control.h>
++int
++feenableexcept (int excepts)
++{
++  unsigned int new_exc, old_exc;
++
++  /* Get the current control word.  */
++  _FPU_GETCW (new_exc);
++
++  old_exc = (new_exc & ENABLE_MASK) << ENABLE_SHIFT;
++
++  excepts &= FE_ALL_EXCEPT;
++
++  new_exc |= excepts >> ENABLE_SHIFT;
++  _FPU_SETCW (new_exc);
++
++  return old_exc;
++}
++
++int
++fedisableexcept (int excepts)
++{
++  unsigned int new_exc, old_exc;
++
++  /* Get the current control word.  */
++  _FPU_GETCW (new_exc);
++
++  old_exc = (new_exc & ENABLE_MASK) << ENABLE_SHIFT;
++
++  excepts &= FE_ALL_EXCEPT;
++
++  new_exc &= ~(excepts >> ENABLE_SHIFT);
++  _FPU_SETCW (new_exc);
++
++  return old_exc;
++}
++
++int
++fetestexcept (int excepts)
++{
++  int cw;
++
++  /* Get current control word.  */
++  _FPU_GETCW (cw);
++
++  return cw & excepts & FE_ALL_EXCEPT;
++}
++#if 0
++int
++fegetexceptflag (fexcept_t *flagp, int excepts)
++{
++  fpu_control_t temp;
++
++  /* Get the current exceptions.  */
++  _FPU_GETCW (temp);
++
++  /* We only save the relevant bits here.  In particular, care has to be
++     taken with the CAUSE bits, as an inadvertent restore later on could
++     generate unexpected exceptions.  */
++
++  *flagp = temp & excepts & FE_ALL_EXCEPT;
++
++  /* Success.  */
++  return 0;
++}
++#endif
++int
++fegetexcept (void)
++{
++  unsigned int exc;
++
++  /* Get the current control word.  */
++  _FPU_GETCW (exc);
++
++  return (exc & ENABLE_MASK) << ENABLE_SHIFT;
++}
++#endif
+ int
+ __fenv_feenableexcept(int exc)
+ {
+diff --git a/runtime/libpgmath/lib/common/mthdecls.h b/runtime/libpgmath/lib/common/mthdecls.h
+index a8662ff75..dd97fc8ad 100644
+--- a/runtime/libpgmath/lib/common/mthdecls.h
++++ b/runtime/libpgmath/lib/common/mthdecls.h
+@@ -589,7 +589,6 @@ float __mth_i_floor(float);
+ int __mth_i_idnint(double d);
+ int __mth_i_mod(int i, int j);
+ int __mth_i_nint(float d);
+-int __mth_i_qnint(__float128 q);
+ int __mth_i_ipowi(int x, int i);
+ 
+ double __mth_i_dacos(double d);
+diff --git a/runtime/libpgmath/lib/generic/CMakeLists.txt b/runtime/libpgmath/lib/generic/CMakeLists.txt
+index 9c77cda9c..13b9574fb 100644
+--- a/runtime/libpgmath/lib/generic/CMakeLists.txt
++++ b/runtime/libpgmath/lib/generic/CMakeLists.txt
+@@ -56,7 +56,6 @@ set(GENERIC_SRCS
+   dsqrt.c
+   dtan.c
+   dcotan.c
+-  dcan.c
+   dtanh.c
+   exp.c
+   fabs.c
+@@ -66,7 +65,6 @@ set(GENERIC_SRCS
+   log.c
+   mthi64.c
+   nint.c
+-  qnint.c
+   remainder.c
+   round.c
+   rpowr.c
+diff --git a/runtime/libpgmath/lib/generic/mthi64.c b/runtime/libpgmath/lib/generic/mthi64.c
+index b22e610cd..1fa35a403 100644
+--- a/runtime/libpgmath/lib/generic/mthi64.c
++++ b/runtime/libpgmath/lib/generic/mthi64.c
+@@ -51,14 +51,14 @@ typedef unsigned int UINT;
+ 
+ #define __mth_i_kmul(a, b) (a) * (b)
+ 
+-INT __mth_i_kcmp(), __mth_i_kucmp(), __mth_i_kcmpz(), __mth_i_kucmpz();
++INT __mth_i_kcmp(INT op1, INT op2, INT op3, INT op4), __mth_i_kucmp(UINT op1, UINT op2, UINT op3,UINT op4), __mth_i_kcmpz(INT op1, INT op2), __mth_i_kucmpz(register UINT op1, register UINT op2);
+ VOID __mth_i_krshift();
+ VOID __mth_i_klshift();
+ VOID __mth_i_kurshift();
+-VOID __utl_i_add64(), __utl_i_div64();
++VOID __utl_i_add64(DBLINT64 arg1,DBLINT64 arg2,DBLINT64 result), __utl_i_div64(DBLINT64 arg1, DBLINT64 arg2, DBLINT64 result);
+ VOID __utl_i_sub64(DBLINT64 arg1, DBLINT64 arg2, DBLINT64 result);
+-VOID __utl_i_mul64(), __utl_i_udiv64();
+-static VOID neg64(), shf64(), shf128by1();
++VOID __utl_i_mul64(DBLINT64 arg1, DBLINT64 arg2, DBLINT64 result), __utl_i_udiv64(DBLUINT64 arg1, DBLUINT64 arg2, DBLUINT64 result);
++static VOID neg64(DBLINT64 arg, DBLINT64 result), shf64(DBLINT64 arg, int count, DBLINT64 result), shf128by1(INT arg[4], INT result[4]);
+ 
+ /*
+  *  Add 2 64-bit integers
+@@ -800,7 +800,7 @@ static VOID ufprnd(u, bits)
+     UFP *u; /* Number to round */
+ int bits;   /* Number of bits of precision */
+ {
+-  VOID ufpnorm();
++  VOID ufpnorm(register UFP *u);
+ 
+   ufpnorm(u);
+   manrnd(u->fman, bits + 12); /* Binary point is 12 bits over */

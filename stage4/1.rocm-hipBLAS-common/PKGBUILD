@@ -1,0 +1,45 @@
+pkgbase='rocm-hipBLAS-common'
+pkgname=('rocm-hipBLAS-common')
+pkgver=6.3.1
+pkgrel=631000
+pkgdesc="rocm-core is a utility which can be used to get ROCm release version."
+arch=('loong64' 'x86_64' 'riscv64')
+license=('MIT')
+url="https://github.com/ROCm/hipBLAS-common.git"
+
+source=(
+    "git+https://github.com/ROCm/hipBLAS-common.git#tag=rocm-$pkgver"
+)
+b2sums=('SKIP')
+depends=("rocm-clr=${pkgver}")
+PATH=/opt/rocm-${pkgver}/bin:$PATH
+prepare() {
+  mkdir build || true
+  cd build
+  cmake ../hipBLAS-common \
+   -DCMAKE_BUILD_TYPE=Release \
+   -DCMAKE_INSTALL_PREFIX=/opt/rocm-${pkgver} \
+   -DCMAKE_FIND_ROOT_PATH=/opt/rocm-${pkgver}/ \
+  -G "Unix Makefiles"
+}
+build() {
+  mkdir build || true
+  cd build
+  make -j$(nproc)
+}
+
+check() {
+#  cd "ROCm-CompilerSupport"
+#  cd build
+#  make ctest
+echo
+}
+
+#packaging() {
+
+#}
+package() {
+  cd build
+  make DESTDIR="$pkgdir/" install
+}
+

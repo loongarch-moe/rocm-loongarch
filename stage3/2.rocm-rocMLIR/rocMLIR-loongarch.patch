@@ -1,0 +1,181 @@
+diff --git a/external/llvm-project/clang/lib/Basic/Targets/LoongArch.h b/external/llvm-project/clang/lib/Basic/Targets/LoongArch.h
+index c668ca7eca04..d7414ca624c1 100644
+--- a/external/llvm-project/clang/lib/Basic/Targets/LoongArch.h
++++ b/external/llvm-project/clang/lib/Basic/Targets/LoongArch.h
+@@ -46,6 +46,8 @@ public:
+     SuitableAlign = 128;
+     WCharType = SignedInt;
+     WIntType = UnsignedInt;
++    HasFloat128 = true;
++    HasFloat16 = true;
+   }
+ 
+   bool setCPU(const std::string &Name) override {
+diff --git a/external/llvm-project/clang/lib/CodeGen/BackendUtil.cpp b/external/llvm-project/clang/lib/CodeGen/BackendUtil.cpp
+index 7fa694202981..9b3067eb1142 100644
+--- a/external/llvm-project/clang/lib/CodeGen/BackendUtil.cpp
++++ b/external/llvm-project/clang/lib/CodeGen/BackendUtil.cpp
+@@ -298,6 +298,7 @@ getCodeModel(const CodeGenOptions &CodeGenOpts) {
+                            .Case("kernel", llvm::CodeModel::Kernel)
+                            .Case("medium", llvm::CodeModel::Medium)
+                            .Case("large", llvm::CodeModel::Large)
++                           .Case("extreme", llvm::CodeModel::Large)
+                            .Case("default", ~1u)
+                            .Default(~0u);
+   assert(CodeModel != ~0u && "invalid code model!");
+diff --git a/external/llvm-project/clang/lib/Driver/ToolChains/HIPUtility.cpp b/external/llvm-project/clang/lib/Driver/ToolChains/HIPUtility.cpp
+index 1b707376dea8..0ce8701346ba 100644
+--- a/external/llvm-project/clang/lib/Driver/ToolChains/HIPUtility.cpp
++++ b/external/llvm-project/clang/lib/Driver/ToolChains/HIPUtility.cpp
+@@ -36,7 +36,7 @@ using llvm::dyn_cast;
+ #endif
+ 
+ namespace {
+-const unsigned HIPCodeObjectAlign = 4096;
++const unsigned HIPCodeObjectAlign = 65536;
+ } // namespace
+ 
+ // Constructs a triple string for clang offload bundler.
+@@ -292,7 +292,12 @@ void HIP::constructHIPFatbinCommand(Compilation &C, const JobAction &JA,
+ 
+   // ToDo: Remove the dummy host binary entry which is required by
+   // clang-offload-bundler.
++#if defined(__x86_64)
+   std::string BundlerTargetArg = "-targets=host-x86_64-unknown-linux";
++#elif defined(__loongarch64)
++  std::string BundlerTargetArg = "-targets=host-loongarch64-unknown-linux";
++#else
++#endif
+   // AMDGCN:
+   // For code object version 2 and 3, the offload kind in bundle ID is 'hip'
+   // for backward compatibility. For code object version 4 and greater, the
+diff --git a/external/llvm-project/clang/tools/clang-linker-wrapper/ClangLinkerWrapper.cpp b/external/llvm-project/clang/tools/clang-linker-wrapper/ClangLinkerWrapper.cpp
+index dda7a7d7453a..80eb0f8755c7 100644
+--- a/external/llvm-project/clang/tools/clang-linker-wrapper/ClangLinkerWrapper.cpp
++++ b/external/llvm-project/clang/tools/clang-linker-wrapper/ClangLinkerWrapper.cpp
+@@ -461,15 +461,23 @@ fatbinary(ArrayRef<std::pair<StringRef, StringRef>> InputFiles,
+   SmallVector<StringRef, 16> CmdArgs;
+   CmdArgs.push_back(*OffloadBundlerPath);
+   CmdArgs.push_back("-type=o");
++#if defined(__x86_64)
+   CmdArgs.push_back("-bundle-align=4096");
+-
++#elif defined(__loongarch64)
++  CmdArgs.push_back("-bundle-align=65536");
++#else
++#endif
+   if (Args.hasArg(OPT_compress))
+     CmdArgs.push_back("-compress");
+   if (auto *Arg = Args.getLastArg(OPT_compression_level_eq))
+     CmdArgs.push_back(
+         Args.MakeArgString(Twine("-compression-level=") + Arg->getValue()));
+-
+-  SmallVector<StringRef> Targets = {"-targets=host-x86_64-unknown-linux"};
++#if defined(__x86_64)
++   SmallVector<StringRef> Targets = {"-targets=host-x86_64-unknown-linux"};
++#elif defined(__loongarch64)
++   SmallVector<StringRef> Targets = {"-targets=host-loongarch64-unknown-linux"};
++#else
++#endif
+   for (const auto &[File, Arch] : InputFiles)
+     Targets.push_back(Saver.save("hip-amdgcn-amd-amdhsa--" + Arch));
+   CmdArgs.push_back(Saver.save(llvm::join(Targets, ",")));
+diff --git a/external/llvm-project/llvm/lib/Analysis/ConstantFolding.cpp b/external/llvm-project/llvm/lib/Analysis/ConstantFolding.cpp
+index 6664e8ce3cde..50f869e440cd 100644
+--- a/external/llvm-project/llvm/lib/Analysis/ConstantFolding.cpp
++++ b/external/llvm-project/llvm/lib/Analysis/ConstantFolding.cpp
+@@ -1744,7 +1744,7 @@ Constant *GetConstantFoldFPValue(double V, Type *Ty) {
+ }
+ 
+ #if defined(HAS_IEE754_FLOAT128) && defined(HAS_LOGF128)
+-Constant *GetConstantFoldFPValue128(float128 V, Type *Ty) {
++Constant *GetConstantFoldFPValue128(_Float128 V, Type *Ty) {
+   if (Ty->isFP128Ty())
+     return ConstantFP::get(Ty, V);
+   llvm_unreachable("Can only constant fold fp128");
+@@ -1784,7 +1784,7 @@ Constant *ConstantFoldFP(double (*NativeFP)(double), const APFloat &V,
+ }
+ 
+ #if defined(HAS_IEE754_FLOAT128) && defined(HAS_LOGF128)
+-Constant *ConstantFoldFP128(float128 (*NativeFP)(float128), const APFloat &V,
++Constant *ConstantFoldFP128(_Float128 (*NativeFP)(_Float128), const APFloat &V,
+                             Type *Ty) {
+   llvm_fenv_clearexcept();
+   float128 Result = NativeFP(V.convertToQuad());
+diff --git a/external/llvm-project/llvm/lib/Target/LoongArch/LoongArchISelLowering.cpp b/external/llvm-project/llvm/lib/Target/LoongArch/LoongArchISelLowering.cpp
+index bfafb3317521..18e6a304235c 100644
+--- a/external/llvm-project/llvm/lib/Target/LoongArch/LoongArchISelLowering.cpp
++++ b/external/llvm-project/llvm/lib/Target/LoongArch/LoongArchISelLowering.cpp
+@@ -332,6 +332,20 @@ LoongArchTargetLowering::LoongArchTargetLowering(const TargetMachine &TM,
+                         VT, Expand);
+     }
+   }
++    // Lower f16 conversion operations into library calls
++  setOperationAction(ISD::FP16_TO_FP,        MVT::f32,   Expand);
++  setOperationAction(ISD::FP_TO_FP16,        MVT::f32,   Expand);
++  setOperationAction(ISD::FP16_TO_FP,        MVT::f64,   Expand);
++  setOperationAction(ISD::FP_TO_FP16,        MVT::f64,   Expand);
++  setOperationAction(ISD::SPLAT_VECTOR, MVT::f16, Custom);
++  setTruncStoreAction(MVT::f32, MVT::f16, Expand);
++
++  setLoadExtAction(ISD::EXTLOAD, MVT::f32, MVT::f16, Expand);
++  setLibcallName(RTLIB::FPEXT_F16_F32, "__extendhfsf2");
++  setLibcallName(RTLIB::FPROUND_F32_F16, "__truncsfhf2");
++  setLoadExtAction(ISD::EXTLOAD, MVT::f64, MVT::f16, Expand);
++  setTruncStoreAction(MVT::f64, MVT::f16, Expand);
++
+ 
+   // Set DAG combine for LA32 and LA64.
+ 
+diff --git a/external/llvm-project/llvm/lib/Target/X86/MCTargetDesc/X86MCTargetDesc.h b/external/llvm-project/llvm/lib/Target/X86/MCTargetDesc/X86MCTargetDesc.h
+index e166b68668d9..c0144173e7ef 100644
+--- a/external/llvm-project/llvm/lib/Target/X86/MCTargetDesc/X86MCTargetDesc.h
++++ b/external/llvm-project/llvm/lib/Target/X86/MCTargetDesc/X86MCTargetDesc.h
+@@ -16,6 +16,7 @@
+ #include "llvm/ADT/SmallVector.h"
+ #include <memory>
+ #include <string>
++#include <cstdint>
+ 
+ namespace llvm {
+ class formatted_raw_ostream;
+diff --git a/external/llvm-project/mlir/include/mlir/Dialect/Affine/IR/ValueBoundsOpInterfaceImpl.h b/external/llvm-project/mlir/include/mlir/Dialect/Affine/IR/ValueBoundsOpInterfaceImpl.h
+index 451c466fa0c9..51831cb17992 100644
+--- a/external/llvm-project/mlir/include/mlir/Dialect/Affine/IR/ValueBoundsOpInterfaceImpl.h
++++ b/external/llvm-project/mlir/include/mlir/Dialect/Affine/IR/ValueBoundsOpInterfaceImpl.h
+@@ -9,6 +9,7 @@
+ #ifndef MLIR_DIALECT_AFFINE_IR_VALUEBOUNDSOPINTERFACEIMPL_H
+ #define MLIR_DIALECT_AFFINE_IR_VALUEBOUNDSOPINTERFACEIMPL_H
+ 
++#include <cstdint>
+ #include "mlir/Support/LLVM.h"
+ 
+ namespace mlir {
+diff --git a/external/llvm-project/mlir/include/mlir/Target/SPIRV/Deserialization.h b/external/llvm-project/mlir/include/mlir/Target/SPIRV/Deserialization.h
+index e39258beeaac..1579862a3902 100644
+--- a/external/llvm-project/mlir/include/mlir/Target/SPIRV/Deserialization.h
++++ b/external/llvm-project/mlir/include/mlir/Target/SPIRV/Deserialization.h
+@@ -12,7 +12,7 @@
+ 
+ #ifndef MLIR_TARGET_SPIRV_DESERIALIZATION_H
+ #define MLIR_TARGET_SPIRV_DESERIALIZATION_H
+-
++#include <cstdint>
+ #include "mlir/IR/OwningOpRef.h"
+ #include "mlir/Support/LLVM.h"
+ 
+diff --git a/mlir/tools/xmir-runner/CMakeLists.txt b/mlir/tools/xmir-runner/CMakeLists.txt
+index f71c9f2a2ce6..8e4ddb345baf 100644
+--- a/mlir/tools/xmir-runner/CMakeLists.txt
++++ b/mlir/tools/xmir-runner/CMakeLists.txt
+@@ -14,6 +14,10 @@ if(MLIR_ENABLE_ROCM_RUNNER)
+     ${rocmlir_conversion_libs}
+     ${rocmlir_test_libs}
+     LLVMX86AsmParser
++    LLVMX86Desc
++    LLVMX86CodeGen
++    LLVMX86Info
++    LLVMLoongArchAsmParser
+     MLIRMHAL
+     MLIRMHALTransforms
+     MLIRMHALPipeline

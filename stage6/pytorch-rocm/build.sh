@@ -1,8 +1,8 @@
 #!/bin/bash
-export ROCM_HOME=/opt/rocm-next/
+export ROCM_HOME=/opt/rocm-6.2.2/
 export ROCM_PATH=$ROCM_HOME
 export ROCM_SOURCE_DIR=$ROCM_HOME
-export HCC_AMDGPU_TARGET=gfx1030
+export HCC_AMDGPU_TARGET="gfx1100;gfx1101;gfx1102"
 export CC=$ROCM_HOME/bin/clang
 export CXX=$ROCM_HOME/bin/clang++
 export BUILD_TEST=0
@@ -11,19 +11,26 @@ export ATEN_AVX512_256=FALSE
 export DEBUG=0
 export USE_CUDA=0
 export USE_ROCM=1
-export PYTORCH_ROCM_ARCH=gfx1030
-export CFLAGS='-D_LARGEFILE64_SOURCE -mcmodel=extreme -fPIC -L/opt/rocm-next/lib64'
-export ROCM_DEFAULT_DIR=/opt/rocm-next
+export PYTORCH_ROCM_ARCH="gfx1100;gfx1101;gfx1102"
+export GLOO_ROCM_ARCH=${HCC_AMDGPU_TARGET}
+export CFLAGS='-D_LARGEFILE64_SOURCE -mcmodel=extreme -fPIC'
+export ROCM_DEFAULT_DIR=/opt/rocm-6.2.2
 export USE_PYTORCH_QNNPACK=OFF
-export BUILD_CUSTOM_PROTOBUF=OFF
-export USE_NCCL=OFF
-export CMAKE_PREFIX_PATH=/opt/rocm-next/:$PWD/rel-abseil/:/usr
-export USE_FLASH_ATTENTION=OFF
+export USE_NCCL=ON
+export CMAKE_PREFIX_PATH=/opt/rocm-6.2.2/lib:/opt/rocm-6.2.2/lib64/:/opt/rocm-6.2.2/MLIR/lib:/opt/rocm-6.2.2/:$PWD/rel-abseil/:/usr
 export BLAS_SET_BY_USER=FALSE
 export absl_DIR=$PWD/rel-abseil/lib64/cmake/absl/
 export TORCH_USE_HIP_DSA=1
+export LDFLAGS="-Wl,-rpath-link,/opt/rocm-6.2.2/lib64/ -Wl,-rpath-link,/opt/rocm-6.2.2/lib/"
 export BUILD_CUSTOM_PROTOBUF=ON
-export USE_NCCL=ON
+export USE_FLASH_ATTENTION=ON
+export AOTRITON_INSTALLED_PREFIX=/media/ssd/aotriton-042b/aotriton-usr/
+export MAGMA_HOME=/home/xinmu/rocm/rocm-loongarch/stage6/magma/magma/
+export USE_MAGMA=ON
+export HIP_HIPCC_EXECUTABLE=$ROCM_HOME/bin/hipcc
+export HIP_HIPCONFIG_EXECUTABLE=$ROCM_HOME/bin/hipconfig
+#export CAFFE2_USE_MSVC_STATIC_RUNTIME=ON
+export BUILD_CAFFE2=ON
 function _fetch() {
   if [ ! -d $1 ]
   then
@@ -58,7 +65,7 @@ function _clone_m() {
 }
 function fetch() {
   _fetch abseil-cpp.git            https://github.com/abseil/abseil-cpp.git                              master
-  _fetch pytorch.git               https://github.com/ROCm/pytorch.git                                   rocm57_hostcall
+  _fetch pytorch.git               https://github.com/ROCm/pytorch.git                                   main
   _fetch pybind11.git              https://github.com/pybind/pybind11.git                                master
   _fetch cub.git                   https://github.com/NVlabs/cub.git                                     main
   _fetch eigen.git                 https://gitlab.com/libeigen/eigen.git                                 master
@@ -106,6 +113,10 @@ function fetch() {
   _fetch libuv.git                 https://github.com/libuv/libuv.git                                    v1.x
   _fetch libnop.git                https://github.com/google/libnop.git                                  master
   _fetch dynolog.git               https://github.com/facebookincubator/dynolog.git                      main
+  _fetch opentelemetry-cpp.git     https://github.com/open-telemetry/opentelemetry-cpp.git               main
+  _fetch cpp-httplib.git           https://github.com/yhirose/cpp-httplib.git                            v0.15.3
+  _fetch NVTX.git                  https://github.com/NVIDIA/NVTX.git                                    release-v3
+
 
 }
 function _ln (){
@@ -114,7 +125,7 @@ function _ln (){
 }
 function prepare() {
   _clone_m abseil-cpp          master 20230802.0
-  _clone pytorch               rocm57_hostcall
+  _clone pytorch               main
   _clone pybind11              master
   _clone cub                   main
   _clone eigen                 master
@@ -163,6 +174,10 @@ function prepare() {
   _clone libuv                 v1.x
   _clone libnop                master
   _clone dynolog               main
+  _clone opentelemetry-cpp     main
+  _clone cpp-httplib           v0.15.3
+  _clone NVTX                  release-v3
+
   _ln pybind11 pytorch/third_party/pybind11
   _ln cub pytorch/third_party/cub
   _ln eigen pytorch/third_party/eigen
@@ -217,6 +232,9 @@ function prepare() {
   _ln libuv tensorpipe/third_party/libuv
   _ln libnop tensorpipe/third_party/libnop
   _ln dynolog kineto/libkineto/third_party/dynolog
+  _ln opentelemetry-cpp pytorch/third_party/opentelemetry-cpp
+  _ln cpp-httplib pytorch/third_party/cpp-httplib
+  _ln NVTX pytorch/third_party/NVTX
   cd sleef
     git apply ../sleef.patch
   cd ..
@@ -267,16 +285,16 @@ function prepare() {
   cd ..
 }
 function build() {
-  cd build-abseil
-    ninja
-    ninja install
-  cd ..
+#  cd build-abseil
+#    ninja
+#    ninja install
+#  cd ..
   source build-env/bin/activate
   cd pytorch
   rm -rf build
-  python tools/amd_build/build_amd.py
-  git apply ../pytorch.patch --rej
-  python setup.py build --cmake
+#  python tools/amd_build/build_amd.py
+#  git apply ../pytorch.patch --rej
+  python setup.py build bdist_wheel
 }
 function package(){
   source build-env/bin/activate
@@ -287,10 +305,11 @@ function package(){
 }
 
 function main(){
-  fetch
-  prepare
+#  fetch
+#  prepare
   build
-  package
+#  package
 }
 main
+
 

@@ -1,0 +1,97 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index d0ffaf983..25b5a12b6 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -55,7 +55,7 @@ endif()
+ 
+ # Default installation path
+ if(NOT WIN32)
+-    set(CMAKE_INSTALL_PREFIX "/opt/rocm" CACHE PATH "")
++    set(CMAKE_INSTALL_PREFIX "/opt/rocm-6.2.2" CACHE PATH "")
+ endif()
+ 
+ project ( MIOpen C CXX )
+@@ -67,7 +67,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
+ include(CTest)
+ 
+ find_package(Threads REQUIRED)
+-find_package(ROCM 0.7.3 REQUIRED PATHS /opt/rocm)
++find_package(ROCM 0.7.3 REQUIRED PATHS /opt/rocm-6.2.2)
+ 
+ include(ROCMInstallTargets)
+ include(ROCMPackageConfigHelpers)
+@@ -138,7 +138,7 @@ if(NOT WIN32)
+     check_cxx_linker_flag(stdc++fs HAS_LIB_STD_FILESYSTEM)
+ endif()
+ 
+-list(APPEND CMAKE_PREFIX_PATH ${CMAKE_INSTALL_PREFIX} ${CMAKE_INSTALL_PREFIX}/llvm ${CMAKE_INSTALL_PREFIX}/hip /opt/rocm /opt/rocm/llvm /opt/rocm/hip)
++list(APPEND CMAKE_PREFIX_PATH ${CMAKE_INSTALL_PREFIX} ${CMAKE_INSTALL_PREFIX}/llvm ${CMAKE_INSTALL_PREFIX}/hip /opt/rocm-6.2.2 /opt/rocm-6.2.2/MLIR /opt/rocm-6.2.2/hip)
+ 
+ option(ENABLE_HIP_WORKAROUNDS Off)
+ set(MIOPEN_INSTALL_CXX_HEADERS Off CACHE BOOL "Install MIOpen's C++ header interface")
+@@ -193,7 +193,7 @@ if( MIOPEN_BACKEND STREQUAL "OpenCL")
+     find_program(MIOPEN_HIP_COMPILER clang++
+         PATH_SUFFIXES bin
+         PATHS
+-            /opt/rocm/llvm
++            /opt/rocm-6.2.2/
+             ${CMAKE_INSTALL_PREFIX}/llvm
+     )
+     if(MIOPEN_HIP_COMPILER)
+@@ -215,7 +215,7 @@ endif()
+ 
+ 
+ # HIP is always required
+-find_package(hip REQUIRED PATHS /opt/rocm)
++find_package(hip REQUIRED PATHS /opt/rocm-6.2.2)
+ message(STATUS "Build with HIP ${hip_VERSION}")
+ 
+ # Override HIP version in config.h, if necessary.
+@@ -312,7 +312,7 @@ if( MIOPEN_BACKEND STREQUAL "HIP" OR MIOPEN_BACKEND STREQUAL "HIPOC" OR MIOPEN_B
+     find_program(HIP_OC_COMPILER NAMES amdclang clang
+         PATH_SUFFIXES bin
+         PATHS
+-            /opt/rocm
++            /opt/rocm-6.2.2
+             ${CMAKE_INSTALL_PREFIX}
+         ENV HIP_PATH
+     )
+@@ -331,7 +331,7 @@ if( MIOPEN_BACKEND STREQUAL "HIP" OR MIOPEN_BACKEND STREQUAL "HIPOC" OR MIOPEN_B
+     # rocblas
+     set(MIOPEN_USE_ROCBLAS ON CACHE BOOL "")
+     if(MIOPEN_USE_ROCBLAS)
+-        find_package(rocblas REQUIRED PATHS /opt/rocm)
++        find_package(rocblas REQUIRED PATHS /opt/rocm-6.2.2/)
+         message(STATUS "Build with rocblas ${rocblas_VERSION}")
+     else()
+         message(STATUS "Build without rocblas")
+@@ -350,7 +350,7 @@ if(MIOPEN_HIP_COMPILER MATCHES ".*clang\\+\\+.*")
+     find_program(MIOPEN_OFFLOADBUNDLER_BIN clang-offload-bundler
+         PATH_SUFFIXES bin
+         PATHS
+-            /opt/rocm/llvm
++            /opt/rocm-6.2.2/
+             ${CMAKE_INSTALL_PREFIX}/llvm
+     )
+ endif()
+@@ -406,7 +406,7 @@ find_program(MIOPEN_AMDGCN_ASSEMBLER
+     PATHS
+         ${MIOPEN_AMDGCN_ASSEMBLER_PATH}
+         /opt/rocm
+-        /opt/rocm/llvm
++        /opt/rocm-6.2.2/
+         ${CMAKE_INSTALL_PREFIX}
+         ${CMAKE_INSTALL_PREFIX}/llvm
+     PATH_SUFFIXES
+diff --git a/cmake/ClangTidy.cmake b/cmake/ClangTidy.cmake
+index a83a77721..bff04db0e 100644
+--- a/cmake/ClangTidy.cmake
++++ b/cmake/ClangTidy.cmake
+@@ -148,6 +148,7 @@ macro(enable_clang_tidy)
+ endmacro()
+ 
+ function(clang_tidy_check TARGET)
++    return()
+     get_target_property(SOURCES ${TARGET} SOURCES)
+     # TODO: Use generator expressions instead
+     # COMMAND ${CLANG_TIDY_COMMAND} $<TARGET_PROPERTY:${TARGET},SOURCES>

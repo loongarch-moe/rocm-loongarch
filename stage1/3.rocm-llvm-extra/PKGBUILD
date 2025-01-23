@@ -1,0 +1,99 @@
+pkgbase='rocm-llvm-extra'
+pkgname=('rocm-llvm-extra')
+pkgver=6.3.1
+pkgrel=631000
+pkgdesc="rocm-core is a utility which can be used to get ROCm release version."
+arch=('loong64' 'x86_64' 'riscv64')
+license=('Apache')
+url="https://github.com/ROCm/llvm-project"
+provides=('rocm-llvm-core')
+source=(
+    "git+https://github.com/ROCm/llvm-project.git#tag=rocm-$pkgver"
+    "loongarch.patch"
+)
+b2sums=('SKIP' 'SKIP')
+prepare() {
+  cd llvm-project
+    git apply ../loongarch.patch
+  cd ..
+  mkdir build || true
+  PATH=/opt/rocm-${pkgver}/lib/llvm/bin:$PATH
+  ROCM_PATH=/opt/rocm-${pkgver}
+  cd build
+    mkdir device-libs || true
+    cd device-libs
+      cmake $PWD/../../llvm-project/amd/device-libs/ -G Ninja \
+       -DCMAKE_BUILD_RPATH="/opt/rocm-${pkgver}/lib;/opt/rocm-${pkgver}/lib64;/opt/rocm-${pkgver}/lib/llvm/lib" \
+       -DCMAKE_INSTALL_RPATH="/opt/rocm-${pkgver}/lib;/opt/rocm-${pkgver}/lib64;/opt/rocm-${pkgver}/lib/llvm/lib" \
+       -DCMAKE_C_COMPILER=clang \
+       -DCMAKE_CXX_COMPILER=clang++ \
+       -DCMAKE_CXX_FLAGS="-stdlib=libc++ -I/opt/rocm-${pkgver}/lib/llvm/include" \
+       -DCMAKE_INSTALL_PREFIX="/opt/rocm-${pkgver}" \
+       -DCMAKE_LINKER_TYPE=LLD \
+       -DCMAKE_FIND_ROOT_PATH=/opt/rocm-${pkgver}/ 
+    cd ..
+    mkdir comgr || true
+    cd comgr
+      cmake $PWD/../../llvm-project/amd/comgr/ -G Ninja \
+       -DCMAKE_BUILD_RPATH="/opt/rocm-${pkgver}/lib;/opt/rocm-${pkgver}/lib64;/opt/rocm-${pkgver}/lib/llvm/lib" \
+       -DCMAKE_INSTALL_RPATH="/opt/rocm-${pkgver}/lib;/opt/rocm-${pkgver}/lib64;/opt/rocm-${pkgver}/lib/llvm/lib" \
+       -DCMAKE_C_COMPILER=clang \
+       -DCMAKE_CXX_COMPILER=clang++ \
+       -DCMAKE_CXX_FLAGS="-stdlib=libc++ -I/opt/rocm-${pkgver}/lib/llvm/include" \
+       -DCMAKE_INSTALL_PREFIX="/opt/rocm-${pkgver}" \
+       -DAMDDeviceLibs_DIR=$PWD/../device-libs/lib64/cmake/AMDDeviceLibs/ \
+       -DCMAKE_LINKER_TYPE=LLD \
+       -DCMAKE_FIND_ROOT_PATH=/opt/rocm-${pkgver}/ 
+    cd ..
+    mkdir hipcc || true
+    cd hipcc
+      cmake $PWD/../../llvm-project/amd/hipcc/ -G Ninja \
+       -DCMAKE_BUILD_RPATH="/opt/rocm-${pkgver}/lib;/opt/rocm-${pkgver}/lib64;/opt/rocm-${pkgver}/lib/llvm/lib" \
+       -DCMAKE_INSTALL_RPATH="/opt/rocm-${pkgver}/lib;/opt/rocm-${pkgver}/lib64;/opt/rocm-${pkgver}/lib/llvm/lib" \
+       -DCMAKE_C_COMPILER=clang \
+       -DCMAKE_CXX_COMPILER=clang++ \
+       -DCMAKE_CXX_FLAGS="-stdlib=libc++ -I/opt/rocm-${pkgver}/lib/llvm/include" \
+       -DCMAKE_INSTALL_PREFIX="/opt/rocm-${pkgver}" \
+       -DCMAKE_LINKER_TYPE=LLD \
+       -DCMAKE_FIND_ROOT_PATH=/opt/rocm-${pkgver}/ 
+    cd ..
+  cd ..
+
+}
+build() {
+  cd build
+    cd device-libs
+      ninja
+    cd ..
+    cd comgr
+      ninja
+    cd ..
+    cd hipcc
+      ninja
+    cd ..
+  cd ..
+}
+
+check() {
+#  cd build
+#  ninja check
+echo
+}
+
+#packaging() {
+
+#}
+package() {
+  cd build
+    cd device-libs
+      cmake --install . --prefix "$pkgdir"/opt/rocm-${pkgver}
+    cd ..
+    cd comgr
+      cmake --install . --prefix "$pkgdir"/opt/rocm-${pkgver}
+    cd ..
+    cd hipcc
+      cmake --install . --prefix "$pkgdir"/opt/rocm-${pkgver}
+    cd ..
+  cd ..
+}
+

@@ -1,0 +1,58 @@
+pkgbase='rocm-pgmath'
+pkgname=('rocm-pgmath')
+pkgver=6.3.1
+pkgrel=631000
+pkgdesc="rocm-core is a utility which can be used to get ROCm release version."
+arch=('loong64' 'x86_64' 'riscv64')
+license=('Apache')
+url="https://github.com/ROCm/llvm-project"
+provides=('rocm-llvm-core' 'rocm-llvm-extra')
+source=(
+    "git+https://github.com/ROCm/flang#tag=rocm-$pkgver"
+    "pgmath.patch"
+)
+b2sums=('SKIP' 'SKIP')
+export LD_LIBRARY_PATH=/opt/rocm-${pkgver}/lib64:$LD_LIBRARY_PATH
+prepare() {
+  cd flang
+    git apply ../pgmath.patch
+  cd ..
+  mkdir build || true
+  PATH=/opt/rocm-${pkgver}/lib/llvm/bin:$PATH
+  ROCM_PATH=/opt/rocm-${pkgver}
+  cd build
+    cmake $PWD/../flang/runtime/libpgmath/ -G Ninja \
+     -DCMAKE_BUILD_RPATH="/opt/rocm-${pkgver}/lib;/opt/rocm-${pkgver}/lib64;/opt/rocm-${pkgver}/lib/llvm/lib" \
+     -DCMAKE_INSTALL_RPATH="/opt/rocm-${pkgver}/lib;/opt/rocm-${pkgver}/lib64;/opt/rocm-${pkgver}/lib/llvm/lib" \
+     -DCMAKE_C_COMPILER=clang \
+     -DCMAKE_CXX_COMPILER=clang++ \
+     -DCMAKE_CXX_FLAGS="-stdlib=libc++ -I/opt/rocm-${pkgver}/lib/llvm/include" \
+     -DCMAKE_INSTALL_PREFIX="/opt/rocm-${pkgver}/lib/llvm/" \
+     -DCMAKE_LINKER_TYPE=LLD \
+     -DCMAKE_FIND_ROOT_PATH=/opt/rocm-${pkgver}/  \
+     -DCMAKE_BUILD_TYPE=Release \
+     -DCMAKE_EXPORT_COMPILE_COMMANDS=ON 
+  cd ..
+
+}
+build() {
+  cd build
+    ninja 
+  cd ..
+}
+
+check() {
+#  cd build
+#  ninja check
+echo
+}
+
+#packaging() {
+
+#}
+package() {
+  cd build
+    cmake --install . --prefix "$pkgdir"/opt/rocm-${pkgver}/lib/llvm/
+  cd ..
+}
+

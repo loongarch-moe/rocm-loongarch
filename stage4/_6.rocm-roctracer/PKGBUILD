@@ -1,0 +1,63 @@
+
+pkgbase='rocm-roctracer'
+pkgname=('rocm-roctracer')
+pkgver=6.3.1
+pkgrel=631000
+pkgdesc="rocm-core is a utility which can be used to get ROCm release version."
+arch=('loong64' 'x86_64' 'riscv64')
+license=('MIT')
+url="https://github.com/ROCm/ROCT-Thunk-Interface.git"
+
+source=(
+    "git+https://github.com/ROCm/roctracer.git#tag=rocm-$pkgver"
+)
+b2sums=('SKIP')
+depends=("rocm-clr=${pkgver}")
+PATH=/opt/rocm-${pkgver}/bin:$PATH
+prepare() {
+#  sed -i '32d' roctracer/test/CMakeLists.txt
+#  sed -i '32i find_package( HIP CONFIG REQUIRED )' roctracer/test/CMakeLists.txt
+  mkdir build || true
+  cd build
+  if [ -n $AMDGPU_TARGETS ] && [ $AMDGPU_TARGETS != 'all' ]; then 
+    targetSet=( -DGPU_TARGETS=${AMDGPU_TARGETS/;/ } )
+  else
+    targetSet=( )
+  fi
+  cmake ../roctracer \
+   -DCMAKE_BUILD_TYPE=Release \
+   -DCMAKE_FIND_ROOT_PATH=/opt/rocm-${pkgver}/ \
+   -DCMAKE_MODULE_PATH="/opt/rocm-${pkgver}/lib64/cmake/hip/" \
+   -DCMAKE_INSTALL_PREFIX=/opt/rocm-${pkgver} \
+   -DBUILD_RPATH_USE_ORIGIN=OFF \
+   -DCMAKE_C_COMPILER=/opt/rocm-${pkgver}/lib/llvm/bin/clang \
+   -DCMAKE_CXX_COMPILER=/opt/rocm-${pkgver}/bin/hipcc \
+   -DCMAKE_C_FLAGS="-parallel-jobs=$(nproc) -I/opt/rocm-${pkgver}/include" \
+   -DCMAKE_CXX_FLAGS="-parallel-jobs=$(nproc) -I/opt/rocm-${pkgver}/include -stdlib=libc++ -fopenmp" \
+   -DAMDGPU_TARGETS=$AMDGPU_TARGETS \
+   -DCMAKE_INSTALL_RPATH="/opt/rocm-${pkgver}/lib;/opt/rocm-${pkgver}/lib/llvm/lib;/opt/rocm-${pkgver}/lib64" \
+   ${targetSet[@]} \
+  -G "Unix Makefiles"
+  #sed -i '3921,d' build/hipify/src/device/device_table.h
+
+}
+build() {
+  mkdir build || true
+  cd build
+  make -j$(nproc)
+}
+
+check() {
+#  cd "ROCm-CompilerSupport"
+#  cd build
+#  make ctest
+echo
+}
+
+#packaging() {
+
+#}
+package() {
+  cd build
+  make DESTDIR="$pkgdir/" install
+}

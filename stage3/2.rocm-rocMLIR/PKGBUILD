@@ -1,0 +1,70 @@
+
+pkgbase='rocm-rocMLIR'
+pkgname=('rocm-rocMLIR')
+pkgver=6.3.1
+pkgrel=631000
+pkgdesc="rocm-core is a utility which can be used to get ROCm release version."
+arch=('loong64' 'x86_64')
+license=('MIT')
+url="https://github.com/ROCm/ROCT-Thunk-Interface.git"
+
+source=(
+    "git+https://github.com/ROCm/rocMLIR.git#tag=rocm-$pkgver"
+    "rocMLIR-loongarch.patch"
+)
+b2sums=('SKIP' 'SKIP')
+depends=(
+  "rocm-llvm-core=${pkgver}"
+)
+PATH=/opt/rocm-${pkgver}/bin:$PATH
+TARGET="AMDGPU;NVPTX;"
+TARGET="$TARGET;LoongArch;"
+TARGET="$TARGET;X86;"
+TARGET="$TARGET;RISCV;"
+prepare() {
+  cd rocMLIR
+    git apply ../rocMLIR-loongarch.patch
+  cd ..
+  mkdir build || true
+  cd build
+  cmake ../rocMLIR \
+   -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+   -DBUILD_FAT_LIBROCKCOMPILER=ON \
+   -DCMAKE_C_COMPILER=/opt/rocm-${pkgver}/lib/llvm/bin/clang \
+   -DCMAKE_CXX_COMPILER=/opt/rocm-${pkgver}/lib/llvm/bin/clang++ \
+   -DCMAKE_C_FLAGS="-mcmodel=extreme -Wno-gnu-line-marker" \
+   -DCMAKE_CXX_FLAGS="-mcmodel=extreme -Wno-gnu-line-marker -stdlib=libstdc++" \
+   -DCMAKE_FIND_ROOT_PATH=/opt/rocm-${pkgver}/ \
+   -DCMAKE_PREFIX_PATH="/opt/rocm-${pkgver}/;/usr" \
+   -DCMAKE_INSTALL_PREFIX=/opt/rocm-${pkgver}/ \
+   -DCMAKE_EXE_LINKER_FLAGS="-L/opt/rocm-${pkgver}/lib  -L/opt/rocm-${pkgver}/hip/lib" \
+   -DLLVM_TARGETS_TO_BUILD="$TARGET" \
+   -DROCM_PATH=/opt/rocm-${pkgver} \
+   -DCMAKE_INSTALL_RPATH="/opt/rocm-${pkgver}/lib;/opt/rocm-${pkgver}/lib/llvm/lib;/opt/rocm-${pkgver}/lib64" \
+   -DCMAKE_LINKER_TYPE=BFD \
+  -G "Ninja"
+# -DLLVM_ENABLE_PIC=OFF
+# -DCMAKE_LINKER_TYPE=BFD
+
+}
+build() {
+  mkdir build || true
+  cd build
+    ninja 
+#  cmake --build . -j $(nproc)
+}
+
+check() {
+#  cd "ROCm-CompilerSupport"
+#  cd build
+#  make ctest
+echo
+}
+
+#packaging() {
+
+#}
+package() {
+  cd build
+  cmake --install . --prefix "$pkgdir"/opt/rocm-${pkgver}/
+}
