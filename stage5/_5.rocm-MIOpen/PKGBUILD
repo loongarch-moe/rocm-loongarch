@@ -1,0 +1,78 @@
+
+pkgbase='rocm-MIOpen'
+pkgname=('rocm-MIOpen')
+pkgver=6.3.1
+pkgrel=631000
+pkgdesc="rocm-core is a utility which can be used to get ROCm release version."
+arch=('loong64' 'x86_64')
+license=('MIT')
+url="https://github.com/ROCm/ROCT-Thunk-Interface.git"
+
+source=(
+    "git+https://github.com/ROCm/MIOpen.git#tag=rocm-$pkgver"
+    "miopen.patch"
+)
+b2sums=('SKIP' 'SKIP')
+depends=(
+  "rocm-clr=${pkgver}"
+  "rocm-rocBLAS=${pkgver}"
+  "rocm-rocMLIR=${pkgver}"
+  "rocm-composable_kernel=${pkgver}"
+)
+PATH=/opt/rocm-${pkgver}/bin:$PATH
+prepare() {
+#git lfs fetch -a
+
+  cd MIOpen
+    git lfs checkout
+    git apply ../miopen.patch
+  cd ..
+  mkdir build || true
+  cd build
+  cmake ../MIOpen \
+   -DMIOPEN_BACKEND=HIP \
+   -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+   -DCMAKE_C_COMPILER=/opt/rocm-${pkgver}/lib/llvm/bin/clang \
+   -DMIOPEN_HIP_COMPILER=/opt/rocm-${pkgver}/lib/llvm/bin/clang++ \
+   -DCMAKE_FIND_ROOT_PATH=/opt/rocm-${pkgver}/ \
+   -DCMAKE_CXX_COMPILER=/opt/rocm-${pkgver}/bin/hipcc \
+   -DAMDGPU_TARGETS=$AMDGPU_TARGETS \
+   -DCMAKE_CXX_FLAGS="-I/opt/rocm-${pkgver}/include -stdlib=libc++ -fopenmp -mcmodel=extreme -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_NONE" \
+   -DCMAKE_PREFIX_PATH="/opt/rocm-${pkgver}/;/opt/rocm-${pkgver}/lib;/usr" \
+   -DCMAKE_INSTALL_PREFIX=/opt/rocm-${pkgver} \
+   -DBUILD_SHARED_LIBS=ON \
+   -DBUILD_DEV=OFF \
+   -DMIOPEN_ENABLE_FIN=OFF \
+   -DMIOPEN_BUILD_DRIVER=ON \
+   -DBoost_USE_STATIC_LIBS=OFF \
+   -DBUILD_TESTING=OFF \
+   -DMIOPEN_USE_COMPOSABLEKERNEL=OFF \
+   -DCMAKE_SHARED_LINKER_FLAGS="-L/opt/rocm-${pkgver}/lib64" \
+   -DCMAKE_INSTALL_RPATH="/opt/rocm-${pkgver}/lib;/opt/rocm-${pkgver}/lib/llvm/lib;/opt/rocm-${pkgver}/lib64" \
+   -DCMAKE_BUILD_RPATH="/opt/rocm-${pkgver}/lib;/opt/rocm-${pkgver}/lib/llvm/lib;/opt/rocm-${pkgver}/lib64" \
+  -G "Unix Makefiles"
+}
+build() {
+  mkdir build || true
+  cd build
+#  sed -i "s!-lroctx64!-L/home/xinmu/rocm-loongarch/stage4/03.rocm-rocMLIR/src/build/external/llvm-project/llvm/lib -lLLVMLoongArchAsmParser -lLLVMLoongArchDesc -lLLVMLoongArchDisassembler -lLLVMLoongArchCodeGen -lLLVMLoongArchInfo /opt/rocm-${pkgver}/lib/libclang.so -lrockCompiler /opt/rocm-${pkgver}/lib64/libamd_comgr.so /opt/rocm-${pkgver}/lib64/libroctx64.so!g" src/CMakeFiles/MIOpen.dir/link.txt
+#  sed -i "s!-lhiprtc!/opt/rocm-${pkgver}/lib64/libhiprtc.so!g" src/CMakeFiles/MIOpen.dir/link.txt
+#  sed -i "s!-lrocrand!-L/home/xinmu/rocm-loongarch/stage4/03.rocm-rocMLIR/src/build/external/llvm-project/llvm/lib -lLLVMLoongArchAsmParser -lLLVMLoongArchDesc -lLLVMLoongArchDisassembler -lLLVMLoongArchCodeGen -lLLVMLoongArchInfo /opt/rocm-${pkgver}/lib/libclang.so -lrockCompiler /opt/rocm-${pkgver}/lib64/libamd_comgr.so /opt/rocm-${pkgver}/lib/librocrand-d.so!g" driver/CMakeFiles/MIOpenDriver.dir/link.txt
+  make 
+#-j$(nproc) 
+}
+
+check() {
+#  cd "ROCm-CompilerSupport"
+#  cd build
+#  make ctest
+echo
+}
+
+#packaging() {
+
+#}
+package() {
+  cd build
+  make DESTDIR="$pkgdir/" install
+}

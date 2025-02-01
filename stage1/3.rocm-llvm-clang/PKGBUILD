@@ -1,5 +1,5 @@
-pkgbase='rocm-llvm'
-pkgname=('rocm-llvm')
+pkgbase='rocm-llvm-clang'
+pkgname=('rocm-llvm-clang')
 pkgver=6.3.1
 pkgrel=631000
 pkgdesc="rocm-core is a utility which can be used to get ROCm release version."
@@ -27,7 +27,7 @@ prepare() {
   cd ..
   mkdir build || true
   cd build
-  EXT_CFLAGS="-pipe -Wno-missing-template-arg-list-after-template-kw"
+  EXT_CFLAGS="-pipe -Wno-missing-template-arg-list-after-template-kw -stdlib=libc++ -fPIC"
   if [ $CARCH == 'loong64' ];
   then
     EXT_CFLAGS="-mcmodel=medium $EXT_CFLAGS"
@@ -38,36 +38,24 @@ prepare() {
   -DCMAKE_BUILD_TYPE=RelWithDebInfo \
   -DCMAKE_C_FLAGS="$EXT_CFLAGS" \
   -DCMAKE_CXX_FLAGS="$EXT_CFLAGS" \
-  -DCMAKE_INSTALL_PREFIX="/opt/rocm-${pkgver}" \
+  -DCMAKE_INSTALL_PREFIX="/opt/rocm-${pkgver}/lib/llvm" \
   -DLLVM_ENABLE_ASSERTIONS=1 \
   -DLLVM_TARGETS_TO_BUILD="$TARGET" \
-  -DLLVM_ENABLE_PROJECTS="lld;clang;flang;" \
-  -DLLVM_EXTERNAL_HIPCC_SOURCE_DIR=$PWD/../llvm-project/amd/hipcc/ \
-  -DLLVM_EXTERNAL_COMGR_SOURCE_DIR=$PWD/../llvm-project/amd/comgr/ \
-  -DLLVM_EXTERNAL_DEVICE_LIBS_SOURCE_DIR=$PWD/../llvm-project/amd/device-libs/ \
-  -DLLVM_EXTERNAL_PROJECTS="device-libs;hipcc;comgr" \
-  -DLLVM_ENABLE_RUNTIMES="compiler-rt;libcxx;libcxxabi;libunwind" \
-  -DCMAKE_INSTALL_RPATH="/opt/rocm-${pkgver}/lib;/opt/rocm-${pkgver}/lib64" \
-  -DBUILD_RPATH_USE_ORIGIN=OFF \
-  -DCMAKE_BUILD_RPATH="/opt/rocm-${pkgver}/lib;/opt/rocm-${pkgver}/lib64" \
+  -DCMAKE_INSTALL_RPATH="/opt/rocm-${pkgver}/lib/llvm/lib;/opt/rocm-${pkgver}/lib/llvm/lib64" \
+  -DCMAKE_BUILD_RPATH="/opt/rocm-${pkgver}/lib/llvm/lib;/opt/rocm-${pkgver}/lib/llvm/lib64" \
   -DPROJECT_VERSION_MAJOR=6 \
   -DPROJECT_VERSION_MINOR=3 \
   -DPROJECT_VERSION_PATCH=1 \
-  -DBUILD_SHARED_LIBS=ON \
   -DLLVM_ENABLE_LIBCXX=ON \
-  -DLIBCXX_ENABLE_SHARED=ON \
-  -DLIBCXX_ENABLE_STATIC=ON \
-  -DLIBCXXABI_ENABLE_SHARED=ON \
-  -DLIBCXX_ENABLE_STATIC_ABI_LIBRARY=ON \
-  -DLIBCXXABI_USE_LLVM_UNWINDER=ON \
-  -DRUNTIMES_CMAKE_ARGS="-DCMAKE_INSTALL_RPATH='/opt/rocm-${pkgver}/lib';-DCMAKE_BUILD_RPATH='/opt/rocm-${pkgver}/lib';-DBUILD_RPATH_USE_ORIGIN=OFF" \
+  -DLLVM_CMAKE_DIR=/opt/rocm-${pkgver}/lib/llvm/ \
+  -DLLVM_INCLUDE_TESTS=OFF \
+  -DLLVM_ENABLE_PIC=ON \
   -G "Ninja" \
-  -S ../llvm-project/llvm/
+  -S ../llvm-project/clang/
   sed -i "s!-lamdhip64!/opt/rocm-$pkgver/lib64/libamdhip64.so!g" ../llvm-project/clang/lib/Driver/ToolChains/Linux.cpp
 }
 build() {
   cd build
-  ninja runtimes-build
   cmake --build .
 }
 
@@ -82,6 +70,6 @@ echo
 #}
 package() {
   cd build
-  cmake --install . --prefix "$pkgdir"/opt/rocm-${pkgver}
+  cmake --install . --prefix "$pkgdir"/opt/rocm-${pkgver}/lib/llvm
 }
 

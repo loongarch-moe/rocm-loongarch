@@ -52,7 +52,7 @@ index 8509cc362..d9c2edb56 100644
        "mov %0,sp"
        : "=r"(value)
 +#elif defined(__loongarch_lp64)
-+      "addi.d %0,sp,0"
++      "addi.d %0,$sp,0"
 +      : "=r"(value)
  #else
        ""

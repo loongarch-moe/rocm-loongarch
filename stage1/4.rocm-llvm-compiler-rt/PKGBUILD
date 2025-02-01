@@ -1,5 +1,5 @@
-pkgbase='rocm-llvm-core'
-pkgname=('rocm-llvm-core')
+pkgbase='rocm-llvm-compiler-rt'
+pkgname=('rocm-llvm-compiler-rt')
 pkgver=6.3.1
 pkgrel=631000
 pkgdesc="rocm-core is a utility which can be used to get ROCm release version."
@@ -27,7 +27,7 @@ prepare() {
   cd ..
   mkdir build || true
   cd build
-  EXT_CFLAGS="-pipe -Wno-missing-template-arg-list-after-template-kw"
+  EXT_CFLAGS="-pipe -Wno-missing-template-arg-list-after-template-kw -fPIC"
   if [ $CARCH == 'loong64' ];
   then
     EXT_CFLAGS="-mcmodel=medium $EXT_CFLAGS"
@@ -38,31 +38,22 @@ prepare() {
   -DCMAKE_BUILD_TYPE=RelWithDebInfo \
   -DCMAKE_C_FLAGS="$EXT_CFLAGS" \
   -DCMAKE_CXX_FLAGS="$EXT_CFLAGS" \
-  -DCMAKE_INSTALL_PREFIX="/opt/rocm-${pkgver}/lib/llvm" \
+  -DCMAKE_INSTALL_PREFIX="/opt/rocm-${pkgver}/lib/llvm/lib/clang/18/" \
   -DLLVM_ENABLE_ASSERTIONS=1 \
   -DLLVM_TARGETS_TO_BUILD="$TARGET" \
-  -DLLVM_ENABLE_RUNTIMES="libcxx;libcxxabi;libunwind" \
-  -DCMAKE_INSTALL_RPATH="/opt/rocm-${pkgver}/lib/llvm/lib" \
-  -DCMAKE_BUILD_RPATH="/opt/rocm-${pkgver}/lib/llvm/lib" \
+  -DCMAKE_INSTALL_RPATH="/opt/rocm-${pkgver}/lib/llvm/lib;/opt/rocm-${pkgver}/lib/llvm/lib64" \
+  -DCMAKE_BUILD_RPATH="/opt/rocm-${pkgver}/lib/llvm/lib;/opt/rocm-${pkgver}/lib/llvm/lib64" \
   -DPROJECT_VERSION_MAJOR=6 \
   -DPROJECT_VERSION_MINOR=3 \
   -DPROJECT_VERSION_PATCH=1 \
-  -DBUILD_SHARED_LIBS=ON \
-  -DLLVM_ENABLE_LIBCXX=ON \
-  -DLIBCXX_ENABLE_SHARED=ON \
-  -DLIBCXX_ENABLE_STATIC=ON \
-  -DLIBCXXABI_ENABLE_SHARED=ON \
-  -DLIBCXX_ENABLE_STATIC_ABI_LIBRARY=ON \
-  -DLIBCXXABI_USE_LLVM_UNWINDER=ON \
-  -DRUNTIMES_CMAKE_ARGS="-DCMAKE_INSTALL_RPATH='/opt/rocm-${pkgver}/lib/llvm/lib';-DCMAKE_BUILD_RPATH='/opt/rocm-${pkgver}/lib/llvm/lib';-DBUILD_RPATH_USE_ORIGIN=OFF;-DLLVM_ENABLE_PIC=ON" \
+  -DLLVM_CMAKE_DIR=/opt/rocm-${pkgver}/lib/llvm/ \
   -G "Ninja" \
-  -DLLVM_ENABLE_PIC=ON \
-  -S ../llvm-project/llvm/
+  -S ../llvm-project/compiler-rt/
   sed -i "s!-lamdhip64!/opt/rocm-$pkgver/lib64/libamdhip64.so!g" ../llvm-project/clang/lib/Driver/ToolChains/Linux.cpp
 }
 build() {
   cd build
-CC=clang CXX=clang++  cmake --build .
+  cmake --build .
 }
 
 check() {
@@ -76,6 +67,6 @@ echo
 #}
 package() {
   cd build
-  cmake --install . --prefix "$pkgdir"/opt/rocm-${pkgver}/lib/llvm
+  cmake --install . --prefix "$pkgdir"/opt/rocm-${pkgver}/lib/llvm/lib/clang/18/
 }
 

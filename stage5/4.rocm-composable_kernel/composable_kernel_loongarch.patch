@@ -1,5 +1,157 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index c062d1dd3..8af096848 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -338,147 +338,6 @@ else()
+     add_compile_definitions(__HIP_PLATFORM_HCC__=1)
+ endif()
+ 
+-## tidy
+-include(EnableCompilerWarnings)
+-set(CK_TIDY_ERRORS ERRORS * -readability-inconsistent-declaration-parameter-name)
+-if(CMAKE_CXX_COMPILER MATCHES ".*hcc" OR CMAKE_CXX_COMPILER MATCHES ".*clang\\+\\+")
+-    set(CK_TIDY_CHECKS -modernize-use-override -readability-non-const-parameter)
+-# Enable tidy on hip
+-elseif(CK_BACKEND STREQUAL "HIP" OR CK_BACKEND STREQUAL "HIPNOGPU")
+-    set(CK_TIDY_ERRORS ALL)
+-endif()
+-
+-
+-include(ClangTidy)
+-enable_clang_tidy(
+-    CHECKS
+-        *
+-        -abseil-*
+-        -android-cloexec-fopen
+-        # Yea we shouldn't be using rand()
+-        -cert-msc30-c
+-        -bugprone-exception-escape
+-        -bugprone-macro-parentheses
+-        -cert-env33-c
+-        -cert-msc32-c
+-        -cert-msc50-cpp
+-        -cert-msc51-cpp
+-        -cert-dcl37-c
+-        -cert-dcl51-cpp
+-        -clang-analyzer-alpha.core.CastToStruct
+-        -clang-analyzer-optin.performance.Padding
+-        -clang-diagnostic-deprecated-declarations
+-        -clang-diagnostic-extern-c-compat
+-        -clang-diagnostic-unused-command-line-argument
+-        -cppcoreguidelines-avoid-c-arrays
+-        -cppcoreguidelines-avoid-magic-numbers
+-        -cppcoreguidelines-explicit-virtual-functions
+-        -cppcoreguidelines-init-variables
+-        -cppcoreguidelines-macro-usage
+-        -cppcoreguidelines-non-private-member-variables-in-classes
+-        -cppcoreguidelines-pro-bounds-array-to-pointer-decay
+-        -cppcoreguidelines-pro-bounds-constant-array-index
+-        -cppcoreguidelines-pro-bounds-pointer-arithmetic
+-        -cppcoreguidelines-pro-type-member-init
+-        -cppcoreguidelines-pro-type-reinterpret-cast
+-        -cppcoreguidelines-pro-type-union-access
+-        -cppcoreguidelines-pro-type-vararg
+-        -cppcoreguidelines-special-member-functions
+-        -fuchsia-*
+-        -google-explicit-constructor
+-        -google-readability-braces-around-statements
+-        -google-readability-todo
+-        -google-runtime-int
+-        -google-runtime-references
+-        -hicpp-vararg
+-        -hicpp-braces-around-statements
+-        -hicpp-explicit-conversions
+-        -hicpp-named-parameter
+-        -hicpp-no-array-decay
+-        # We really shouldn't use bitwise operators with signed integers, but
+-        # opencl leaves us no choice
+-        -hicpp-avoid-c-arrays
+-        -hicpp-signed-bitwise
+-        -hicpp-special-member-functions
+-        -hicpp-uppercase-literal-suffix
+-        -hicpp-use-auto
+-        -hicpp-use-equals-default
+-        -hicpp-use-override
+-        -llvm-header-guard
+-        -llvm-include-order
+-        #-llvmlibc-*
+-        -llvmlibc-restrict-system-libc-headers
+-        -llvmlibc-callee-namespace
+-        -llvmlibc-implementation-in-namespace
+-        -llvm-else-after-return
+-        -llvm-qualified-auto
+-        -misc-misplaced-const
+-        -misc-non-private-member-variables-in-classes
+-        -misc-no-recursion
+-        -modernize-avoid-bind
+-        -modernize-avoid-c-arrays
+-        -modernize-pass-by-value
+-        -modernize-use-auto
+-        -modernize-use-default-member-init
+-        -modernize-use-equals-default
+-        -modernize-use-trailing-return-type
+-        -modernize-use-transparent-functors
+-        -performance-unnecessary-value-param
+-        -readability-braces-around-statements
+-        -readability-else-after-return
+-        # we are not ready to use it, but very useful
+-        -readability-function-cognitive-complexity
+-        -readability-isolate-declaration
+-        -readability-magic-numbers
+-        -readability-named-parameter
+-        -readability-uppercase-literal-suffix
+-        -readability-convert-member-functions-to-static
+-        -readability-qualified-auto
+-        -readability-redundant-string-init
+-        # too many narrowing conversions in our code
+-        -bugprone-narrowing-conversions
+-        -cppcoreguidelines-narrowing-conversions
+-        -altera-struct-pack-align
+-        -cppcoreguidelines-prefer-member-initializer
+-        ${CK_TIDY_CHECKS}
+-        ${CK_TIDY_ERRORS}
+-    HEADER_FILTER
+-        "\.hpp$"
+-    EXTRA_ARGS
+-        -DCK_USE_CLANG_TIDY
+-)
+-
+-include(CppCheck)
+-enable_cppcheck(
+-    CHECKS
+-        warning
+-        style
+-        performance
+-        portability
+-    SUPPRESS
+-        ConfigurationNotChecked
+-        constStatement
+-        duplicateCondition
+-        noExplicitConstructor
+-        passedByValue
+-        preprocessorErrorDirective
+-        shadowVariable
+-        unusedFunction
+-        unusedPrivateFunction
+-        unusedStructMember
+-        unmatchedSuppression
+-    FORCE
+-    SOURCES
+-        library/src
+-    INCLUDE
+-        ${CMAKE_CURRENT_SOURCE_DIR}/include
+-        ${CMAKE_CURRENT_BINARY_DIR}/include
+-        ${CMAKE_CURRENT_SOURCE_DIR}/library/include
+-    DEFINE
+-        CPPCHECK=1
+-        __linux__=1
+-)
+-
+ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
+ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
+ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
 diff --git a/include/ck/ck.hpp b/include/ck/ck.hpp
-index 32eea551f..325d34c62 100644
+index 5f74d51a6..f67595d54 100644
 --- a/include/ck/ck.hpp
 +++ b/include/ck/ck.hpp
 @@ -21,7 +21,11 @@ CK_DECLARE_ENV_VAR_BOOL(CK_LOGGING)
@@ -14,3 +166,24 @@ index 32eea551f..325d34c62 100644
  
  // launch bounds
  #define CK_USE_LAUNCH_BOUNDS 1
+diff --git a/library/src/tensor_operation_instance/gpu/CMakeLists.txt b/library/src/tensor_operation_instance/gpu/CMakeLists.txt
+index f82176ffc..565fefb49 100644
+--- a/library/src/tensor_operation_instance/gpu/CMakeLists.txt
++++ b/library/src/tensor_operation_instance/gpu/CMakeLists.txt
+@@ -113,7 +113,6 @@ function(add_instance_library INSTANCE_NAME)
+         endif()
+ 
+         set_target_properties(${INSTANCE_NAME} PROPERTIES POSITION_INDEPENDENT_CODE ON)
+-        clang_tidy_check(${INSTANCE_NAME})
+         set(result 0)
+         message("add_instance_library ${INSTANCE_NAME}")
+     else()
+diff --git a/library/src/utility/CMakeLists.txt b/library/src/utility/CMakeLists.txt
+index 296e6c993..1bcf24cdf 100644
+--- a/library/src/utility/CMakeLists.txt
++++ b/library/src/utility/CMakeLists.txt
+@@ -27,4 +27,3 @@ rocm_install(
+     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/composable_kernel
+ )
+ 
+-clang_tidy_check(utility)

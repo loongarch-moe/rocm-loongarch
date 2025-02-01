@@ -20,14 +20,14 @@ prepare() {
   mkdir build || true
   cd build
   cmake ../half \
-   -DCMAKE_BUILD_TYPE=Debug \
+   -DCMAKE_BUILD_TYPE=RelWithDebInfo \
    -DCMAKE_C_COMPILER=/opt/rocm-${pkgver}/lib/llvm/bin/clang \
    -DCMAKE_FIND_ROOT_PATH=/opt/rocm-${pkgver}/ \
    -DCMAKE_CXX_COMPILER=/opt/rocm-${pkgver}/bin/hipcc \
    -DCMAKE_CXX_FLAGS="-L/opt/rocm-${pkgver}/lib  -L/opt/rocm-${pkgver}/hip/lib" \
    -DCMAKE_PREFIX_PATH="/opt/rocm-${pkgver}/;/usr" \
    -DCMAKE_INSTALL_PREFIX=/opt/rocm-${pkgver} \
-   -DCMAKE_EXE_LINKER_FLAGS="-L/opt/rocm-${pkgver}/lib  -L/opt/rocm-${pkgver}/hip/lib" \
+   -DCMAKE_EXE_LINKER_FLAGS="-L/opt/rocm-${pkgver}/lib  -L/opt/rocm-${pkgver}/hip/lib -Wl,-rpath=/opt/rocm-${pkgver}/lib" \
   -G "Unix Makefiles"
 }
 build() {

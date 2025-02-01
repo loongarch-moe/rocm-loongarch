@@ -32,7 +32,7 @@ prepare() {
      -DCMAKE_LINKER_TYPE=LLD \
      -DCMAKE_FIND_ROOT_PATH=/opt/rocm-${pkgver}/  \
      -DOPENMP_ENABLE_LIBOMPTARGET=ON \
-     -DCMAKE_BUILD_TYPE=Release \
+     -DCMAKE_BUILD_TYPE=RelWithDebInfo \
      -DSANITIZER_AMDGPU=OFF \
      -DCUDA_TOOLKIT_ROOT_DIR=OFF \
      -DLIBOMP_USE_HWLOC=ON \

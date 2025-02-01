@@ -26,7 +26,7 @@ prepare() {
     targetSet=( )
   fi
   cmake ../rocFFT \
-   -DCMAKE_BUILD_TYPE=Release \
+   -DCMAKE_BUILD_TYPE=RelWithDebInfo \
    -DCMAKE_INSTALL_RPATH="/opt/rocm-${pkgver}/lib;/opt/rocm-${pkgver}/lib/llvm/lib;/opt/rocm-${pkgver}/lib64" \
    -DCMAKE_CXX_FLAGS="-parallel-jobs=$(nproc) -I/opt/rocm-${pkgver}/include -stdlib=libc++ -fopenmp" \
    -DCMAKE_C_COMPILER=/opt/rocm-${pkgver}/lib/llvm/bin/clang \

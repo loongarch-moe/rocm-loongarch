@@ -38,7 +38,7 @@ prepare() {
   cd build
   cmake ../rocBLAS \
    -DCMAKE_LINKER_TYPE=LLD \
-   -DCMAKE_BUILD_TYPE=Release \
+   -DCMAKE_BUILD_TYPE=RelWithDebInfo \
    -DCMAKE_C_COMPILER=/opt/rocm-${pkgver}/lib/llvm/bin/clang \
    -DCMAKE_FIND_ROOT_PATH=/opt/rocm-${pkgver}/ \
    -DCMAKE_CXX_COMPILER=/opt/rocm-${pkgver}/bin/hipcc \

@@ -31,7 +31,7 @@ prepare() {
      -DCMAKE_INSTALL_PREFIX="/opt/rocm-${pkgver}/lib/llvm/" \
      -DCMAKE_LINKER_TYPE=LLD \
      -DCMAKE_FIND_ROOT_PATH=/opt/rocm-${pkgver}/  \
-     -DCMAKE_BUILD_TYPE=Release \
+     -DCMAKE_BUILD_TYPE=RelWithDebInfo \
      -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
      -DLLVM_MAIN_INCLUDE_DIR=$PWD/../llvm-project/llvm/include \
      -DLLVM_DIR=$PWD/../llvm-project \

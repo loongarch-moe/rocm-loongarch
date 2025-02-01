@@ -1,0 +1,12 @@
+diff --git a/cmake/ClangTidy.cmake b/cmake/ClangTidy.cmake
+index a83a77721..bff04db0e 100644
+--- a/cmake/ClangTidy.cmake
++++ b/cmake/ClangTidy.cmake
+@@ -148,6 +148,7 @@ macro(enable_clang_tidy)
+ endmacro()
+ 
+ function(clang_tidy_check TARGET)
++    return()
+     get_target_property(SOURCES ${TARGET} SOURCES)
+     # TODO: Use generator expressions instead
+     # COMMAND ${CLANG_TIDY_COMMAND} $<TARGET_PROPERTY:${TARGET},SOURCES>

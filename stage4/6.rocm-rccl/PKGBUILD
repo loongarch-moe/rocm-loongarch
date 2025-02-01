@@ -12,7 +12,7 @@ source=(
     "rccl-loongarch64.patch"
 )
 b2sums=('SKIP' 'SKIP')
-depends=("rocm-clr=${pkgver}" "rocm-HIPIFY=${pkgver}" "rocm_smi_lib=${pkgver}" "rocm-rocprofiler-register=${pkgver}")
+depends=("rocm-clr=${pkgver}" "rocm-HIPIFY=${pkgver}" "rocm_smi_lib=${pkgver}")
 # MSCCLPP choose
 PATH=/opt/rocm-${pkgver}/bin:$PATH
 ROCM_PATH=/opt/rocm-$pkgver
@@ -29,7 +29,7 @@ prepare() {
     targetSet=( )
   fi
   cmake ../rccl \
-   -DCMAKE_BUILD_TYPE=Release \
+   -DCMAKE_BUILD_TYPE=RelWithDebInfo \
    -DCMAKE_FIND_ROOT_PATH=/opt/rocm-${pkgver}/ \
    -DCMAKE_PREFIX_PATH="/opt/rocm-${pkgver}/;/usr" \
    -DCMAKE_INSTALL_PREFIX=/opt/rocm-${pkgver} \
@@ -43,6 +43,7 @@ prepare() {
    -DCMAKE_CXX_FLAGS="-parallel-jobs=$(nproc) -I/opt/rocm-${pkgver}/include -stdlib=libc++ -fopenmp" \
    -DCMAKE_INSTALL_RPATH="/opt/rocm-${pkgver}/lib;/opt/rocm-${pkgver}/lib/llvm/lib;/opt/rocm-${pkgver}/lib64" \
    -DROCM_PATH=/opt/rocm-${pkgver}/ \
+   -DRCCL_ROCPROFILER_REGISTER=OFF \
    ${targetSet[@]} \
   -G "Unix Makefiles"
   

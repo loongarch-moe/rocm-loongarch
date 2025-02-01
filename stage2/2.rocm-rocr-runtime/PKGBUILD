@@ -31,7 +31,7 @@ prepare() {
   mkdir build || true
   cd build
   cmake "../ROCR-Runtime/" \
-  -DCMAKE_BUILD_TYPE=Debug \
+  -DCMAKE_BUILD_TYPE=RelWithDebInfo \
    -DCMAKE_C_COMPILER=/opt/rocm-${pkgver}/lib/llvm/bin/clang \
    -DCMAKE_CXX_COMPILER=/opt/rocm-${pkgver}/lib/llvm/bin/clang++ \
    -DCMAKE_INSTALL_PREFIX=/opt/rocm-${pkgver} \

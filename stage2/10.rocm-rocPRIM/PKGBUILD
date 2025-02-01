@@ -17,12 +17,13 @@ prepare() {
   mkdir build || true
   cd build
   cmake ../rocPRIM \
-   -DCMAKE_BUILD_TYPE=Release \
+   -DCMAKE_BUILD_TYPE=RelWithDebInfo \
    -DCMAKE_FIND_ROOT_PATH=/opt/rocm-${pkgver}/ \
    -DCMAKE_CXX_COMPILER=/opt/rocm-${pkgver}/bin/hipcc \
    -DCMAKE_PREFIX_PATH="/opt/rocm-${pkgver}/;/usr" \
    -DCMAKE_INSTALL_PREFIX=/opt/rocm-${pkgver} \
    -DAMDGPU_TARGETS=$AMDGPU_TARGETS \
+   -DCMAKE_EXE_LINKER_FLAGS="-L/opt/rocm-${pkgver}/lib  -L/opt/rocm-${pkgver}/hip/lib -Wl,-rpath=/opt/rocm-${pkgver}/lib" \
   -G "Unix Makefiles"
 }
 build() {

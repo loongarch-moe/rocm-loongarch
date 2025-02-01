@@ -23,7 +23,7 @@ prepare() {
   cd build
   cmake ../rocm_bandwidth_test \
    -DCMAKE_C_COMPILER=/opt/rocm-${pkgver}/lib/llvm/bin/clang \
-   -DCMAKE_BUILD_TYPE=Release \
+   -DCMAKE_BUILD_TYPE=RelWithDebInfo \
    -DCMAKE_FIND_ROOT_PATH=/opt/rocm-${pkgver}/ \
    -DCMAKE_CXX_COMPILER=/opt/rocm-${pkgver}/lib/llvm/bin/clang++ \
    -DCMAKE_CXX_FLAGS="-parallel-jobs=$(nproc) -I/opt/rocm-${pkgver}/include/hsa" \

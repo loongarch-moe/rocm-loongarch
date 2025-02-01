@@ -19,7 +19,7 @@ prepare() {
   mkdir build || true
   cd build
   cmake ../hipCUB \
-   -DCMAKE_BUILD_TYPE=Release \
+   -DCMAKE_BUILD_TYPE=RelWithDebInfo \
    -DCMAKE_FIND_ROOT_PATH=/opt/rocm-${pkgver}/ \
    -DAMDGPU_TARGETS=$AMDGPU_TARGETS \
    -DCMAKE_PREFIX_PATH="/opt/rocm-${pkgver}/;/usr" \

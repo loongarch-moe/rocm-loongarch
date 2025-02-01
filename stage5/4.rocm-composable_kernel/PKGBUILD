@@ -30,24 +30,28 @@ prepare() {
     targetSet=( )
   fi
   cmake ../composable_kernel \
-   -DCMAKE_BUILD_TYPE=Release \
-   -DCMAKE_FIND_ROOT_PATH="/opt/rocm-${pkgver}/MLIR;/opt/rocm-${pkgver}/" \
-   -DCMAKE_PREFIX_PATH="/opt/rocm-${pkgver}/MLIR;/opt/rocm-${pkgver}/;/usr" \
+   -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+   -DCMAKE_FIND_ROOT_PATH="/opt/rocm-${pkgver}/" \
+   -DCMAKE_PREFIX_PATH="/opt/rocm-${pkgver}/;/usr" \
    -DCMAKE_INSTALL_PREFIX=/opt/rocm-${pkgver} \
    -DGOOGLETEST_DIR=$PWD/../googletest \
    -DCMAKE_INSTALL_RPATH="/opt/rocm-${pkgver}/lib;/opt/rocm-${pkgver}/lib/llvm/lib;/opt/rocm-${pkgver}/lib64" \
-   -DCMAKE_CXX_FLAGS="-parallel-jobs=$(nproc) -I/opt/rocm-${pkgver}/include -stdlib=libc++ -fopenmp -mcmodel=extreme -Wno-old-style-cast -Wno-documentation -Wno-documentation-pedantic -Wno-zero-as-null-pointer-constant" \
+   -DCMAKE_CXX_FLAGS="-parallel-jobs=$(nproc) -I/opt/rocm-${pkgver}/include -stdlib=libc++ -fopenmp -mcmodel=extreme -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_NONE" \
    -DCMAKE_C_COMPILER=/opt/rocm-${pkgver}/lib/llvm/bin/clang \
    -DCMAKE_CXX_COMPILER=/opt/rocm-${pkgver}/lib/llvm/bin/clang++ \
    -DCMAKE_HIP_COMPILER_ROCM_ROOT=/opt/rocm-${pkgver} \
+   -DCMAKE_HIP_FLAGS="-parallel-jobs=$(nproc) -I/opt/rocm-${pkgver}/include -stdlib=libc++ -fopenmp -mcmodel=extreme -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_NONE" \
+   -DROCM_WARN_TOOLCHAIN_VAR=OFF \
+   -DBUILD_DEV=OFF \
    ${targetSet[@]} \
-  -G "Unix Makefiles"
+   -G Ninja
+#  -G "Unix Makefiles"
 
 }
 build() {
   mkdir build || true
   cd build
-  make -j$(nproc)
+  ninja 
 }
 
 check() {
@@ -62,5 +66,5 @@ echo
 #}
 package() {
   cd build
-  make DESTDIR="$pkgdir/" install
+  cmake --install . --prefix "$pkgdir"/opt/rocm-${pkgver}
 }

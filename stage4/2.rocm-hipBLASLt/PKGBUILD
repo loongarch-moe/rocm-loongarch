@@ -31,7 +31,7 @@ prepare() {
   fi
   cd build
   cmake ../hipBLASLt \
-   -DCMAKE_BUILD_TYPE=Release \
+   -DCMAKE_BUILD_TYPE=RelWithDebInfo \
    -DCMAKE_C_COMPILER=/opt/rocm-${pkgver}/lib/llvm/bin/clang \
    -DCMAKE_FIND_ROOT_PATH=/opt/rocm-${pkgver}/ \
    -DCMAKE_CXX_COMPILER=/opt/rocm-${pkgver}/bin/hipcc \
@@ -42,7 +42,7 @@ prepare() {
    -DCMAKE_INSTALL_RPATH="/opt/rocm-${pkgver}/lib;/opt/rocm-${pkgver}/lib/llvm/lib;/opt/rocm-${pkgver}/lib64" \
    -DCMAKE_BUILD_RPATH="/opt/rocm-${pkgver}/lib;/opt/rocm-${pkgver}/lib64" \
    -DVIRTUALENV_PYTHON_EXE=/usr/bin/python3.12 \
-   -DCMAKE_CXX_FLAGS="-parallel-jobs=$(nproc)  -stdlib=libc++ -fopenmp " \
+   -DCMAKE_CXX_FLAGS="-parallel-jobs=$(nproc)  -stdlib=libc++ -fopenmp -Wl,-rpath=/opt/rocm-${pkgver}/lib" \
    -DTensile_COMPILER=hipcc \
    -DBUILD_CLIENTS_SAMPLES=ON \
    -DBUILD_CLIENTS_TESTS=OFF \
