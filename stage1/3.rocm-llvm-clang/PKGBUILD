@@ -1,7 +1,7 @@
 pkgbase='rocm-llvm-clang'
 pkgname=('rocm-llvm-clang')
-pkgver=6.3.1
-pkgrel=631000
+pkgver=6.3.2
+pkgrel=632000
 pkgdesc="rocm-core is a utility which can be used to get ROCm release version."
 arch=('loong64' 'x86_64' 'riscv64')
 license=('Apache')
@@ -27,10 +27,10 @@ prepare() {
   cd ..
   mkdir build || true
   cd build
-  EXT_CFLAGS="-pipe -Wno-missing-template-arg-list-after-template-kw -stdlib=libc++ -fPIC"
+  EXT_CFLAGS="-pipe -Wno-missing-template-arg-list-after-template-kw -Wno-unused-command-line-argument -stdlib=libc++ -fPIC -I/opt/rocm-${pkgver}/lib/llvm/include/c++/v1 -L/opt/rocm-${pkgver}/lib/llvm/lib"
   if [ $CARCH == 'loong64' ];
   then
-    EXT_CFLAGS="-mcmodel=medium $EXT_CFLAGS"
+    EXT_CFLAGS="-mcmodel=extreme $EXT_CFLAGS"
   fi
   cmake \
   -DCMAKE_C_COMPILER=clang \
@@ -43,13 +43,12 @@ prepare() {
   -DLLVM_TARGETS_TO_BUILD="$TARGET" \
   -DCMAKE_INSTALL_RPATH="/opt/rocm-${pkgver}/lib/llvm/lib;/opt/rocm-${pkgver}/lib/llvm/lib64" \
   -DCMAKE_BUILD_RPATH="/opt/rocm-${pkgver}/lib/llvm/lib;/opt/rocm-${pkgver}/lib/llvm/lib64" \
-  -DPROJECT_VERSION_MAJOR=6 \
-  -DPROJECT_VERSION_MINOR=3 \
-  -DPROJECT_VERSION_PATCH=1 \
   -DLLVM_ENABLE_LIBCXX=ON \
   -DLLVM_CMAKE_DIR=/opt/rocm-${pkgver}/lib/llvm/ \
   -DLLVM_INCLUDE_TESTS=OFF \
   -DLLVM_ENABLE_PIC=ON \
+  -DCLANG_DEFAULT_RTLIB=compiler-rt \
+  -DCLANG_DEFAULT_UNWINDLIB=libunwind \
   -G "Ninja" \
   -S ../llvm-project/clang/
   sed -i "s!-lamdhip64!/opt/rocm-$pkgver/lib64/libamdhip64.so!g" ../llvm-project/clang/lib/Driver/ToolChains/Linux.cpp

@@ -1,7 +1,7 @@
 pkgbase='rocm-rocBLAS'
 pkgname=('rocm-rocBLAS')
-pkgver=6.3.1
-pkgrel=631000
+pkgver=6.3.2
+pkgrel=632000
 pkgdesc="rocm-core is a utility which can be used to get ROCm release version."
 arch=('loong64' 'x86_64' 'riscv64')
 license=('MIT')
@@ -11,9 +11,8 @@ source=(
     "git+https://github.com/ROCm/rocBLAS.git#tag=rocm-$pkgver"
     "git+https://github.com/ROCm/Tensile.git#tag=rocm-$pkgver"
     "git+https://github.com/google/googletest.git"
-    "rocBLAS.patch"
 )
-b2sums=('SKIP' 'SKIP' 'SKIP' 'SKIP')
+b2sums=('SKIP' 'SKIP' 'SKIP')
 depends=("rocm-clr=${pkgver}")
 PATH=/opt/rocm-${pkgver}/bin:/opt/rocm-${pkgver}/lib/llvm/bin:$PATH
 export HIPCC_COMPILE_FLAGS_APPEND=-I/opt/rocm-${pkgver}/include
@@ -24,32 +23,25 @@ prepare() {
 #    sed -i '238,240d' Tensile/cmake/TensileConfig.cmake
  #   sed -i '236d' Tensile/cmake/TensileConfig.cmake
   cd ..
- # cd rocBLAS
-#    if [ $CARCH == 'loong64' ];
-#    then
-#      git apply ../rocBLAS.patch
-#    fi
-#    if [ $CARCH == 'riscv64' ];
-#    then
-#      git apply ../rocBLAS.patch
-#    fi
-#  cd ..
+  EXT_CFLAGS="-pipe -fopenmp -Wl,-rpath=/opt/rocm-${pkgver}/lib -fPIC -stdlib=libc++ -Wno-gnu-line-marker -L/opt/rocm-${pkgver}/lib/llvm/lib -I/opt/rocm-${pkgver}/lib/llvm/include/c++/v1 -Wno-unused-command-line-argument -I/opt/rocm-${pkgver}/include  -L/opt/rocm-${pkgver}/lib"
   mkdir build || true
   cd build
+  if [ -n $AMDGPU_TARGETS ] && [ $AMDGPU_TARGETS != 'all' ]; then 
+    targetSet=( -DAMDGPU_TARGETS=$AMDGPU_TARGETS -DTensile_ARCHITECTURE=$AMDGPU_TARGETS )
+  else
+    targetSet=( )
+  fi
   cmake ../rocBLAS \
-   -DCMAKE_LINKER_TYPE=LLD \
    -DCMAKE_BUILD_TYPE=RelWithDebInfo \
    -DCMAKE_C_COMPILER=/opt/rocm-${pkgver}/lib/llvm/bin/clang \
    -DCMAKE_FIND_ROOT_PATH=/opt/rocm-${pkgver}/ \
    -DCMAKE_CXX_COMPILER=/opt/rocm-${pkgver}/bin/hipcc \
-   -DCMAKE_CXX_FLAGS="-parallel-jobs=$(nproc) -I/opt/rocm-${pkgver}/include -stdlib=libc++ -fopenmp" \
+   -DCMAKE_CXX_FLAGS="-parallel-jobs=$(nproc) $EXT_CFLAGS" \
+   -DCMAKE_C_FLAGS="-parallel-jobs=$(nproc) $EXT_CFLAGS" \
    -DTensile_LOGIC=asm_full \
-   -DTensile_LIBRARY_FORMAT=yaml \
-   -DTensile_ARCHITECTURE=$AMDGPU_TARGETS \
    -DTensile_CODE_OBJECT_VERSION=V5 \
    -DROCM_PATH=/opt/rocm-${pkgver} \
    -DRUN_HEADER_TESTING=OFF \
-   -DAMDGPU_TARGETS=$AMDGPU_TARGETS \
    -DTensile_COMPILER=hipcc \
    -DTensile_TEST_LOCAL_PATH=$PWD/../Tensile \
    -DCMAKE_PREFIX_PATH="/opt/rocm-${pkgver}/;/usr" \
@@ -57,13 +49,15 @@ prepare() {
    -DVIRTUALENV_PYTHON_EXE=/usr/bin/python3.12 \
    -DBUILD_FORTRAN_CLIENTS=ON \
    -DTensile_ROOT=$PWD/virtualenv/lib/python3.12/site-packages/Tensile \
+   -DCMAKE_BUILD_RPATH="/opt/rocm-${pkgver}/lib;/opt/rocm-${pkgver}/lib/llvm/lib;/opt/rocm-${pkgver}/lib64" \
    -DCMAKE_EXE_LINKER_FLAGS="-L/opt/rocm-${pkgver}/lib  -L/opt/rocm-${pkgver}/hip/lib -L/opt/rocm-${pkgver}/lib/llvm/lib/" \
    -DCMAKE_INSTALL_RPATH="/opt/rocm-${pkgver}/lib;/opt/rocm-${pkgver}/lib/llvm/lib;/opt/rocm-${pkgver}/lib64" \
-   -DCMAKE_SHARED_LINKER_FLAGS="-L/opt/rocm-${pkgver}/lib/llvm/lib/" \
+   -DCMAKE_SHARED_LINKER_FLAGS="-L/opt/rocm-${pkgver}/lib/llvm/lib/ -L/opt/rocm-${pkgver}/lib " \
    -DBUILD_CLIENTS_SAMPLES=ON \
    -DBUILD_CLIENTS_BENCHMARKS=OFF \
    -DBUILD_CLIENTS_TESTS=OFF \
    -DBUILD_WITH_HIPBLASLT=ON \
+   ${targetSet[@]} \
   -G "Unix Makefiles"
 }
 build() {

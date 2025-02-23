@@ -10,7 +10,7 @@ index 4ff71ea04..c04865b88 100644
 -clang_path="${rocm_path}/bin/amdclang++"
 -$clang_path -x hip "$sources" --offload-arch="${archs}" -c --offload-device-only -Xoffload-linker --build-id=$build_id_kind $additional_options -o "$dest"
 \ No newline at end of file
-+rocm_path="${ROCM_PATH:-/opt/rocm-6.3.1}"
++rocm_path="${ROCM_PATH:-/opt/rocm-6.3.2}"
 +clang_path="${rocm_path}/bin/hipcc"
 +$clang_path -x hip "$sources" --offload-arch="${archs}" -c --offload-device-only -Xoffload-linker --build-id=$build_id_kind $additional_options -o "$dest"
 diff --git a/tensilelite/Tensile/Common.py b/tensilelite/Tensile/Common.py
@@ -50,7 +50,7 @@ index 0b21b6c67..b89f85942 100755
  build_id_kind=$4
  
 -rocm_path=/opt/rocm
-+rocm_path=/opt/rocm-6.3.1
++rocm_path=/opt/rocm-6.3.2
  if ! [ -z ${ROCM_PATH+x} ]; then
      rocm_path=${ROCM_PATH}
  fi
@@ -80,7 +80,7 @@ index c71525923..ecf5ab53a 100644
          get_target_property(msgpack_inc msgpackc INTERFACE_INCLUDE_DIRECTORIES)
      endif()
 diff --git a/clients/benchmarks/CMakeLists.txt b/clients/benchmarks/CMakeLists.txt
-index 99ec31f3d..93d7ab299 100644
+index 99ec31f3d..dfa483885 100644
 --- a/clients/benchmarks/CMakeLists.txt
 +++ b/clients/benchmarks/CMakeLists.txt
 @@ -45,11 +45,6 @@ target_include_directories( hipblaslt-bench
@@ -95,6 +95,15 @@ index 99ec31f3d..93d7ab299 100644
  target_compile_definitions( hipblaslt-bench PRIVATE HIPBLASLT_BENCH ROCM_USE_FLOAT16 HIPBLASLT_INTERNAL_API ${TENSILE_DEFINES} )
  if ( NOT BUILD_FORTRAN_CLIENTS )
    target_compile_definitions( hipblaslt-bench PRIVATE CLIENTS_NO_FORTRAN )
+@@ -80,7 +75,7 @@ if (NOT WIN32)
+   else()
+     target_link_libraries( hipblaslt-bench PRIVATE lapack cblas )
+   endif()
+-  list( APPEND COMMON_LINK_LIBS "-lm -lstdc++fs")
++  list( APPEND COMMON_LINK_LIBS "-lm")
+ 
+   if (CMAKE_Fortran_COMPILER_ID MATCHES "GNU")
+     list( APPEND COMMON_LINK_LIBS "-lgfortran") # for lapack
 @@ -172,7 +167,7 @@ foreach( exe ${ext_bench_list_all} )
  
    if( CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
@@ -105,7 +114,7 @@ index 99ec31f3d..93d7ab299 100644
    endif( )
  endforeach( )
 diff --git a/clients/gtest/CMakeLists.txt b/clients/gtest/CMakeLists.txt
-index 99cebc17b..e9189b35f 100644
+index 99cebc17b..0712b7cfe 100644
 --- a/clients/gtest/CMakeLists.txt
 +++ b/clients/gtest/CMakeLists.txt
 @@ -73,10 +73,6 @@ else()
@@ -119,6 +128,15 @@ index 99cebc17b..e9189b35f 100644
  
  target_compile_definitions( hipblaslt-test PRIVATE ROCM_USE_FLOAT16 HIPBLASLT_INTERNAL_API )
  
+@@ -89,7 +85,7 @@ else()
+   target_link_libraries( hipblaslt-test PRIVATE lapack cblas )
+ endif()
+ 
+-list( APPEND COMMON_LINK_LIBS "-lm -lstdc++fs")
++list( APPEND COMMON_LINK_LIBS "-lm")
+ 
+ if (CMAKE_Fortran_COMPILER_ID MATCHES "GNU")
+   list( APPEND COMMON_LINK_LIBS "-lgfortran") # for lapack
 diff --git a/clients/samples/CMakeLists.txt b/clients/samples/CMakeLists.txt
 index 6cb2a7d16..1aa167c0d 100644
 --- a/clients/samples/CMakeLists.txt
