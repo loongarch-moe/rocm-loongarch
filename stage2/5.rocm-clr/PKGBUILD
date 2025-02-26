@@ -57,12 +57,14 @@ prepare() {
    -DCMAKE_EXE_LINKER_FLAGS="-L/opt/rocm-${pkgver}/lib" \
    -DHIP_ENABLE_ROCPROFILER_REGISTER=OFF \
    -DCMAKE_LINKER_TYPE=LLD \
+   -DAMD_ICD_LIBRARY=$PWD/opencl/khronos/icd/libOpenCL.so \
    -G "Unix Makefiles"
   sed -i 's!.bat!!g' hipamd/cmake_install.cmake
 }
 build() {
   mkdir build || true
   cd build
+  make OpenCL -j$(nproc)
   make -j$(nproc)
 }
 
