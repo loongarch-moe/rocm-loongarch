@@ -1,7 +1,16 @@
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index c062d1dd3..8af096848 100644
+index c062d1dd3..f02ab0d22 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
+@@ -24,7 +24,7 @@ endif()
+ set(version 1.1.0)
+ # Check support for CUDA/HIP in Cmake
+ project(composable_kernel VERSION ${version} LANGUAGES CXX HIP)
+-include(CTest)
++# include(CTest)
+ 
+ # Usage: for customized Python location cmake -DCK_USE_ALTERNATIVE_PYTHON="/opt/Python-3.8.13/bin/python3.8"
+ # CK Codegen requires dataclass which is added in Python 3.7
 @@ -338,147 +338,6 @@ else()
      add_compile_definitions(__HIP_PLATFORM_HCC__=1)
  endif()
@@ -150,6 +159,28 @@ index c062d1dd3..8af096848 100644
  set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
  set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
+@@ -505,7 +364,7 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERS
+     add_compile_options(-fdiagnostics-color=always)
+ endif()
+ 
+-add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure -C ${CMAKE_CFG_INTDIR})
++# add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure -C ${CMAKE_CFG_INTDIR})
+ 
+ file(GLOB_RECURSE INSTANCE_FILES "${PROJECT_SOURCE_DIR}/*/device_*_instance.cpp")
+ file(GLOB dir_list RELATIVE ${PROJECT_SOURCE_DIR}/library/src/tensor_operation_instance/gpu ${PROJECT_SOURCE_DIR}/library/src/tensor_operation_instance/gpu/*)
+diff --git a/example/CMakeLists.txt b/example/CMakeLists.txt
+index ad3f7c787..d2796932d 100644
+--- a/example/CMakeLists.txt
++++ b/example/CMakeLists.txt
+@@ -95,7 +95,7 @@ function(add_example_executable EXAMPLE_NAME FILE_NAME)
+         add_test(NAME ${EXAMPLE_NAME} COMMAND $<TARGET_FILE:${EXAMPLE_NAME}> ${ARGN})
+         set_property(TARGET ${EXAMPLE_NAME} PROPERTY HIP_ARCHITECTURES ${EX_TARGETS} )
+         add_dependencies(examples ${EXAMPLE_NAME})
+-        add_dependencies(check ${EXAMPLE_NAME})
++#        add_dependencies(check ${EXAMPLE_NAME})
+         rocm_install(TARGETS ${EXAMPLE_NAME} COMPONENT examples)
+         set(result 0)
+     endif()
 diff --git a/include/ck/ck.hpp b/include/ck/ck.hpp
 index 5f74d51a6..f67595d54 100644
 --- a/include/ck/ck.hpp

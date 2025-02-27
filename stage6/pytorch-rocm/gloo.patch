@@ -1,0 +1,13 @@
+diff --git a/cmake/Hip.cmake b/cmake/Hip.cmake
+index 18a3c07..41db333 100644
+--- a/cmake/Hip.cmake
++++ b/cmake/Hip.cmake
+@@ -19,7 +19,7 @@ set(CMAKE_MODULE_PATH ${ROCM_PATH}/lib/cmake/hip ${CMAKE_MODULE_PATH})
+ ADD_DEFINITIONS(-DNDEBUG)
+ 
+ # Find the HIP Package
+-find_package(HIP 1.0)
++find_package(HIP)
+ 
+ IF(HIP_FOUND)
+   set(HAVE_HIP TRUE)

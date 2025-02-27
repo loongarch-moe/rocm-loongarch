@@ -1,7 +1,7 @@
 pkgbase='rocm-llvm-core'
 pkgname=('rocm-llvm-core')
-pkgver=6.3.1
-pkgrel=631000
+pkgver=6.3.2
+pkgrel=632000
 pkgdesc="rocm-core is a utility which can be used to get ROCm release version."
 arch=('loong64' 'x86_64' 'riscv64')
 license=('Apache')
@@ -25,13 +25,41 @@ prepare() {
     git apply ../loongarch.patch
     git apply ../51e91b64d0deb6a743861c2a0fba84865250036e.patch
   cd ..
-  mkdir build || true
-  cd build
-  EXT_CFLAGS="-pipe -Wno-missing-template-arg-list-after-template-kw"
+  EXT_CFLAGS="-pipe -Wno-missing-template-arg-list-after-template-kw -fPIC -Wno-unused-command-line-argument"
   if [ $CARCH == 'loong64' ];
   then
-    EXT_CFLAGS="-mcmodel=medium $EXT_CFLAGS"
+    EXT_CFLAGS="-mcmodel=extreme $EXT_CFLAGS"
   fi
+
+  mkdir runtimes-build || true
+  cd runtimes-build
+      cmake \
+    -DCMAKE_C_COMPILER=clang \
+    -DCMAKE_CXX_COMPILER=clang++ \
+    -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+    -DCMAKE_C_FLAGS="$EXT_CFLAGS" \
+    -DCMAKE_CXX_FLAGS="$EXT_CFLAGS" \
+    -DCMAKE_INSTALL_PREFIX="$PWD/../runtimes" \
+    -DLLVM_ENABLE_ASSERTIONS=1 \
+    -DLLVM_ENABLE_RUNTIMES="libcxx;libcxxabi;libunwind" \
+    -DCMAKE_INSTALL_RPATH="/opt/rocm-${pkgver}/lib/llvm/lib" \
+    -DCMAKE_BUILD_RPATH="/opt/rocm-${pkgver}/lib/llvm/lib" \
+    -DBUILD_SHARED_LIBS=ON \
+    -DLLVM_ENABLE_LIBCXX=ON \
+    -DLIBCXX_ENABLE_SHARED=ON \
+    -DLIBCXX_ENABLE_STATIC=ON \
+    -DLIBCXXABI_ENABLE_SHARED=ON \
+    -DLIBCXX_ENABLE_STATIC_ABI_LIBRARY=ON \
+    -DLIBCXXABI_USE_LLVM_UNWINDER=ON \
+    -DRUNTIMES_CMAKE_ARGS="-DCMAKE_C_COMPILER=clang;-DCMAKE_CXX_COMPILER=clang++;-DCMAKE_INSTALL_RPATH='/opt/rocm-${pkgver}/lib/llvm/lib';-DCMAKE_BUILD_RPATH='/opt/rocm-${pkgver}/lib/llvm/lib';-DBUILD_RPATH_USE_ORIGIN=OFF;-DLLVM_ENABLE_PIC=ON" \
+    -G "Ninja" \
+    -DLLVM_ENABLE_PIC=ON \
+    -S ../llvm-project/llvm/
+    ninja runtimes install-runtimes
+  cd ..
+  mkdir build || true
+  cd build
+  EXT_CFLAGS="-stdlib=libc++ -L$PWD/../runtimes/lib -I$PWD/../runtimes/include/c++/v1 $EXT_CFLAGS"
   cmake \
   -DCMAKE_C_COMPILER=clang \
   -DCMAKE_CXX_COMPILER=clang++ \
@@ -44,9 +72,6 @@ prepare() {
   -DLLVM_ENABLE_RUNTIMES="libcxx;libcxxabi;libunwind" \
   -DCMAKE_INSTALL_RPATH="/opt/rocm-${pkgver}/lib/llvm/lib" \
   -DCMAKE_BUILD_RPATH="/opt/rocm-${pkgver}/lib/llvm/lib" \
-  -DPROJECT_VERSION_MAJOR=6 \
-  -DPROJECT_VERSION_MINOR=3 \
-  -DPROJECT_VERSION_PATCH=1 \
   -DBUILD_SHARED_LIBS=ON \
   -DLLVM_ENABLE_LIBCXX=ON \
   -DLIBCXX_ENABLE_SHARED=ON \
@@ -54,7 +79,9 @@ prepare() {
   -DLIBCXXABI_ENABLE_SHARED=ON \
   -DLIBCXX_ENABLE_STATIC_ABI_LIBRARY=ON \
   -DLIBCXXABI_USE_LLVM_UNWINDER=ON \
-  -DRUNTIMES_CMAKE_ARGS="-DCMAKE_INSTALL_RPATH='/opt/rocm-${pkgver}/lib/llvm/lib';-DCMAKE_BUILD_RPATH='/opt/rocm-${pkgver}/lib/llvm/lib';-DBUILD_RPATH_USE_ORIGIN=OFF;-DLLVM_ENABLE_PIC=ON" \
+  -DLIBCXX_USE_COMPILER_RT=YES \
+  -DLIBCXXABI_USE_COMPILER_RT=YES \
+  -DRUNTIMES_CMAKE_ARGS="-DCMAKE_C_COMPILER=clang;-DCMAKE_CXX_COMPILER=clang++;-DCMAKE_INSTALL_RPATH='/opt/rocm-${pkgver}/lib/llvm/lib';-DCMAKE_BUILD_RPATH='/opt/rocm-${pkgver}/lib/llvm/lib';-DBUILD_RPATH_USE_ORIGIN=OFF;-DLLVM_ENABLE_PIC=ON" \
   -G "Ninja" \
   -DLLVM_ENABLE_PIC=ON \
   -S ../llvm-project/llvm/
@@ -62,7 +89,7 @@ prepare() {
 }
 build() {
   cd build
-CC=clang CXX=clang++  cmake --build .
+  LD_LIBRARY_PATH=$PWD/../runtimes/lib:$LD_LIBRARY_PATH CC=clang CXX=clang++  cmake --build .
 }
 
 check() {
@@ -78,4 +105,3 @@ package() {
   cd build
   cmake --install . --prefix "$pkgdir"/opt/rocm-${pkgver}/lib/llvm
 }
-

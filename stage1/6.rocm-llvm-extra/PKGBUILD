@@ -1,7 +1,7 @@
 pkgbase='rocm-llvm-extra'
 pkgname=('rocm-llvm-extra')
-pkgver=6.3.1
-pkgrel=631000
+pkgver=6.3.2
+pkgrel=632000
 pkgdesc="rocm-core is a utility which can be used to get ROCm release version."
 arch=('loong64' 'x86_64' 'riscv64')
 license=('Apache')
@@ -19,6 +19,7 @@ prepare() {
   mkdir build || true
   PATH=/opt/rocm-${pkgver}/lib/llvm/bin:$PATH
   ROCM_PATH=/opt/rocm-${pkgver}
+  CXXFLAGS="-L/opt/rocm-${pkgver}/lib/llvm/lib -stdlib=libc++ -I/opt/rocm-${pkgver}/lib/llvm/include  -I/opt/rocm-${pkgver}/lib/llvm/include/c++/v1"
   cd build
     mkdir device-libs || true
     cd device-libs
@@ -27,9 +28,9 @@ prepare() {
        -DCMAKE_INSTALL_RPATH="/opt/rocm-${pkgver}/lib;/opt/rocm-${pkgver}/lib64;/opt/rocm-${pkgver}/lib/llvm/lib" \
        -DCMAKE_C_COMPILER=clang \
        -DCMAKE_CXX_COMPILER=clang++ \
-       -DCMAKE_CXX_FLAGS="-stdlib=libc++ -I/opt/rocm-${pkgver}/lib/llvm/include" \
+       -DCMAKE_CXX_FLAGS="$CXXFLAGS" \
+       -DCMAKE_C_FLAGS="$CXXFLAGS" \
        -DCMAKE_INSTALL_PREFIX="/opt/rocm-${pkgver}" \
-       -DCMAKE_LINKER_TYPE=LLD \
        -DCMAKE_FIND_ROOT_PATH=/opt/rocm-${pkgver}/ 
     cd ..
     mkdir comgr || true
@@ -39,10 +40,10 @@ prepare() {
        -DCMAKE_INSTALL_RPATH="/opt/rocm-${pkgver}/lib;/opt/rocm-${pkgver}/lib64;/opt/rocm-${pkgver}/lib/llvm/lib" \
        -DCMAKE_C_COMPILER=clang \
        -DCMAKE_CXX_COMPILER=clang++ \
-       -DCMAKE_CXX_FLAGS="-stdlib=libc++ -I/opt/rocm-${pkgver}/lib/llvm/include" \
+       -DCMAKE_CXX_FLAGS="$CXXFLAGS" \
+       -DCMAKE_C_FLAGS="$CXXFLAGS" \
        -DCMAKE_INSTALL_PREFIX="/opt/rocm-${pkgver}" \
        -DAMDDeviceLibs_DIR=$PWD/../device-libs/lib64/cmake/AMDDeviceLibs/ \
-       -DCMAKE_LINKER_TYPE=LLD \
        -DCMAKE_FIND_ROOT_PATH=/opt/rocm-${pkgver}/ 
     cd ..
     mkdir hipcc || true
@@ -52,9 +53,9 @@ prepare() {
        -DCMAKE_INSTALL_RPATH="/opt/rocm-${pkgver}/lib;/opt/rocm-${pkgver}/lib64;/opt/rocm-${pkgver}/lib/llvm/lib" \
        -DCMAKE_C_COMPILER=clang \
        -DCMAKE_CXX_COMPILER=clang++ \
-       -DCMAKE_CXX_FLAGS="-stdlib=libc++ -I/opt/rocm-${pkgver}/lib/llvm/include" \
+       -DCMAKE_CXX_FLAGS="$CXXFLAGS" \
+       -DCMAKE_C_FLAGS="$CXXFLAGS" \
        -DCMAKE_INSTALL_PREFIX="/opt/rocm-${pkgver}" \
-       -DCMAKE_LINKER_TYPE=LLD \
        -DCMAKE_FIND_ROOT_PATH=/opt/rocm-${pkgver}/ 
     cd ..
   cd ..

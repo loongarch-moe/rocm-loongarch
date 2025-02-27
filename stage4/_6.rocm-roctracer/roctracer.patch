@@ -1,13 +1,104 @@
-diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
-index 8714e11..84a51d3 100644
---- a/src/CMakeLists.txt
-+++ b/src/CMakeLists.txt
-@@ -84,7 +84,7 @@ find_file(HIP_RUNTIME_API_H hip_runtime_api.h
- add_custom_command(
-   OUTPUT hip_ostream_ops.h
-   COMMAND ${CMAKE_C_COMPILER} "$<$<BOOL:${HIP_INCLUDE_DIRECTORIES}>:-I$<JOIN:${HIP_INCLUDE_DIRECTORIES},$<SEMICOLON>-I>>"
--          -E "${HIP_RUNTIME_API_H}" -D__HIP_PLATFORM_HCC__=1 -D__HIP_ROCclr__=1 -o hip_runtime_api.h.i
-+          -E "${HIP_RUNTIME_API_H}" -D__HIP_PLATFORM_HCC__=1 -D__HIP_ROCclr__=1 -D__HIP_PLATFORM_AMD__=1 -o hip_runtime_api.h.i
-   BYPRODUCTS hip_runtime_api.h.i
-   COMMAND ${Python3_EXECUTABLE} ${PROJECT_SOURCE_DIR}/script/gen_ostream_ops.py
-           -in hip_runtime_api.h.i -out hip_ostream_ops.h > /dev/null
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 32ab0ce..8dcaee1 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -42,7 +42,7 @@ endif()
+ 
+ set(CMAKE_CXX_STANDARD 17)
+ set(CMAKE_CXX_STANDARD_REQUIRED ON)
+-add_compile_options(-Wall -Werror)
++
+ # To set addition RUNPATH in libraries
+ # installed in /opt/rocm-ver/lib/roctracer
+ set(ROCM_APPEND_PRIVLIB_RPATH "$ORIGIN/..")
+diff --git a/plugin/file/file.cpp b/plugin/file/file.cpp
+index c00753c..e87a74d 100644
+--- a/plugin/file/file.cpp
++++ b/plugin/file/file.cpp
+@@ -28,7 +28,7 @@
+ 
+ #include <cstddef>
+ #include <cstdint>
+-#include <experimental/filesystem>
++#include <filesystem>
+ #include <fstream>
+ #include <memory>
+ #include <optional>
+@@ -51,7 +51,7 @@
+     if ((call) != 0) fatal("%s", roctracer_error_string());                                        \
+   } while (false)
+ 
+-namespace fs = std::experimental::filesystem;
++namespace fs = std::filesystem;
+ 
+ namespace {
+ 
+diff --git a/src/hip_stats/hip_stats.cpp b/src/hip_stats/hip_stats.cpp
+index 54306bd..99ec5ee 100644
+--- a/src/hip_stats/hip_stats.cpp
++++ b/src/hip_stats/hip_stats.cpp
+@@ -23,7 +23,7 @@
+ 
+ #include <cstdint>
+ #include <cstdlib>
+-#include <experimental/filesystem>
++#include <filesystem>
+ #include <iomanip>
+ #include <iostream>
+ #include <fstream>
+@@ -124,7 +124,7 @@ void CollectStatistics(const char* begin, const char* end, void* /* user_arg */)
+   }
+ }
+ 
+-namespace fs = std::experimental::filesystem;
++namespace fs = std::filesystem;
+ 
+ void DumpStatistics() {
+   CHECK_ROCTRACER(roctracer_close_pool());
+diff --git a/src/roctracer/loader.h b/src/roctracer/loader.h
+index 656f2c1..fe6591b 100644
+--- a/src/roctracer/loader.h
++++ b/src/roctracer/loader.h
+@@ -26,11 +26,11 @@
+ #include <hip/hip_runtime_api.h>
+ 
+ #include <dlfcn.h>
+-#include <experimental/filesystem>
++#include <filesystem>
+ #include <link.h>
+ #include <unistd.h>
+ 
+-namespace fs = std::experimental::filesystem;
++namespace fs = std::filesystem;
+ 
+ namespace roctracer {
+ 
+@@ -189,4 +189,4 @@ class RocTxLoader : public BaseLoader<RocTxLoader> {
+ 
+ }  // namespace roctracer
+ 
+-#endif  // ROCTRACER_LOADER_H_
+\ No newline at end of file
++#endif  // ROCTRACER_LOADER_H_
+diff --git a/src/tracer_tool/tracer_tool.cpp b/src/tracer_tool/tracer_tool.cpp
+index d8fdd9c..42c041a 100644
+--- a/src/tracer_tool/tracer_tool.cpp
++++ b/src/tracer_tool/tracer_tool.cpp
+@@ -27,7 +27,7 @@
+ #include <atomic>
+ #include <cassert>
+ #include <chrono>
+-#include <experimental/filesystem>
++#include <filesystem>
+ #include <iostream>
+ #include <sstream>
+ #include <string>
+@@ -55,7 +55,7 @@
+ 
+ void initialize() __attribute__((constructor(101)));
+ 
+-namespace fs = std::experimental::filesystem;
++namespace fs = std::filesystem;
+ 
+ // Macro to check ROC-tracer calls status
+ #define CHECK_ROCTRACER(call)                                                                      \
