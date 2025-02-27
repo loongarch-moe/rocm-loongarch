@@ -1,93 +1,3 @@
-diff --git a/aten/src/ATen/cpu/Utils.cpp b/aten/src/ATen/cpu/Utils.cpp
-index 60ad78143f..aa13e83314 100644
---- a/aten/src/ATen/cpu/Utils.cpp
-+++ b/aten/src/ATen/cpu/Utils.cpp
-@@ -1,6 +1,6 @@
- #include <cassert>
- #include <ATen/cpu/Utils.h>
--#if !defined(__s390x__ ) && !defined(__powerpc__)
-+#if !defined(__s390x__ ) && !defined(__powerpc__) && !defined(__loongarch_lp64)
- #include <cpuinfo.h>
- #endif
- #if defined(__linux__)
-@@ -10,7 +10,7 @@
- 
- namespace at::cpu {
- bool is_avx2_supported() {
--#if !defined(__s390x__) && !defined(__powerpc__)
-+#if !defined(__s390x__) && !defined(__powerpc__)&& !defined(__loongarch_lp64)
-   return cpuinfo_initialize() && cpuinfo_has_x86_avx2();
- #else
-   return false;
-@@ -18,7 +18,7 @@ bool is_avx2_supported() {
- }
- 
- bool is_avx512_supported() {
--#if !defined(__s390x__) && !defined(__powerpc__)
-+#if !defined(__s390x__) && !defined(__powerpc__)&& !defined(__loongarch_lp64)
-   return cpuinfo_initialize() && cpuinfo_has_x86_avx512f() && cpuinfo_has_x86_avx512vl() && cpuinfo_has_x86_avx512bw() && cpuinfo_has_x86_avx512dq();
- #else
-   return false;
-@@ -26,7 +26,7 @@ bool is_avx512_supported() {
- }
- 
- bool is_avx512_vnni_supported() {
--#if !defined(__s390x__) && !defined(__powerpc__)
-+#if !defined(__s390x__) && !defined(__powerpc__)&& !defined(__loongarch_lp64)
-   return cpuinfo_initialize() && cpuinfo_has_x86_avx512vnni();
- #else
-   return false;
-@@ -34,7 +34,7 @@ bool is_avx512_vnni_supported() {
- }
- 
- bool is_avx512_bf16_supported() {
--#if !defined(__s390x__) && !defined(__powerpc__)
-+#if !defined(__s390x__) && !defined(__powerpc__)&& !defined(__loongarch_lp64)
-   return cpuinfo_initialize() && cpuinfo_has_x86_avx512bf16();
- #else
-   return false;
-@@ -42,7 +42,7 @@ bool is_avx512_bf16_supported() {
- }
- 
- bool is_amx_tile_supported() {
--#if !defined(__s390x__) && !defined(__powerpc__)
-+#if !defined(__s390x__) && !defined(__powerpc__)&& !defined(__loongarch_lp64)
-   return cpuinfo_initialize() && cpuinfo_has_x86_amx_tile();
- #else
-   return false;
-@@ -85,7 +85,7 @@ bool init_amx() {
- }
- 
- bool is_arm_sve_supported() {
--#if !defined(__s390x__) && !defined(__powerpc__)
-+#if !defined(__s390x__) && !defined(__powerpc__)&& !defined(__loongarch_lp64)
-   return cpuinfo_initialize() && cpuinfo_has_arm_sve();
- #else
-   return false;
-@@ -93,7 +93,7 @@ bool is_arm_sve_supported() {
- }
- 
- static uint32_t get_cache_size(int level) {
--#if !defined(__s390x__) && !defined(__powerpc__)
-+#if !defined(__s390x__) && !defined(__powerpc__)&& !defined(__loongarch_lp64)
-   if (!cpuinfo_initialize()) {
-     return 0;
-   }
-diff --git a/aten/src/ATen/native/transformers/hip/aotriton_adapter.h b/aten/src/ATen/native/transformers/hip/aotriton_adapter.h
-index 57d5c34444..8d6f73895a 100644
---- a/aten/src/ATen/native/transformers/hip/aotriton_adapter.h
-+++ b/aten/src/ATen/native/transformers/hip/aotriton_adapter.h
-@@ -2,8 +2,8 @@
- 
- #ifdef USE_ROCM
- 
--#include <aotriton/dtypes.h>
--#include <aotriton/util.h>
-+#include "/home/xinmu/rocm/rocm-loongarch/stage6/aotriton/aotriton-usr/include/aotriton/dtypes.h"
-+#include "/home/xinmu/rocm/rocm-loongarch/stage6/aotriton/aotriton-usr/include/aotriton/util.h"
- 
- ////////////////////////////////////////////////////////////////////////////////
- // Common macros copied from cuda/mem_eff_attention/gemm_kernel_utils.h
 diff --git a/c10/cuda/CUDADeviceAssertion.h b/c10/cuda/CUDADeviceAssertion.h
 index 063c783693..a0f922744e 100644
 --- a/c10/cuda/CUDADeviceAssertion.h
@@ -101,89 +11,27 @@ index 063c783693..a0f922744e 100644
  #endif
  
  } // namespace c10::cuda
-diff --git a/c10/macros/Macros.h b/c10/macros/Macros.h
-index 01e71c88e7..38438f2e2c 100644
---- a/c10/macros/Macros.h
-+++ b/c10/macros/Macros.h
-@@ -352,7 +352,7 @@ constexpr uint32_t CUDA_THREADS_PER_BLOCK_FALLBACK = 256;
- // CUDA_KERNEL_ASSERT checks the assertion
- // even when NDEBUG is defined. This is useful for important assertions in CUDA
- // code that would otherwise be suppressed when building Release.
--#if defined(__ANDROID__) || defined(__APPLE__) || defined(__FreeBSD__)
-+#if defined(__ANDROID__) || defined(__APPLE__) || defined(__FreeBSD__) || defined(USE_ROCM)
- // Those platforms do not support assert()
- #define CUDA_KERNEL_ASSERT(cond)
- #define CUDA_KERNEL_ASSERT_MSG(cond, msg)
-diff --git a/cmake/Dependencies.cmake b/cmake/Dependencies.cmake
-index 7ef8eabb51..52f2654c4c 100644
---- a/cmake/Dependencies.cmake
-+++ b/cmake/Dependencies.cmake
-@@ -1049,7 +1049,7 @@ if(USE_ROCM)
-       caffe2_update_option(USE_SYSTEM_NCCL ON)
-     endif()
- 
--    list(APPEND HIP_CXX_FLAGS -fPIC)
-+    list(APPEND HIP_CXX_FLAGS -fPIC -mcmodel=extreme)
-     list(APPEND HIP_CXX_FLAGS -D__HIP_PLATFORM_AMD__=1)
-     list(APPEND HIP_CXX_FLAGS -DCUDA_HAS_FP16=1)
-     list(APPEND HIP_CXX_FLAGS -DUSE_ROCM)
-@@ -1061,7 +1061,6 @@ if(USE_ROCM)
-     list(APPEND HIP_CXX_FLAGS -Wno-duplicate-decl-specifier)
-     list(APPEND HIP_CXX_FLAGS -DCAFFE2_USE_MIOPEN)
-     list(APPEND HIP_CXX_FLAGS -DTHRUST_DEVICE_SYSTEM=THRUST_DEVICE_SYSTEM_HIP)
--    list(APPEND HIP_CXX_FLAGS -std=c++17)
-     list(APPEND HIP_CXX_FLAGS -DHIPBLAS_V2)
-     if(HIP_NEW_TYPE_ENUMS)
-       list(APPEND HIP_CXX_FLAGS -DHIP_NEW_TYPE_ENUMS)
-@@ -1082,6 +1081,7 @@ if(USE_ROCM)
-     set(HIP_CLANG_FLAGS ${HIP_CXX_FLAGS})
-     # Ask hcc to generate device code during compilation so we can use
-     # host linker to link.
-+    list(APPEND HIP_CLANG_FLAGS -mprintf-kind=buffered)
-     list(APPEND HIP_CLANG_FLAGS -fno-gpu-rdc)
-     foreach(pytorch_rocm_arch ${PYTORCH_ROCM_ARCH})
-       list(APPEND HIP_CLANG_FLAGS --offload-arch=${pytorch_rocm_arch})
-@@ -1664,7 +1664,7 @@ if(USE_KINETO)
- 
-   if(NOT LIBKINETO_NOROCTRACER)
-     if("$ENV{ROCM_SOURCE_DIR}" STREQUAL "")
--      set(ENV{ROCM_SOURCE_DIR} "/opt/rocm")
-+      set(ENV{ROCM_SOURCE_DIR} "/opt/rocm-6.2.2")
-     endif()
-   endif()
- 
-diff --git a/cmake/External/aotriton.cmake b/cmake/External/aotriton.cmake
-index d9d99959f3..d8be0ac7ec 100644
---- a/cmake/External/aotriton.cmake
-+++ b/cmake/External/aotriton.cmake
-@@ -16,7 +16,7 @@ if(NOT __AOTRITON_INCLUDED)
-     file(STRINGS "${CMAKE_CURRENT_SOURCE_DIR}/.ci/docker/aotriton_version.txt" __AOTRITON_CI_INFO)
-     list(GET __AOTRITON_CI_INFO 3 __AOTRITON_CI_COMMIT)
-     ExternalProject_Add(aotriton_external
--      GIT_REPOSITORY https://github.com/ROCm/aotriton.git
-+      GIT_REPOSITORY http://static.xinmu.moe/gh/https://github.com/ROCm/aotriton.git
-       GIT_TAG ${__AOTRITON_CI_COMMIT}
-       PREFIX ${__AOTRITON_EXTERN_PREFIX}
-       INSTALL_DIR ${__AOTRITON_INSTALL_DIR}
 diff --git a/cmake/public/LoadHIP.cmake b/cmake/public/LoadHIP.cmake
-index 9d4565b090..c7a6e8729d 100644
+index 9f74f1db7d..c2a1716598 100644
 --- a/cmake/public/LoadHIP.cmake
 +++ b/cmake/public/LoadHIP.cmake
-@@ -52,8 +52,9 @@ macro(find_package_and_print_version PACKAGE_NAME)
+@@ -38,9 +38,10 @@ macro(find_package_and_print_version PACKAGE_NAME)
  endmacro()
  
  # Find the HIP Package
 -find_package_and_print_version(HIP 1.0)
 +find_package_and_print_version(HIP)
  
-+include(${ROCM_PATH}/lib64/cmake/hip/FindHIP.cmake)
  if(HIP_FOUND)
++  include(${ROCM_PATH}/lib64/cmake/hip/FindHIP.cmake)
    set(PYTORCH_FOUND_HIP TRUE)
    set(FOUND_ROCM_VERSION_H FALSE)
-@@ -128,13 +129,13 @@ if(HIP_FOUND)
+ 
+@@ -113,15 +114,6 @@ if(HIP_FOUND)
+   message("HIP_VERSION_MINOR: ${HIP_VERSION_MINOR}")
    message("TORCH_HIP_VERSION: ${TORCH_HIP_VERSION}")
  
-   message("\n***** Library versions from dpkg *****\n")
+-  message("\n***** Library versions from dpkg *****\n")
 -  execute_process(COMMAND dpkg -l COMMAND grep rocm-dev COMMAND awk "{print $2 \" VERSION: \" $3}")
 -  execute_process(COMMAND dpkg -l COMMAND grep rocm-libs COMMAND awk "{print $2 \" VERSION: \" $3}")
 -  execute_process(COMMAND dpkg -l COMMAND grep hsakmt-roct COMMAND awk "{print $2 \" VERSION: \" $3}")
@@ -191,16 +39,10 @@ index 9d4565b090..c7a6e8729d 100644
 -  execute_process(COMMAND dpkg -l COMMAND grep -w hcc COMMAND awk "{print $2 \" VERSION: \" $3}")
 -  execute_process(COMMAND dpkg -l COMMAND grep hip-base COMMAND awk "{print $2 \" VERSION: \" $3}")
 -  execute_process(COMMAND dpkg -l COMMAND grep hip_hcc COMMAND awk "{print $2 \" VERSION: \" $3}")
-+#  execute_process(COMMAND dpkg -l COMMAND grep rocm-dev COMMAND awk "{print $2 \" VERSION: \" $3}")
-+#  execute_process(COMMAND dpkg -l COMMAND grep rocm-libs COMMAND awk "{print $2 \" VERSION: \" $3}")
-+#  execute_process(COMMAND dpkg -l COMMAND grep hsakmt-roct COMMAND awk "{print $2 \" VERSION: \" $3}")
-+#  execute_process(COMMAND dpkg -l COMMAND grep rocr-dev COMMAND awk "{print $2 \" VERSION: \" $3}")
-+#  execute_process(COMMAND dpkg -l COMMAND grep -w hcc COMMAND awk "{print $2 \" VERSION: \" $3}")
-+#  execute_process(COMMAND dpkg -l COMMAND grep hip-base COMMAND awk "{print $2 \" VERSION: \" $3}")
-+#  execute_process(COMMAND dpkg -l COMMAND grep hip_hcc COMMAND awk "{print $2 \" VERSION: \" $3}")
- 
+-
    message("\n***** Library versions from cmake find_package *****\n")
  
+   set(CMAKE_HIP_CLANG_FLAGS_DEBUG ${CMAKE_CXX_FLAGS_DEBUG})
 diff --git a/third_party/sleef.BUILD b/third_party/sleef.BUILD
 index f22a6e905e..8eee89d689 100644
 --- a/third_party/sleef.BUILD
@@ -221,3 +63,226 @@ index f22a6e905e..8eee89d689 100644
          "$(location :mkrename) cinz_ 2 4 __m128d __m128 __m128i __m128i __SSE2__ sse2",
          "$(location :mkrename) cinz_ 2 4 __m128d __m128 __m128i __m128i __SSE2__ sse4",
 
+diff --git a/cmake/CheckAbi.cmake b/cmake/CheckAbi.cmake
+index e483510e58..09ec891db8 100644
+--- a/cmake/CheckAbi.cmake
++++ b/cmake/CheckAbi.cmake
+@@ -5,9 +5,12 @@ endif()
+ 
+ # XXX This ABI check cannot be run with arm-linux-androideabi-g++
+ message(STATUS "${CMAKE_CXX_COMPILER} ${PROJECT_SOURCE_DIR}/torch/abi-check.cpp -o ${CMAKE_BINARY_DIR}/abi-check")
++set(CXX_FLAGS ${CMAKE_CXX_FLAGS})
++separate_arguments(CXX_FLAGS)
+ execute_process(
+   COMMAND
+   "${CMAKE_CXX_COMPILER}"
++  ${CXX_FLAGS}
+   "${PROJECT_SOURCE_DIR}/torch/abi-check.cpp"
+   "-o"
+   "${CMAKE_BINARY_DIR}/abi-check"
+
+diff --git a/cmake/Modules/FindOpenMP.cmake b/cmake/Modules/FindOpenMP.cmake
+index 01cc3a4812..341cbaa00f 100644
+--- a/cmake/Modules/FindOpenMP.cmake
++++ b/cmake/Modules/FindOpenMP.cmake
+@@ -301,7 +301,7 @@ function(_OPENMP_GET_FLAGS LANG FLAG_MODE OPENMP_FLAG_VAR OPENMP_LIB_NAMES_VAR)
+     if(OpenMP_libomp_LIBRARY)
+       message(STATUS "Check OMP with lib ${OpenMP_libomp_LIBRARY} and flags ${OPENMP_FLAGS_TEST}")
+       try_compile( OpenMP_COMPILE_RESULT_${FLAG_MODE}_${OPENMP_PLAIN_FLAG} ${CMAKE_BINARY_DIR} ${_OPENMP_TEST_SRC}
+-        CMAKE_FLAGS "-DCOMPILE_DEFINITIONS:STRING=${OPENMP_FLAGS_TEST}"
++        CMAKE_FLAGS "-DCOMPILE_DEFINITIONS:STRING=${OPENMP_FLAGS_TEST}" ${CMAKE_CXX_FLAGS}
+         LINK_LIBRARIES ${CMAKE_${LANG}_VERBOSE_FLAG} ${OpenMP_libomp_LIBRARY}
+         OUTPUT_VARIABLE OpenMP_TRY_COMPILE_OUTPUT
+       )
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index dee2a96a01..1b164b882a 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -883,7 +883,7 @@ cmake_dependent_option(
+ #
+ if(USE_ROCM)
+   if(USE_FLASH_ATTENTION OR USE_MEM_EFF_ATTENTION)
+-    include(cmake/External/aotriton.cmake)
++#    include(cmake/External/aotriton.cmake)
+   endif()
+ endif()
+ 
+diff --git a/torch/CMakeLists.txt b/torch/CMakeLists.txt
+index 8c71c0b95f..b5c8d32ea4 100644
+--- a/torch/CMakeLists.txt
++++ b/torch/CMakeLists.txt
+@@ -147,7 +147,7 @@ if(USE_ROCM)
+       USE_ROCM
+       __HIP_PLATFORM_AMD__
+       )
+-    list(APPEND TORCH_PYTHON_LINK_LIBRARIES ${ROCM_ROCTX_LIB})
++#    list(APPEND TORCH_PYTHON_LINK_LIBRARIES ${ROCM_ROCTX_LIB})
+ endif()
+ 
+ if(USE_XPU)
+diff --git a/aten/src/ATen/cpu/Utils.cpp b/aten/src/ATen/cpu/Utils.cpp
+index a50e52155b..57af51c015 100644
+--- a/aten/src/ATen/cpu/Utils.cpp
++++ b/aten/src/ATen/cpu/Utils.cpp
+@@ -1,6 +1,6 @@
+ #include <cassert>
+ #include <ATen/cpu/Utils.h>
+-#if !defined(__s390x__ ) && !defined(__powerpc__)
++#if !defined(__s390x__ ) && !defined(__powerpc__)&& !defined(__loongarch_lp64)
+ #include <cpuinfo.h>
+ #endif
+ #if defined(__linux__)
+@@ -10,7 +10,7 @@
+ 
+ namespace at::cpu {
+ bool is_cpu_support_avx2() {
+-#if !defined(__s390x__) && !defined(__powerpc__)
++#if !defined(__s390x__) && !defined(__powerpc__)&& !defined(__loongarch_lp64)
+   return cpuinfo_initialize() && cpuinfo_has_x86_avx2();
+ #else
+   return false;
+@@ -18,7 +18,7 @@ bool is_cpu_support_avx2() {
+ }
+ 
+ bool is_cpu_support_avx512() {
+-#if !defined(__s390x__) && !defined(__powerpc__)
++#if !defined(__s390x__) && !defined(__powerpc__)&& !defined(__loongarch_lp64)
+   return cpuinfo_initialize() && cpuinfo_has_x86_avx512f() && cpuinfo_has_x86_avx512vl() && cpuinfo_has_x86_avx512bw() && cpuinfo_has_x86_avx512dq();
+ #else
+   return false;
+@@ -26,7 +26,7 @@ bool is_cpu_support_avx512() {
+ }
+ 
+ bool is_cpu_support_avx512_vnni() {
+-#if !defined(__s390x__) && !defined(__powerpc__)
++#if !defined(__s390x__) && !defined(__powerpc__)&& !defined(__loongarch_lp64)
+   return cpuinfo_initialize() && cpuinfo_has_x86_avx512vnni();
+ #else
+   return false;
+@@ -34,7 +34,7 @@ bool is_cpu_support_avx512_vnni() {
+ }
+ 
+ bool is_cpu_support_amx_tile() {
+-#if !defined(__s390x__) && !defined(__powerpc__)
++#if !defined(__s390x__) && !defined(__powerpc__)&& !defined(__loongarch_lp64)
+   return cpuinfo_initialize() && cpuinfo_has_x86_amx_tile();
+ #else
+   return false;
+@@ -46,7 +46,7 @@ bool init_amx() {
+     return false;
+   }
+ 
+-#if defined(__linux__) && !defined(__ANDROID__) && defined(__x86_64__)
++#if defined(__linux__) && !defined(__ANDROID__) && defined(__x86_64__)&& !defined(__loongarch_lp64)
+ #define XFEATURE_XTILECFG 17
+ #define XFEATURE_XTILEDATA 18
+ #define XFEATURE_MASK_XTILECFG (1 << XFEATURE_XTILECFG)
+@@ -77,7 +77,7 @@ bool init_amx() {
+ }
+ 
+ static uint32_t get_cache_size(int level) {
+-#if !defined(__s390x__) && !defined(__powerpc__)
++#if !defined(__s390x__) && !defined(__powerpc__)&& !defined(__loongarch_lp64)
+   if (!cpuinfo_initialize()) {
+     return 0;
+   }
+diff --git a/cmake/Dependencies.cmake b/cmake/Dependencies.cmake
+index d0a6fb81dc..d958f1175c 100644
+--- a/cmake/Dependencies.cmake
++++ b/cmake/Dependencies.cmake
+@@ -1036,7 +1036,7 @@ if(USE_ROCM)
+       caffe2_update_option(USE_SYSTEM_NCCL ON)
+     endif()
+ 
+-
++    separate_arguments(HIP_CXX_FLAGS UNIX_COMMAND $ENV{HIP_CXX_FLAGS})
+     list(APPEND HIP_CXX_FLAGS -fPIC)
+     list(APPEND HIP_CXX_FLAGS -D__HIP_PLATFORM_AMD__=1)
+     list(APPEND HIP_CXX_FLAGS -DCUDA_HAS_FP16=1)
+@@ -1049,7 +1049,6 @@ if(USE_ROCM)
+     list(APPEND HIP_CXX_FLAGS -Wno-duplicate-decl-specifier)
+     list(APPEND HIP_CXX_FLAGS -DCAFFE2_USE_MIOPEN)
+     list(APPEND HIP_CXX_FLAGS -DTHRUST_DEVICE_SYSTEM=THRUST_DEVICE_SYSTEM_HIP)
+-    list(APPEND HIP_CXX_FLAGS -std=c++17)
+     list(APPEND HIP_CXX_FLAGS -DHIPBLAS_V2)
+     if(HIP_NEW_TYPE_ENUMS)
+       list(APPEND HIP_CXX_FLAGS -DHIP_NEW_TYPE_ENUMS)
+@@ -1070,6 +1069,7 @@ if(USE_ROCM)
+     set(HIP_CLANG_FLAGS ${HIP_CXX_FLAGS})
+     # Ask hcc to generate device code during compilation so we can use
+     # host linker to link.
++    list(APPEND HIP_CLANG_FLAGS -mprintf-kind=buffered)
+     list(APPEND HIP_CLANG_FLAGS -fno-gpu-rdc)
+     foreach(pytorch_rocm_arch ${PYTORCH_ROCM_ARCH})
+       list(APPEND HIP_CLANG_FLAGS --offload-arch=${pytorch_rocm_arch})
+@@ -1651,7 +1651,7 @@ if(USE_KINETO)
+ 
+   if(NOT LIBKINETO_NOROCTRACER)
+     if("$ENV{ROCM_SOURCE_DIR}" STREQUAL "")
+-      set(ENV{ROCM_SOURCE_DIR} "/opt/rocm")
++      set(ENV{ROCM_SOURCE_DIR} "/opt/rocm-6.3.2")
+     endif()
+   endif()
+ 
+diff --git a/c10/util/Half.h b/c10/util/Half.h
+index 53aa62eba8..9ccdc04430 100644
+--- a/c10/util/Half.h
++++ b/c10/util/Half.h
+@@ -229,7 +229,7 @@ C10_HOST_DEVICE inline float fp16_ieee_to_fp32_value(uint16_t h) {
+   // const float exp_scale = 0x1.0p-112f;
+   constexpr uint32_t scale_bits = (uint32_t)15 << 23;
+   float exp_scale_val = 0;
+-  std::memcpy(&exp_scale_val, &scale_bits, sizeof(exp_scale_val));
++  memcpy(&exp_scale_val, &scale_bits, sizeof(exp_scale_val));
+   const float exp_scale = exp_scale_val;
+   const float normalized_value =
+       fp32_from_bits((two_w >> 4) + exp_offset) * exp_scale;
+diff --git a/aten/src/ATen/core/TensorBase.h b/aten/src/ATen/core/TensorBase.h
+index 2d202a63ef..426b7edd4a 100644
+--- a/aten/src/ATen/core/TensorBase.h
++++ b/aten/src/ATen/core/TensorBase.h
+@@ -594,11 +594,13 @@ class TORCH_API TensorBase {
+     return mutable_data_ptr();
+   }
+ 
+-  template <typename T, std::enable_if_t<!std::is_const_v<T>, int> = 0>
++  template <typename T
++//, std::enable_if_t<!std::is_const_v<T>, int> = 0
++>
+   const T* const_data_ptr() const;
+ 
+-  template <typename T, std::enable_if_t<std::is_const_v<T>, int> = 0>
+-  const std::remove_const_t<T>* const_data_ptr() const;
++//  template <typename T, std::enable_if_t<std::is_const_v<T>, int> = 0>
++//  const std::remove_const_t<T>* const_data_ptr() const;
+ 
+   template <typename T>
+   T* mutable_data_ptr() const;
+diff --git a/torch/csrc/distributed/rpc/init.cpp b/torch/csrc/distributed/rpc/init.cpp
+index 9b59967658..a270efccb4 100644
+--- a/torch/csrc/distributed/rpc/init.cpp
++++ b/torch/csrc/distributed/rpc/init.cpp
+@@ -848,7 +848,9 @@ PyObject* rpc_init(PyObject* _unused, PyObject* noargs) {
+ } // namespace
+ 
+ static PyMethodDef methods[] = { // NOLINT
++#ifdef USE_RPC
+     {"_rpc_init", rpc_init, METH_NOARGS, nullptr},
++#endif
+     {nullptr, nullptr, 0, nullptr}};
+ 
+ PyMethodDef* python_functions() {
+
+diff --git a/torch/distributed/rpc/__init__.py b/torch/distributed/rpc/__init__.py
+index 6c6608a2a7..05fb40eea8 100644
+--- a/torch/distributed/rpc/__init__.py
++++ b/torch/distributed/rpc/__init__.py
+@@ -22,7 +22,7 @@ _init_counter_lock = threading.Lock()
+ 
+ 
+ def is_available() -> bool:
+-    return hasattr(torch._C, "_rpc_init")
++    return False
+ 
+ 
+ if is_available() and not torch._C._rpc_init():

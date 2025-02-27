@@ -1,0 +1,58 @@
+diff --git a/dynolog/src/ipcfabric/FabricManager.h b/dynolog/src/ipcfabric/FabricManager.h
+index 0f32860..ed9b6d6 100644
+--- a/dynolog/src/ipcfabric/FabricManager.h
++++ b/dynolog/src/ipcfabric/FabricManager.h
+@@ -96,7 +96,7 @@ class FabricManager {
+     try {
+       return std::unique_ptr<FabricManager>(new FabricManager(endpoint_name));
+     } catch (std::exception& e) {
+-      LOG(ERROR) << "Error when initializing FabricManager: " << e.what();
++      LOG(libkineto::ERROR) << "Error when initializing FabricManager: " << e.what();
+     }
+     return nullptr;
+   }
+@@ -109,7 +109,7 @@ class FabricManager {
+       int num_retries = 10,
+       int sleep_time_us = 10000) {
+     if (dest_name.size() == 0) {
+-      LOG(ERROR) << "Cannot send to empty socket name";
++      LOG(libkineto::ERROR) << "Cannot send to empty socket name";
+       return false;
+     }
+ 
+@@ -126,7 +126,7 @@ class FabricManager {
+         sleep_time_us *= 2;
+       }
+     } catch (std::exception& e) {
+-      LOG(ERROR) << "Error when sync_send(): " << e.what();
++      LOG(libkineto::ERROR) << "Error when sync_send(): " << e.what();
+       return false;
+     }
+     return i < num_retries;
+@@ -149,7 +149,7 @@ class FabricManager {
+       try {
+         success = ep_.tryPeekMsg(*peek_ctxt);
+       } catch (std::exception& e) {
+-        LOG(ERROR) << "Error when tryPeekMsg(): " << e.what();
++        LOG(libkineto::ERROR) << "Error when tryPeekMsg(): " << e.what();
+         return false;
+       }
+       if (success) {
+@@ -172,7 +172,7 @@ class FabricManager {
+         try {
+           success = ep_.tryRcvMsg(*recv_ctxt);
+         } catch (std::exception& e) {
+-          LOG(ERROR) << "Error when tryRcvMsg(): " << e.what();
++          LOG(libkineto::ERROR) << "Error when tryRcvMsg(): " << e.what();
+           return false;
+         }
+         if (success) {
+@@ -182,7 +182,7 @@ class FabricManager {
+         }
+       }
+     } catch (std::exception& e) {
+-      LOG(ERROR) << "Error in recv(): " << e.what();
++      LOG(libkineto::ERROR) << "Error in recv(): " << e.what();
+       return false;
+     }
+     return false;

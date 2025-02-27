@@ -91,6 +91,5 @@ package() {
   cd build
   make DESTDIR="$pkgdir/" install
   cd $pkgdir/opt/rocm-$pkgver/bin
-  rm hipcc hipcc.bin hipcc.pl hipconfig hipconfig.bin hipconfig.pl hipvars.pm || true
-#  cmake --install . --prefix "$pkgdir"/opt/rocm-${pkgver}
+  rm hipcc hipcc.pl hipconfig hipconfig.pl hipvars.pm || true
 }

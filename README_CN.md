@@ -83,6 +83,14 @@ ROCm 介绍的详细信息，包括它的组件和架构，可以参考 [AMD ROC
 - **内核版本 6.8 及以上 + 4KB 页大小**：支持 **RDNA2/3** 系列
 - **内核版本 6.8 以下 + 4KB/16KB页大小**：支持 **RDNA2** 系列
 
+### 项目开启的GPU ISA版本
+
+| GPU Architecture | Shader ISA | Need PCIe Atomics? | Need HSA_OVERRIDE? |
+| -- | -- | -- | -- |
+| RDNA 2.0 | gfx1030 | No |  |
+| RDNA 2.0 | gfx1031/2/4 | No | 10.3.0 |
+| RDNA 3.0 | gfx1100/1/2 | No | |
+
 ## Releases
 
 有关软件包的最新版本，请访问 [Releases 页面](https://github.com/loongarch-moe/rocm-loongarch/releases)。

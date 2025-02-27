@@ -1,8 +1,7 @@
-
 pkgbase='rocm-rocprofiler-register'
 pkgname=('rocm-rocprofiler-register')
-pkgver=6.3.1
-pkgrel=631000
+pkgver=6.3.2
+pkgrel=632000
 pkgdesc="rocm-core is a utility which can be used to get ROCm release version."
 arch=('loong64' 'x86_64' 'riscv64')
 license=('MIT')
@@ -19,6 +18,7 @@ prepare() {
 #  sed -i '32i find_package( HIP CONFIG REQUIRED )' roctracer/test/CMakeLists.txt
   mkdir build || true
   cd build
+  CFLAGS="-stdlib=libc++  -L/opt/rocm-${pkgver}/lib/llvm/lib -I/opt/rocm-${pkgver}/lib/llvm/include/c++/v1"
   cmake ../rocprofiler-register \
    -DCMAKE_BUILD_TYPE=RelWithDebInfo \
    -DCMAKE_C_COMPILER=/opt/rocm-${pkgver}/lib/llvm/bin/clang \
@@ -26,7 +26,8 @@ prepare() {
    -DCMAKE_CXX_COMPILER=/opt/rocm-${pkgver}/lib/llvm/bin/clang++ \
    -DCMAKE_MODULE_PATH="/opt/rocm-${pkgver}/lib64/cmake/hip/" \
    -DCMAKE_INSTALL_PREFIX=/opt/rocm-${pkgver} \
-   -DCMAKE_CXX_FLAGS="-D__HIP_PLATFORM_AMD__  -parallel-jobs=$(nproc) -stdlib=libc++" \
+   -DCMAKE_CXX_FLAGS="-D__HIP_PLATFORM_AMD__  -parallel-jobs=$(nproc) $CFLAGS" \
+   -DCMAKE_C_FLAGS="$CFLAGS" \
    -DCMAKE_INSTALL_RPATH="/opt/rocm-${pkgver}/lib;/opt/rocm-${pkgver}/lib64;/opt/rocm-${pkgver}/lib/llvm/lib" \
    -DCMAKE_BUILD_RPATH="/opt/rocm-${pkgver}/lib;/opt/rocm-${pkgver}/lib64;/opt/rocm-${pkgver}/lib/llvm/lib" \
    -DCMAKE_LINKER_TYPE=LLD \

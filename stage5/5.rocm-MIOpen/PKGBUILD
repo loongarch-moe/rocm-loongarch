@@ -19,6 +19,11 @@ depends=(
   "rocm-composable_kernel=${pkgver}"
 )
 PATH=/opt/rocm-${pkgver}/bin:$PATH
+# If MIOpen use CK
+# then set AMDGPU_TARGETS
+#  is not useful
+unset AMDGPU_TARGETS
+
 prepare() {
 #git lfs fetch -a
 

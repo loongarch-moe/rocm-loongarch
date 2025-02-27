@@ -18,17 +18,17 @@ depends=(
   "rocm-rocBLAS=${pkgver}"
 )
 PATH=/opt/rocm-${pkgver}/bin:$PATH
+
+# if set AMDGPU_TARGETS != all
+# MIOpen can not use CK
+unset AMDGPU_TARGETS
+
 prepare() {
   cd composable_kernel
     git apply ../composable_kernel_loongarch.patch
   cd ..
   mkdir build || true
   cd build
-  if [ -n $AMDGPU_TARGETS ] && [ $AMDGPU_TARGETS != 'all' ]; then
-    targetSet=( -DGPU_TARGETS=${AMDGPU_TARGETS} )
-  else
-    targetSet=( )
-  fi
   EXT_CFLAGS="-pipe -fopenmp -Wl,-rpath=/opt/rocm-${pkgver}/lib -Wl,-rpath=/opt/rocm-${pkgver}/lib/llvm/lib -fPIC -stdlib=libc++ -Wno-gnu-line-marker -L/opt/rocm-${pkgver}/lib/llvm/lib -I/opt/rocm-${pkgver}/lib/llvm/include/c++/v1 -Wno-unused-command-line-argument -I/opt/rocm-${pkgver}/include  -L/opt/rocm-${pkgver}/lib -fexperimental-library -mcmodel=extreme -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_NONE"
   cmake ../composable_kernel \
    -DCMAKE_BUILD_TYPE=Release \
@@ -45,7 +45,6 @@ prepare() {
    -DBUILD_DEV=OFF \
    -DDL_KERNELS=ON \
    -DDPP_KERNELS=ON \
-   ${targetSet[@]} \
    -G Ninja
 #  -G "Unix Makefiles"
 

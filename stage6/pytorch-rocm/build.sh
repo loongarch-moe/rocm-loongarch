@@ -1,36 +1,47 @@
 #!/bin/bash
-export ROCM_HOME=/opt/rocm-6.2.2/
+export rocver=6.3.2
+export ROCM_HOME=/opt/rocm-$rocver/
 export ROCM_PATH=$ROCM_HOME
 export ROCM_SOURCE_DIR=$ROCM_HOME
-export HCC_AMDGPU_TARGET="gfx1100;gfx1101;gfx1102"
-export CC=$ROCM_HOME/bin/clang
-export CXX=$ROCM_HOME/bin/clang++
+export HCC_AMDGPU_TARGET="gfx1030;gfx1100;gfx1101;gfx1102"
+export CC=$ROCM_HOME/lib/llvm/bin/clang
+export CXX=$ROCM_HOME/lib/llvm/bin/clang++
 export BUILD_TEST=0
 export SLEEF_BUILD_TESTS=FALSE
 export ATEN_AVX512_256=FALSE
 export DEBUG=0
 export USE_CUDA=0
 export USE_ROCM=1
-export PYTORCH_ROCM_ARCH="gfx1100;gfx1101;gfx1102"
+export PYTORCH_ROCM_ARCH="$HCC_AMDGPU_TARGET"
 export GLOO_ROCM_ARCH=${HCC_AMDGPU_TARGET}
 export CFLAGS='-D_LARGEFILE64_SOURCE -mcmodel=extreme -fPIC'
-export ROCM_DEFAULT_DIR=/opt/rocm-6.2.2
+export ROCM_DEFAULT_DIR=/opt/rocm-$rocver
 export USE_PYTORCH_QNNPACK=OFF
 export USE_NCCL=ON
-export CMAKE_PREFIX_PATH=/opt/rocm-6.2.2/lib:/opt/rocm-6.2.2/lib64/:/opt/rocm-6.2.2/MLIR/lib:/opt/rocm-6.2.2/:$PWD/rel-abseil/:/usr
+export CMAKE_PREFIX_PATH=/opt/rocm-$rocver/lib:/opt/rocm-$rocver/lib64/:/opt/rocm-$rocver/MLIR/lib:/opt/rocm-$rocver/:$PWD/rel-abseil/:/usr
 export BLAS_SET_BY_USER=FALSE
 export absl_DIR=$PWD/rel-abseil/lib64/cmake/absl/
 export TORCH_USE_HIP_DSA=1
-export LDFLAGS="-Wl,-rpath-link,/opt/rocm-6.2.2/lib64/ -Wl,-rpath-link,/opt/rocm-6.2.2/lib/"
+export LDFLAGS="-Wl,-rpath-link,/opt/rocm-$rocver/lib64/ -Wl,-rpath-link,/opt/rocm-$rocver/lib/  -L/opt/rocm-${rocver}/lib  -Wl,-rpath=/opt/rocm-${rocver}/lib/llvm/lib  -L/opt/rocm-${rocver}/lib/llvm/lib"
+export EXT_FLAGS="-pipe -fopenmp -Wl,-rpath=/opt/rocm-${rocver}/lib -Wl,-rpath=/opt/rocm-${rocver}/lib/llvm/lib -fPIC -stdlib=libc++ -Wno-gnu-line-marker -L/opt/rocm-${rocver}/lib/llvm/lib -I/opt/rocm-${rocver}/lib/llvm/include/c++/v1 -Wno-unused-command-line-argument -I/opt/rocm-${rocver}/include  -L/opt/rocm-${rocver}/lib -fexperimental-library -mcmodel=extreme -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_NONE"
+export CFLAGS="$EXT_FLAGS"
+export CXXFLAGS="$EXT_FLAGS"
+export CMAKE_CXX_FLAGS="$EXT_FLAGS"
+export HIP_CLANG_FLAGS="$EXT_FLAGS"
+export HIP_CXX_FLAGS="$EXT_FLAGS"
 export BUILD_CUSTOM_PROTOBUF=ON
-export USE_FLASH_ATTENTION=ON
-export AOTRITON_INSTALLED_PREFIX=/media/ssd/aotriton-042b/aotriton-usr/
-export MAGMA_HOME=/home/xinmu/rocm/rocm-loongarch/stage6/magma/magma/
-export USE_MAGMA=ON
+export USE_FLASH_ATTENTION=OFF
+export USE_MEM_EFF_ATTENTION=OFF
+export USE_TENSORPIPE=OFF
+#export MAGMA_HOME=/home/xinmu/rocm/rocm-loongarch/stage6/magma/magma/
+#export USE_MAGMA=ON
 export HIP_HIPCC_EXECUTABLE=$ROCM_HOME/bin/hipcc
 export HIP_HIPCONFIG_EXECUTABLE=$ROCM_HOME/bin/hipconfig
 #export CAFFE2_USE_MSVC_STATIC_RUNTIME=ON
 export BUILD_CAFFE2=ON
+export LD_LIBRARY_PATH=/opt/rocm-$rocver/lib:/opt/rocm-$rocver/lib64:$LD_LIBRARY_PATH
+export PATH=$ROCM_HOME/bin:$PATH
+export LIBKINETO_NOROCTRACER=1
 function _fetch() {
   if [ ! -d $1 ]
   then
@@ -65,7 +76,7 @@ function _clone_m() {
 }
 function fetch() {
   _fetch abseil-cpp.git            https://github.com/abseil/abseil-cpp.git                              master
-  _fetch pytorch.git               https://github.com/ROCm/pytorch.git                                   main
+  _fetch pytorch.git               https://github.com/ROCm/pytorch.git                                   rocm6.3_internal_testing
   _fetch pybind11.git              https://github.com/pybind/pybind11.git                                master
   _fetch cub.git                   https://github.com/NVlabs/cub.git                                     main
   _fetch eigen.git                 https://gitlab.com/libeigen/eigen.git                                 master
@@ -92,7 +103,7 @@ function fetch() {
   _fetch gemmlowp.git              https://github.com/google/gemmlowp.git                                master
   _fetch QNNPACK.git               https://github.com/pytorch/QNNPACK.git                                master
   _fetch ARM_NEON_2_x86_SSE.git    https://github.com/intel/ARM_NEON_2_x86_SSE.git                       master
-  _fetch fbgemm.git                https://github.com/pytorch/fbgemm.git                                 main
+  _fetch fbgemm.git                https://github.com/pytorch/fbgemm.git                                 v0.8.0-release
   _fetch foxi.git                  https://github.com/houseroad/foxi.git                                 master
   _fetch tbb.git                   https://github.com/01org/tbb.git                                      tbb_2018
   _fetch fbjni.git                 https://github.com/facebookincubator/fbjni.git                        main
@@ -116,7 +127,9 @@ function fetch() {
   _fetch opentelemetry-cpp.git     https://github.com/open-telemetry/opentelemetry-cpp.git               main
   _fetch cpp-httplib.git           https://github.com/yhirose/cpp-httplib.git                            v0.15.3
   _fetch NVTX.git                  https://github.com/NVIDIA/NVTX.git                                    release-v3
-
+  _fetch composable_kernel.git     https://github.com/ROCm/composable_kernel.git                         develop
+  _fetch kleidiai.git              https://github.com/ARM-software/kleidiai.git                          main
+  _fetch flash-attention.git       https://github.com/Dao-AILab/flash-attention.git                      main
 
 }
 function _ln (){
@@ -125,7 +138,7 @@ function _ln (){
 }
 function prepare() {
   _clone_m abseil-cpp          master 20230802.0
-  _clone pytorch               main
+  _clone pytorch               rocm6.3_internal_testing
   _clone pybind11              master
   _clone cub                   main
   _clone eigen                 master
@@ -147,13 +160,13 @@ function prepare() {
   _clone_m onnx                main v1.14.1
   _clone onnx-tensorrt         main
   # _clone sleef                 master
-  _clone_m sleef               master 3.5.1
+  _clone_m sleef               master 3.8
   _clone ideep                 master
   _clone nccl                  master
   _clone gemmlowp              master
   _clone QNNPACK               master
   _clone ARM_NEON_2_x86_SSE    master
-  _clone fbgemm                main
+  _clone fbgemm                v0.8.0-release
   _clone foxi                  master
   _clone tbb                   tbb_2018
   _clone fbjni                 main
@@ -177,6 +190,9 @@ function prepare() {
   _clone opentelemetry-cpp     main
   _clone cpp-httplib           v0.15.3
   _clone NVTX                  release-v3
+  _clone composable_kernel     develop
+  _clone kleidiai              main
+  _clone flash-attention       main
 
   _ln pybind11 pytorch/third_party/pybind11
   _ln cub pytorch/third_party/cub
@@ -235,18 +251,26 @@ function prepare() {
   _ln opentelemetry-cpp pytorch/third_party/opentelemetry-cpp
   _ln cpp-httplib pytorch/third_party/cpp-httplib
   _ln NVTX pytorch/third_party/NVTX
+  _ln composable_kernel pytorch/third_party/composable_kernel
+  _ln kleidiai pytorch/third_party/kleidiai
+  _ln flash-attention pytorch/third_party/flash-attention
   cd sleef
     git apply ../sleef.patch
+  cd ..
+  cd gloo
+    git apply ../gloo.patch
+  cd ..
+  cd dynolog
+    git apply ../dynolog.patch
   cd ..
   python3.12 -m venv build-env
   source build-env/bin/activate
   pip install setuptools wheel
   #pip install -r pytorch/requirements.txt
-  pip install \
+CFLAGS="$EXT_FLAGS" CXXFLAGS="$EXT_FLAGS" pip install \
     astunparse \
     'expecttest!=0.2.0' \
     hypothesis \
-    numpy \
     psutil \
     pyyaml \
     requests \
@@ -280,21 +304,22 @@ function prepare() {
     -DABSL_PROPAGATE_CXX_STD=TRUE \
     -DABSL_BUILD_TEST_HELPERS=OFF \
     -DABSL_BUILD_TESTING=OFF \
-    -DCMAKE_C_FLAGS='-mcmodel=extreme -fPIC' \
-    -DCMAKE_CXX_FLAGS='-mcmodel=extreme -fPIC'
+    -DCMAKE_C_FLAGS="$EXT_FLAGS" \
+    -DCMAKE_CXX_FLAGS="$EXT_FLAGS"
+    ninja
+    ninja install
+  cd ..
+  cd pytorch
+    python tools/amd_build/build_amd.py
+    git apply ../pytorch.patch --rej
+    python setup.py build --cmake-only
   cd ..
 }
 function build() {
-#  cd build-abseil
-#    ninja
-#    ninja install
-#  cd ..
   source build-env/bin/activate
-  cd pytorch
-  rm -rf build
-#  python tools/amd_build/build_amd.py
-#  git apply ../pytorch.patch --rej
-  python setup.py build bdist_wheel
+  cd pytorch/build
+    ninja -j32 -k0
+  cd ../..
 }
 function package(){
   source build-env/bin/activate
@@ -305,10 +330,10 @@ function package(){
 }
 
 function main(){
-#  fetch
-#  prepare
+  fetch
+  prepare
   build
-#  package
+  package
 }
 main
 
