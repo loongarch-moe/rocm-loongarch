@@ -1,5 +1,7 @@
 # ROCm for LoongArch - rocm-loongarch
 
+## 🇨🇳 [![简体中文](https://img.shields.io/badge/lang-中文-red.svg)](README_CN.md)
+
 Welcome to the **rocm-loongarch** repository, a community-driven project hosted under the [loongarch-moe](https://github.com/loongarch-moe) organization. This repository contains patches and software packages for adapting the **ROCm** software stack to support GPUs on the **LoongArch** architecture. The work primarily focuses on supporting **AMDGPU** and enabling high-performance GPU computing on LoongArch.
 
 ## Project Overview
