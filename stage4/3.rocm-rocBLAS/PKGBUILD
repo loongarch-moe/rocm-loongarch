@@ -35,14 +35,13 @@ prepare() {
    -DCMAKE_BUILD_TYPE=RelWithDebInfo \
    -DCMAKE_C_COMPILER=/opt/rocm-${pkgver}/lib/llvm/bin/clang \
    -DCMAKE_FIND_ROOT_PATH=/opt/rocm-${pkgver}/ \
-   -DCMAKE_CXX_COMPILER=/opt/rocm-${pkgver}/bin/hipcc \
+   -DCMAKE_CXX_COMPILER=/opt/rocm-${pkgver}/lib/llvm/bin/amdclang++ \
    -DCMAKE_CXX_FLAGS="-parallel-jobs=$(nproc) $EXT_CFLAGS" \
    -DCMAKE_C_FLAGS="-parallel-jobs=$(nproc) $EXT_CFLAGS" \
    -DTensile_LOGIC=asm_full \
-   -DTensile_CODE_OBJECT_VERSION=V5 \
+   -DTensile_COMPILER=hipcc \
    -DROCM_PATH=/opt/rocm-${pkgver} \
    -DRUN_HEADER_TESTING=OFF \
-   -DTensile_COMPILER=hipcc \
    -DTensile_TEST_LOCAL_PATH=$PWD/../Tensile \
    -DCMAKE_PREFIX_PATH="/opt/rocm-${pkgver}/;/usr" \
    -DCMAKE_INSTALL_PREFIX=/opt/rocm-${pkgver} \

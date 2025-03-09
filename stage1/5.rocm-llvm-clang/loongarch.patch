@@ -1,3 +1,16 @@
+diff --git a/clang-tools-extra/amdllvm/CMakeLists.txt b/clang-tools-extra/amdllvm/CMakeLists.txt
+index 694b1aaf8925..3aa3c4a9e85c 100644
+--- a/clang-tools-extra/amdllvm/CMakeLists.txt
++++ b/clang-tools-extra/amdllvm/CMakeLists.txt
+@@ -4,8 +4,6 @@ if(UNIX AND LIBCXX_ENABLE_STATIC AND LIBCXXABI_ENABLE_STATIC)
+ 
+     DEPENDS
+     clang
+-    runtimes
+-    lld
+   )
+ 
+   # This tool has a dependency on C++17 filesystem library;
 diff --git a/amd/comgr/CMakeLists.txt b/amd/comgr/CMakeLists.txt
 index 8994b182e4ae..f8dea7f5ff72 100644
 --- a/amd/comgr/CMakeLists.txt

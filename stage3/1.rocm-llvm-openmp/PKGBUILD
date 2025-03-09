@@ -36,7 +36,6 @@ prepare() {
      -DOPENMP_ENABLE_LIBOMPTARGET=ON \
      -DCMAKE_BUILD_TYPE=RelWithDebInfo \
      -DSANITIZER_AMDGPU=OFF \
-     -DCUDA_TOOLKIT_ROOT_DIR=OFF \
      -DLIBOMP_USE_HWLOC=ON \
      -DLIBOMPTARGET_LLVM_INCLUDE_DIRS=$PWD/../llvm-project/llvm/include \
      -DLLVM_MAIN_INCLUDE_DIR=$PWD/../llvm-project/llvm/include 

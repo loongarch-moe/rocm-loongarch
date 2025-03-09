@@ -1,4 +1,3 @@
-
 pkgbase='rocm-hipBLASLt'
 pkgname=('rocm-hipBLASLt')
 pkgver=6.3.2
@@ -15,9 +14,8 @@ source=(
 )
 b2sums=('SKIP' 'SKIP' 'SKIP')
 depends=("rocm-clr=${pkgver}" "rocm-hipBLAS-common=${pkgver}")
-PATH=$PWD/src/build/virtualenv/bin:/opt/rocm-${pkgver}/bin:$PATH
-ROCM_PATH=/opt/rocm-${pkgver}/
-export HIPCC_COMPILE_FLAGS_APPEND=-I/opt/rocm-${pkgver}/include
+export PATH=$PWD/src/build/virtualenv/bin:/opt/rocm-${pkgver}/bin:/opt/rocm-${pkgver}/lib/llvm/bin:$PATH
+export ROCM_PATH=/opt/rocm-${pkgver}/
 prepare() {
   cd hipBLASLt
     git apply ../lt.patch
@@ -35,7 +33,7 @@ prepare() {
    -DCMAKE_BUILD_TYPE=RelWithDebInfo \
    -DCMAKE_C_COMPILER=/opt/rocm-${pkgver}/lib/llvm/bin/clang \
    -DCMAKE_FIND_ROOT_PATH=/opt/rocm-${pkgver}/ \
-   -DCMAKE_CXX_COMPILER=/opt/rocm-${pkgver}/bin/hipcc \
+   -DCMAKE_CXX_COMPILER=/opt/rocm-${pkgver}/lib/llvm/bin/amdclang++ \
    -DROCM_PATH=/opt/rocm-${pkgver} \
    -DCMAKE_PREFIX_PATH="/opt/rocm-${pkgver}/;/usr" \
    -DCMAKE_INSTALL_PREFIX=/opt/rocm-${pkgver} \
@@ -46,7 +44,6 @@ prepare() {
    -DVIRTUALENV_PYTHON_EXE=/usr/bin/python3.12 \
    -DCMAKE_CXX_FLAGS="-parallel-jobs=$(nproc)  $EXT_CFLAGS" \
    -DCMAKE_C_FLAGS="$EXT_CFLAGS" \
-   -DTensile_COMPILER=hipcc \
    -DBUILD_CLIENTS_SAMPLES=ON \
    -DBUILD_CLIENTS_TESTS=OFF \
    -DBUILD_CLIENTS_BENCHMARKS=OFF \

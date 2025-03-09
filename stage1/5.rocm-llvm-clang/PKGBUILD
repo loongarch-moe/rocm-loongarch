@@ -47,11 +47,17 @@ prepare() {
   -DLLVM_CMAKE_DIR=/opt/rocm-${pkgver}/lib/llvm/ \
   -DLLVM_INCLUDE_TESTS=OFF \
   -DLLVM_ENABLE_PIC=ON \
+  -DLLVM_EXTERNAL_CLANG_TOOLS_EXTRA_SOURCE_DIR=$PWD/../llvm-project/clang-tools-extra/ \
   -DCLANG_DEFAULT_RTLIB=compiler-rt \
   -DCLANG_DEFAULT_UNWINDLIB=libunwind \
+  -DCLANG_BUILD_TOOLS=ON \
+  -DLIBCXX_ENABLE_STATIC=ON \
+  -DLIBCXXABI_ENABLE_STATIC=ON \
   -G "Ninja" \
   -S ../llvm-project/clang/
   sed -i "s!-lamdhip64!/opt/rocm-$pkgver/lib64/libamdhip64.so!g" ../llvm-project/clang/lib/Driver/ToolChains/Linux.cpp
+  mkdir -p lib/clang/18
+  ln -s /opt/rocm-$pkgver/lib/llvm/lib/clang/18/lib lib/clang/18/lib
 }
 build() {
   cd build

@@ -36,14 +36,14 @@ prepare() {
   cd ..
   mkdir build || true
   cd build
-  EXT_CFLAGS="-pipe -Wno-missing-template-arg-list-after-template-kw -stdlib=libc++ -fPIC -L/opt/rocm-${pkgver}/lib/llvm/lib -I/opt/rocm-${pkgver}/lib/llvm/include/c++/v1"
+  EXT_CFLAGS="-pipe -Wno-missing-template-arg-list-after-template-kw -stdlib=libc++ -fPIC -L/opt/rocm-${pkgver}/lib/llvm/lib -I/opt/rocm-${pkgver}/lib/llvm/include/c++/v1 -Wno-unused-command-line-argument"
   if [ $CARCH == 'loong64' ];
   then
     EXT_CFLAGS="-mcmodel=extreme $EXT_CFLAGS"
   fi
   cmake \
-  -DCMAKE_C_COMPILER=/opt/rocm-${pkgver}/lib/llvm/bin/clang \
-  -DCMAKE_CXX_COMPILER=/opt/rocm-${pkgver}/lib/llvm/bin/clang++ \
+  -DCMAKE_C_COMPILER=clang \
+  -DCMAKE_CXX_COMPILER=clang++ \
   -DCMAKE_BUILD_TYPE=RelWithDebInfo \
   -DCMAKE_C_FLAGS="$EXT_CFLAGS" \
   -DCMAKE_CXX_FLAGS="$EXT_CFLAGS" \

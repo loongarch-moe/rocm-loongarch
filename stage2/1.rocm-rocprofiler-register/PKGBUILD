@@ -9,16 +9,22 @@ url="https://github.com/ROCm/ROCT-Thunk-Interface.git"
 
 source=(
     "git+https://github.com/ROCm/rocprofiler-register.git#tag=rocm-$pkgver"
+    "git+https://github.com/google/glog.git#tag=v0.7.0-rc1"
+    "git+https://github.com/fmtlib/fmt.git#tag=10.1.1"
 )
-b2sums=('SKIP')
+b2sums=('SKIP' 'SKIP' 'SKIP')
 depends=("rocm-llvm-extra=${pkgver}")
 PATH=/opt/rocm-${pkgver}/bin:/opt/rocm-${pkgver}/lib/llvm/bin:$PATH
 prepare() {
 #  sed -i '32d' roctracer/test/CMakeLists.txt
 #  sed -i '32i find_package( HIP CONFIG REQUIRED )' roctracer/test/CMakeLists.txt
+  rm -rf rocprofiler-register/external/glog || true
+  rm -rf rocprofiler-register/external/fmt || true
+  cp -r $PWD/glog rocprofiler-register/external/glog || true
+  cp -r $PWD/fmt rocprofiler-register/external/fmt || true
   mkdir build || true
   cd build
-  CFLAGS="-stdlib=libc++  -L/opt/rocm-${pkgver}/lib/llvm/lib -I/opt/rocm-${pkgver}/lib/llvm/include/c++/v1"
+  CFLAGS="-stdlib=libc++  -L/opt/rocm-${pkgver}/lib/llvm/lib -I/opt/rocm-${pkgver}/lib/llvm/include/c++/v1 -Wno-unused-command-line-argument"
   cmake ../rocprofiler-register \
    -DCMAKE_BUILD_TYPE=RelWithDebInfo \
    -DCMAKE_C_COMPILER=/opt/rocm-${pkgver}/lib/llvm/bin/clang \
@@ -31,7 +37,7 @@ prepare() {
    -DCMAKE_INSTALL_RPATH="/opt/rocm-${pkgver}/lib;/opt/rocm-${pkgver}/lib64;/opt/rocm-${pkgver}/lib/llvm/lib" \
    -DCMAKE_BUILD_RPATH="/opt/rocm-${pkgver}/lib;/opt/rocm-${pkgver}/lib64;/opt/rocm-${pkgver}/lib/llvm/lib" \
    -DCMAKE_LINKER_TYPE=LLD \
-   -DBUILD_RPATH_USE_ORIGIN=OFF \
+   -DBUILD_TESTING=OFF \
   -G "Unix Makefiles"
   #sed -i '3921,d' build/hipify/src/device/device_table.h
 

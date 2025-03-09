@@ -35,7 +35,7 @@ prepare() {
    -DCMAKE_INSTALL_RPATH_USE_LINK_PATH=ON \
    -DCMAKE_C_COMPILER=/opt/rocm-${pkgver}/lib/llvm/bin/clang \
    -DCMAKE_LINKER_TYPE=LLD \
-   -DCMAKE_CXX_COMPILER=/opt/rocm-${pkgver}/bin/hipcc \
+   -DCMAKE_CXX_COMPILER=/opt/rocm-${pkgver}/lib/llvm/bin/amdclang++ \
    -DCMAKE_CXX_FLAGS="-parallel-jobs=$(nproc) $EXT_CFLAGS" \
    -DCMAKE_C_FLAGS="$EXT_CFLAGS" \
    -DAMDGPU_TARGETS=$AMDGPU_TARGETS \

@@ -5,6 +5,7 @@ export ROCM_PATH=$ROCM_HOME
 function fetch(){
   git clone --recursive https://github.com/ggerganov/llama.cpp
 }
+export PATH=$ROCM_HOME/bin:$ROCM_HOME/lib/llvm/bin:$PATH
 function prepare() {
   mkdir build
   cd build
@@ -17,10 +18,11 @@ function prepare() {
 
   cmake ../llama.cpp \
    -DCMAKE_C_COMPILER=/opt/rocm-$pkgver/lib/llvm/bin/clang \
-   -DCMAKE_CXX_COMPILER=/opt/rocm-$pkgver/bin/hipcc \
+   -DCMAKE_CXX_COMPILER=/opt/rocm-$pkgver/lib/llvm/bin/amdclang++ \
    -DCMAKE_BUILD_TYPE=Release \
    -DCMAKE_CXX_FLAGS="$EXT_CFLAGS" \
    -DCMAKE_C_FLAGS="$EXT_CFLAGS" \
+   -DCMAKE_HIP_FLAGS="$EXT_CFLAGS" \
    -DGGML_HIP=ON \
    -DCMAKE_INSTALL_RPATH="/opt/rocm-${pkgver}/lib;/opt/rocm-${pkgver}/lib/llvm/lib;/opt/rocm-${pkgver}/lib64" \
    -DCMAKE_BUILD_RPATH="/opt/rocm-${pkgver}/lib;/opt/rocm-${pkgver}/lib/llvm/lib;/opt/rocm-${pkgver}/lib64" \

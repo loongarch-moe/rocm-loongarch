@@ -41,7 +41,6 @@ prepare() {
    -DMIOPEN_HIP_COMPILER=/opt/rocm-${pkgver}/lib/llvm/bin/clang++ \
    -DCMAKE_FIND_ROOT_PATH=/opt/rocm-${pkgver}/ \
    -DCMAKE_CXX_COMPILER=/opt/rocm-${pkgver}/bin/hipcc \
-   -DAMDGPU_TARGETS=${AMDGPU_TARGETS}  \
    -DCMAKE_CXX_FLAGS="$EXT_CFLAGS" \
    -DCMAKE_C_FLAGS="$EXT_CFLAGS" \
    -DCMAKE_PREFIX_PATH="/opt/rocm-${pkgver}/;/opt/rocm-${pkgver}/lib;/usr" \

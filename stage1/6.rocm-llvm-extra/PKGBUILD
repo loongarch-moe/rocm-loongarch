@@ -19,7 +19,7 @@ prepare() {
   mkdir build || true
   PATH=/opt/rocm-${pkgver}/lib/llvm/bin:$PATH
   ROCM_PATH=/opt/rocm-${pkgver}
-  CXXFLAGS="-L/opt/rocm-${pkgver}/lib/llvm/lib -stdlib=libc++ -I/opt/rocm-${pkgver}/lib/llvm/include  -I/opt/rocm-${pkgver}/lib/llvm/include/c++/v1"
+  CXXFLAGS="-L/opt/rocm-${pkgver}/lib/llvm/lib -stdlib=libc++ -I/opt/rocm-${pkgver}/lib/llvm/include  -I/opt/rocm-${pkgver}/lib/llvm/include/c++/v1 -Wno-unused-command-line-argument"
   cd build
     mkdir device-libs || true
     cd device-libs

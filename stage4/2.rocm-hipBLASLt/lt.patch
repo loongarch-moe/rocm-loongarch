@@ -1,5 +1,5 @@
 diff --git a/library/src/amd_detail/rocblaslt/src/kernels/compile_code_object.sh b/library/src/amd_detail/rocblaslt/src/kernels/compile_code_object.sh
-index 4ff71ea04..c04865b88 100644
+index 4ff71ea04..b35f5a3b3 100644
 --- a/library/src/amd_detail/rocblaslt/src/kernels/compile_code_object.sh
 +++ b/library/src/amd_detail/rocblaslt/src/kernels/compile_code_object.sh
 @@ -33,6 +33,6 @@ elif [ "$build_type" = "Debug" ]; then
@@ -11,7 +11,7 @@ index 4ff71ea04..c04865b88 100644
 -$clang_path -x hip "$sources" --offload-arch="${archs}" -c --offload-device-only -Xoffload-linker --build-id=$build_id_kind $additional_options -o "$dest"
 \ No newline at end of file
 +rocm_path="${ROCM_PATH:-/opt/rocm-6.3.2}"
-+clang_path="${rocm_path}/bin/hipcc"
++clang_path="${rocm_path}/lib/llvm/bin/amdclang++"
 +$clang_path -x hip "$sources" --offload-arch="${archs}" -c --offload-device-only -Xoffload-linker --build-id=$build_id_kind $additional_options -o "$dest"
 diff --git a/tensilelite/Tensile/Common.py b/tensilelite/Tensile/Common.py
 index 6b5cdc815..c10851755 100644
@@ -22,7 +22,7 @@ index 6b5cdc815..c10851755 100644
        globalParameters["AssemblerPath"] = locateExe(globalParameters["ROCmBinPath"], "clang++.exe")
      else:
 -      bin_path = "llvm/bin" if globalParameters["CxxCompiler"] == "hipcc" else "bin"
-+      bin_path = "bin" if globalParameters["CxxCompiler"] == "hipcc" else "bin"
++      bin_path = "bin" if globalParameters["CxxCompiler"] == "hipcc" else "lib/llvm/bin"
        compiler = "clang++" if globalParameters["CxxCompiler"] == "hipcc" else "amdclang++"
        globalParameters["AssemblerPath"] = locateExe(os.path.join(globalParameters["ROCmPath"], bin_path), compiler)
  
