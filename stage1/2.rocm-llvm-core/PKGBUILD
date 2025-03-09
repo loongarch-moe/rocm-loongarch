@@ -42,8 +42,8 @@ prepare() {
     -DCMAKE_INSTALL_PREFIX="$PWD/../runtimes" \
     -DLLVM_ENABLE_ASSERTIONS=1 \
     -DLLVM_ENABLE_RUNTIMES="libcxx;libcxxabi;libunwind" \
-    -DCMAKE_INSTALL_RPATH="/opt/rocm-${pkgver}/lib/llvm/lib" \
-    -DCMAKE_BUILD_RPATH="/opt/rocm-${pkgver}/lib/llvm/lib" \
+    -DCMAKE_INSTALL_RPATH="/opt/rocm-${pkgver}/lib/llvm/lib;$PWD/../runtimes/lib" \
+    -DCMAKE_BUILD_RPATH="/opt/rocm-${pkgver}/lib/llvm/lib;$PWD/../runtimes/lib" \
     -DBUILD_SHARED_LIBS=ON \
     -DLLVM_ENABLE_LIBCXX=ON \
     -DLIBCXX_ENABLE_SHARED=ON \
@@ -51,7 +51,7 @@ prepare() {
     -DLIBCXXABI_ENABLE_SHARED=ON \
     -DLIBCXX_ENABLE_STATIC_ABI_LIBRARY=ON \
     -DLIBCXXABI_USE_LLVM_UNWINDER=ON \
-    -DRUNTIMES_CMAKE_ARGS="-DCMAKE_C_COMPILER=clang;-DCMAKE_CXX_COMPILER=clang++;-DCMAKE_INSTALL_RPATH='/opt/rocm-${pkgver}/lib/llvm/lib';-DCMAKE_BUILD_RPATH='/opt/rocm-${pkgver}/lib/llvm/lib';-DBUILD_RPATH_USE_ORIGIN=OFF;-DLLVM_ENABLE_PIC=ON" \
+    -DRUNTIMES_CMAKE_ARGS="-DCMAKE_C_COMPILER=clang;-DCMAKE_CXX_COMPILER=clang++;-DCMAKE_INSTALL_RPATH='$PWD/../runtimes/lib';-DCMAKE_BUILD_RPATH='$PWD/../runtimes/lib';-DBUILD_RPATH_USE_ORIGIN=OFF;-DLLVM_ENABLE_PIC=ON" \
     -G "Ninja" \
     -DLLVM_ENABLE_PIC=ON \
     -S ../llvm-project/llvm/
@@ -77,6 +77,7 @@ prepare() {
   -DLIBCXX_ENABLE_SHARED=ON \
   -DLIBCXX_ENABLE_STATIC=ON \
   -DLIBCXXABI_ENABLE_SHARED=ON \
+  -DLIBCXXABI_ENABLE_STATIC=ON \
   -DLIBCXX_ENABLE_STATIC_ABI_LIBRARY=ON \
   -DLIBCXXABI_USE_LLVM_UNWINDER=ON \
   -DLIBCXX_USE_COMPILER_RT=YES \

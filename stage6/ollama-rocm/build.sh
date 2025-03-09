@@ -1,11 +1,11 @@
 #!/bin/bash
 set -e  # 遇到错误立即终止
 
-export pkgver=6.3.1
+export pkgver=6.3.2
 export ROCM_HOME=/opt/rocm-$pkgver/
 export ROCM_PATH=$ROCM_HOME
 export HIP_PATH=$ROCM_HOME
-export PATH=$ROCM_PATH/bin:$PATH
+export PATH=$ROCM_PATH/bin:$ROCM_PATH/lib/llvm/bin:$PATH
 export LD_LIBRARY_PATH=$ROCM_HOME/lib:$LD_LIBRARY_PATH
 
 function fetch(){
@@ -32,10 +32,12 @@ function prepare() {
 
   cmake -B build \
     -DCMAKE_C_COMPILER=/opt/rocm-$pkgver/lib/llvm/bin/clang \
-    -DCMAKE_CXX_COMPILER=/opt/rocm-$pkgver/bin/hipcc \
+    -DCMAKE_CXX_COMPILER=/opt/rocm-$pkgver/lib/llvm/bin/clang++ \
+    -DCMAKE_HIP_COMPILER=/opt/rocm-$pkgver/lib/llvm/bin/clang++ \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_CXX_FLAGS="$EXT_CFLAGS" \
     -DCMAKE_C_FLAGS="$EXT_CFLAGS" \
+    -DCMAKE_HIP_FLAGS="$EXT_CFLAGS" \
     -DCMAKE_INSTALL_RPATH="/opt/rocm-${pkgver}/lib;/opt/rocm-${pkgver}/lib/llvm/lib;/opt/rocm-${pkgver}/lib64" \
     -DCMAKE_BUILD_RPATH="/opt/rocm-${pkgver}/lib;/opt/rocm-${pkgver}/lib/llvm/lib;/opt/rocm-${pkgver}/lib64" \
     "${targetSet[@]}" \
