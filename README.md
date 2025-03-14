@@ -88,13 +88,22 @@ Here is the recommended relationship between kernel versions and RDNA generation
 - **Kernel version 6.8 and above**: 4K page size support for **RDNA2/3** serial.
 - **Kernel version below 6.8**: 4K/16K page size support for **RDNA2** serial.
 
-### Default Support GPU ISA
+### Support GPU ISA
 
-| GPU Architecture | Shader ISA | Need PCIe Atomics? | Need HSA_OVERRIDE? |
-| -- | -- | -- | -- |
-| RDNA 2.0 | gfx1030 | No |  |
-| RDNA 2.0 | gfx1031/2/4 | No | 10.3.0 |
-| RDNA 3.0 | gfx1100/1/2 | No | |
+| GPU Architecture | Shader ISA | Support | Need PCIe Atomics? | Need HSA_OVERRIDE? |
+| -- | -- | -- | -- | -- |
+| GCN 4.0 | gfx80x | No | | |
+| GCN 5.0 | gfx900/1 | Unknown | | |
+| GCN 5.1 | gfx906/7 | Unknown | | |
+| CDNA 1.0 | gfx908 | Unknown | | |
+| CDNA 2.0 | gfx90a | Unknown | | |
+| CDNA 3.0 | gfx940/2 | Unknown | | |
+| RDNA 1.0 | gfx101x | Unknown | | |
+| RDNA 2.0 | gfx1030 | Yes | No | |
+| RDNA 2.0 | gfx103x | Yes | No | 10.3.0 |
+| RDNA 3.0 | gfx110x | Yes | No | |
+| RDNA 3.5 | gfx115x | No(iGPU only) | | |
+| RDNA 4.0 | gfx120x | Unknown | | |
 
 ## Releases
 

@@ -1,0 +1,56 @@
+pkgbase='rocm-magma'
+pkgname=('rocm-magma')
+pkgver=6.3.2
+pkgrel=632000
+pkgdesc="rocm-core is a utility which can be used to get ROCm release version."
+arch=('loong64' 'x86_64' 'riscv64')
+license=('MIT')
+url="https://github.com/ROCm/hipBLAS-common.git"
+
+source=(
+    "git+https://bitbucket.org/icl/magma.git"
+    "make.inc"
+    "magma.patch"
+)
+b2sums=('SKIP' 'SKIP' 'SKIP')
+depends=("rocm-clr=${pkgver}")
+export PATH=/opt/rocm-${pkgver}/bin:/opt/rocm-${pkgver}/lib/llvm/bin:$PATH
+export ROCM_HOME=/opt/rocm-$pkgver/
+export HIPDIR=$ROCM_HOME/hip
+export EXT_CFLAGS="-pipe -fopenmp -Wl,-rpath=/opt/rocm-${pkgver}/lib -Wl,-rpath=/opt/rocm-${pkgver}/lib/llvm/lib -fPIC -stdlib=libc++ -Wno-gnu-line-marker -L/opt/rocm-${pkgver}/lib/llvm/lib -I/opt/rocm-${pkgver}/lib/llvm/include/c++/v1 -Wno-unused-command-line-argument -I/opt/rocm-${pkgver}/include -I/opt/rocm-${pkgver}/include/hipblas/ -I/opt/rocm-${pkgver}/include/hipsparse  -L/opt/rocm-${pkgver}/lib -fexperimental-library"
+if [ $CARCH == 'loong64' ];
+then
+  EXT_CFLAGS="-mcmodel=extreme $EXT_CFLAGS"
+fi
+export PYTORCH_ROCM_ARCH="gfx1030;gfx1100;gfx1101;gfx1102"
+prepare() {
+  cd magma
+    git checkout 5959b8783e45f1809812ed96ae762f38ee701972
+    cp ../make.inc .
+    make -f make.gen.hipMAGMA -j $(nproc)
+    patch -p1 -i ../magma.patch
+  cd ..
+}
+build() {
+  cd magma
+    LANG=C.UTF-8 make lib/libmagma.so -j$(nproc)
+  cd ..
+}
+
+check() {
+#  cd "ROCm-CompilerSupport"
+#  cd build
+ echo    
+#  cd ..
+}
+
+#packaging() {
+
+#}
+package() {
+  mkdir -p "$pkgdir"/opt/rocm-${pkgver}/magma
+  cp -r magma/lib "$pkgdir"/opt/rocm-${pkgver}/magma/lib
+  cp -r magma/include "$pkgdir"/opt/rocm-${pkgver}/magma/include
+}
+
+
