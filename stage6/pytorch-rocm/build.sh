@@ -14,7 +14,6 @@ export USE_CUDA=0
 export USE_ROCM=1
 export PYTORCH_ROCM_ARCH="$HCC_AMDGPU_TARGET"
 export GLOO_ROCM_ARCH=${HCC_AMDGPU_TARGET}
-export CFLAGS='-D_LARGEFILE64_SOURCE -mcmodel=extreme -fPIC'
 export ROCM_DEFAULT_DIR=/opt/rocm-$rocver
 export USE_PYTORCH_QNNPACK=OFF
 export USE_NCCL=ON
@@ -23,7 +22,12 @@ export BLAS_SET_BY_USER=FALSE
 export absl_DIR=$PWD/rel-abseil/lib64/cmake/absl/
 export TORCH_USE_HIP_DSA=1
 export LDFLAGS="-Wl,-rpath-link,/opt/rocm-$rocver/lib64/ -Wl,-rpath-link,/opt/rocm-$rocver/lib/  -L/opt/rocm-${rocver}/lib  -Wl,-rpath=/opt/rocm-${rocver}/lib/llvm/lib  -L/opt/rocm-${rocver}/lib/llvm/lib"
-export EXT_FLAGS="-pipe -fopenmp -Wl,-rpath=/opt/rocm-${rocver}/lib -Wl,-rpath=/opt/rocm-${rocver}/lib/llvm/lib -fPIC -stdlib=libc++ -Wno-gnu-line-marker -L/opt/rocm-${rocver}/lib/llvm/lib -I/opt/rocm-${rocver}/lib/llvm/include/c++/v1 -Wno-unused-command-line-argument -I/opt/rocm-${rocver}/include  -L/opt/rocm-${rocver}/lib -fexperimental-library -mcmodel=extreme -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_NONE"
+export EXT_FLAGS="-pipe -fopenmp -Wl,-rpath=/opt/rocm-${rocver}/lib -Wl,-rpath=/opt/rocm-${rocver}/lib/llvm/lib -fPIC -stdlib=libc++ -Wno-gnu-line-marker -L/opt/rocm-${rocver}/lib/llvm/lib -I/opt/rocm-${rocver}/lib/llvm/include/c++/v1 -Wno-unused-command-line-argument -I/opt/rocm-${rocver}/include  -L/opt/rocm-${rocver}/lib -fexperimental-library -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_NONE  -I/opt/rocm-${rocver}/include/hipblas/ -I/opt/rocm-${rocver}/include/hipsparse"
+_ARCH=$($CC $EXT_FLAGS --version | grep Target|awk '{print $2}'|awk -F - '{print $1}')
+if [ $_ARCH == 'loongarch64' ];
+then
+  EXT_CFLAGS="-mcmodel=extreme $EXT_CFLAGS"
+fi
 export CFLAGS="$EXT_FLAGS"
 export CXXFLAGS="$EXT_FLAGS"
 export CMAKE_CXX_FLAGS="$EXT_FLAGS"
@@ -33,8 +37,8 @@ export BUILD_CUSTOM_PROTOBUF=ON
 export USE_FLASH_ATTENTION=OFF
 export USE_MEM_EFF_ATTENTION=OFF
 export USE_TENSORPIPE=OFF
-#export MAGMA_HOME=/home/xinmu/rocm/rocm-loongarch/stage6/magma/magma/
-#export USE_MAGMA=ON
+export MAGMA_HOME=$ROCM_HOME/magma/
+export USE_MAGMA=ON
 export HIP_HIPCC_EXECUTABLE=$ROCM_HOME/bin/hipcc
 export HIP_HIPCONFIG_EXECUTABLE=$ROCM_HOME/bin/hipconfig
 #export CAFFE2_USE_MSVC_STATIC_RUNTIME=ON
@@ -330,7 +334,7 @@ function package(){
 }
 
 function main(){
-  fetch
+#  fetch
   prepare
   build
   package

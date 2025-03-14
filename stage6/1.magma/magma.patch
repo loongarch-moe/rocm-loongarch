@@ -1,0 +1,55 @@
+--- a/interface_hip/blas_z_v2.cpp	2025-03-09 23:28:46.190827562 +0800
++++ b/interface_hip/blas_z_v2.cpp	2025-03-09 18:18:18.452545354 +0800
+@@ -1859,7 +1859,8 @@
+                     hipblas_diag_const( diag ),
+ 		    int(m), int(n),
+ 		    (hipblasDoubleComplex*)&alpha, (const hipblasDoubleComplex*)dA, int(ldda),
+-		    (hipblasDoubleComplex*)dB, int(lddb) );
++		    (hipblasDoubleComplex*)dB, int(lddb) ,
++            (hipblasDoubleComplex*)dB, int(lddb) );  /* C same as B; less efficient */
+     #else
+         hipblasZtrmm(
+                     queue->hipblas_handle(),
+--- a/interface_hip/interface.cpp      2025-03-10 00:17:25.596511819 +0800
++++ b/interface_hip/interface.cpp      2025-03-09 18:26:38.985080549 +0800
+@@ -29,7 +29,8 @@
+ #if defined(MAGMA_WITH_ACML)
+ #include <acml.h>
+ #endif
+-
++#include <hip/hip_runtime_api.h>
++#include <hip/hip_deprecated.h>
+ #include <hip/hip_runtime.h>
+ 
+ // defining MAGMA_LAPACK_H is a hack to NOT include magma_lapack.h
+@@ -201,8 +202,8 @@
+ 
+             // query each device
+             for( int dev=0; dev < g_magma_devices_cnt; ++dev ) {
+-                hipDeviceProp_t prop;
+-                err = hipGetDeviceProperties( &prop, dev );
++                hipDeviceProp_tR0000 prop;
++                err = hipGetDevicePropertiesR0000( &prop, dev );
+                 if ( err != 0 ) {
+                     info = MAGMA_ERR_UNKNOWN;
+                 }
+@@ -434,8 +435,8 @@
+         check_error( err );
+     }
+     for( int dev = 0; dev < ndevices; ++dev ) {
+-        hipDeviceProp_t prop;
+-        err = hipGetDeviceProperties( &prop, dev );
++        hipDeviceProp_tR0000 prop;
++        err = hipGetDevicePropertiesR0000( &prop, dev );
+         check_error( err );
+ 
+         #ifdef MAGMA_HAVE_CUDA
+@@ -528,7 +529,7 @@
+                   #endif
+ 
+                 #elif defined(MAGMA_HAVE_HIP)
+-                return (attr.memoryType == hipMemoryTypeDevice);
++                return (attr.type == hipMemoryTypeDevice);
+                 #endif
+             }
+             else if ( err == hipErrorInvalidValue ) {

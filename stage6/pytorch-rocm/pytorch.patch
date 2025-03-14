@@ -258,20 +258,6 @@ index 2d202a63ef..426b7edd4a 100644
  
    template <typename T>
    T* mutable_data_ptr() const;
-diff --git a/torch/csrc/distributed/rpc/init.cpp b/torch/csrc/distributed/rpc/init.cpp
-index 9b59967658..a270efccb4 100644
---- a/torch/csrc/distributed/rpc/init.cpp
-+++ b/torch/csrc/distributed/rpc/init.cpp
-@@ -848,7 +848,9 @@ PyObject* rpc_init(PyObject* _unused, PyObject* noargs) {
- } // namespace
- 
- static PyMethodDef methods[] = { // NOLINT
-+#ifdef USE_RPC
-     {"_rpc_init", rpc_init, METH_NOARGS, nullptr},
-+#endif
-     {nullptr, nullptr, 0, nullptr}};
- 
- PyMethodDef* python_functions() {
 
 diff --git a/torch/distributed/rpc/__init__.py b/torch/distributed/rpc/__init__.py
 index 6c6608a2a7..05fb40eea8 100644

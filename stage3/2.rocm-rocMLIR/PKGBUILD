@@ -26,7 +26,11 @@ prepare() {
     git apply ../rocMLIR-loongarch.patch
   cd ..
   mkdir build || true
-  CFLAGS="-stdlib=libc++  -mcmodel=extreme -Wno-gnu-line-marker -L/opt/rocm-${pkgver}/lib/llvm/lib -I/opt/rocm-${pkgver}/lib/llvm/include/c++/v1 -Wno-unused-command-line-argument -I/opt/rocm-${pkgver}/include"
+  CFLAGS="-stdlib=libc++  -Wno-gnu-line-marker -L/opt/rocm-${pkgver}/lib/llvm/lib -I/opt/rocm-${pkgver}/lib/llvm/include/c++/v1 -Wno-unused-command-line-argument -I/opt/rocm-${pkgver}/include"
+  if [ $CARCH == 'loong64' ];
+  then
+    EXT_CFLAGS="-mcmodel=extreme $EXT_CFLAGS"
+  fi
   cd build
   cmake ../rocMLIR \
    -DCMAKE_BUILD_TYPE=RelWithDebInfo \
