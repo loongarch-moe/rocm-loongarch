@@ -1,0 +1,136 @@
+diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_state.c b/drivers/gpu/drm/amd/display/dc/core/dc_state.c
+index 1b2cce127981..709e1d531a1c 100644
+--- a/drivers/gpu/drm/amd/display/dc/core/dc_state.c
++++ b/drivers/gpu/drm/amd/display/dc/core/dc_state.c
+@@ -210,17 +210,21 @@ struct dc_state *dc_state_create(struct dc *dc, struct dc_state_create_params *p
+ 
+ #ifdef CONFIG_DRM_AMD_DC_FP
+ 	if (dc->debug.using_dml2) {
++		DC_FP_START();
+ 		dml2_opt->use_clock_dc_limits = false;
+ 		if (!dml2_create(dc, dml2_opt, &state->bw_ctx.dml2)) {
++			DC_FP_END();
+ 			dc_state_release(state);
+ 			return NULL;
+ 		}
+ 
+ 		dml2_opt->use_clock_dc_limits = true;
+ 		if (!dml2_create(dc, dml2_opt, &state->bw_ctx.dml2_dc_power_source)) {
++			DC_FP_END();
+ 			dc_state_release(state);
+ 			return NULL;
+ 		}
++		DC_FP_END();
+ 	}
+ #endif
+ 
+@@ -240,6 +244,8 @@ void dc_state_copy(struct dc_state *dst_state, struct dc_state *src_state)
+ 	dc_state_copy_internal(dst_state, src_state);
+ 
+ #ifdef CONFIG_DRM_AMD_DC_FP
++	DC_FP_START();
++
+ 	dst_state->bw_ctx.dml2 = dst_dml2;
+ 	if (src_state->bw_ctx.dml2)
+ 		dml2_copy(dst_state->bw_ctx.dml2, src_state->bw_ctx.dml2);
+@@ -247,6 +253,8 @@ void dc_state_copy(struct dc_state *dst_state, struct dc_state *src_state)
+ 	dst_state->bw_ctx.dml2_dc_power_source = dst_dml2_dc_power_source;
+ 	if (src_state->bw_ctx.dml2_dc_power_source)
+ 		dml2_copy(dst_state->bw_ctx.dml2_dc_power_source, src_state->bw_ctx.dml2_dc_power_source);
++
++	DC_FP_END();
+ #endif
+ 
+ 	/* context refcount should not be overridden */
+@@ -268,17 +276,21 @@ struct dc_state *dc_state_create_copy(struct dc_state *src_state)
+ 	new_state->bw_ctx.dml2 = NULL;
+ 	new_state->bw_ctx.dml2_dc_power_source = NULL;
+ 
++	DC_FP_START();
+ 	if (src_state->bw_ctx.dml2 &&
+ 			!dml2_create_copy(&new_state->bw_ctx.dml2, src_state->bw_ctx.dml2)) {
++		DC_FP_END();
+ 		dc_state_release(new_state);
+ 		return NULL;
+ 	}
+ 
+ 	if (src_state->bw_ctx.dml2_dc_power_source &&
+ 			!dml2_create_copy(&new_state->bw_ctx.dml2_dc_power_source, src_state->bw_ctx.dml2_dc_power_source)) {
++		DC_FP_END();
+ 		dc_state_release(new_state);
+ 		return NULL;
+ 	}
++	DC_FP_END();
+ #endif
+ 
+ 	kref_init(&new_state->refcount);
+diff --git a/drivers/gpu/drm/amd/display/dc/resource/dcn32/dcn32_resource.c b/drivers/gpu/drm/amd/display/dc/resource/dcn32/dcn32_resource.c
+index 664302876019..63ef8629d7ed 100644
+--- a/drivers/gpu/drm/amd/display/dc/resource/dcn32/dcn32_resource.c
++++ b/drivers/gpu/drm/amd/display/dc/resource/dcn32/dcn32_resource.c
+@@ -1811,10 +1811,13 @@ bool dcn32_validate_bandwidth(struct dc *dc,
+ {
+ 	bool out = false;
+ 
+-	if (dc->debug.using_dml2)
++	if (dc->debug.using_dml2) {
++		DC_FP_START();
+ 		out = dml2_validate(dc, context,
+ 				context->power_source == DC_POWER_SOURCE_DC ? context->bw_ctx.dml2_dc_power_source : context->bw_ctx.dml2,
+ 				fast_validate);
++		DC_FP_END();
++	}
+ 	else
+ 		out = dml1_validate(dc, context, fast_validate);
+ 	return out;
+diff --git a/drivers/gpu/drm/amd/display/dc/resource/dcn35/dcn35_resource.c b/drivers/gpu/drm/amd/display/dc/resource/dcn35/dcn35_resource.c
+index 8ee3d99ea2aa..0495c8dbcf1e 100644
+--- a/drivers/gpu/drm/amd/display/dc/resource/dcn35/dcn35_resource.c
++++ b/drivers/gpu/drm/amd/display/dc/resource/dcn35/dcn35_resource.c
+@@ -1738,9 +1738,11 @@ static bool dcn35_validate_bandwidth(struct dc *dc,
+ {
+ 	bool out = false;
+ 
++	DC_FP_START();
+ 	out = dml2_validate(dc, context,
+ 			context->power_source == DC_POWER_SOURCE_DC ? context->bw_ctx.dml2_dc_power_source : context->bw_ctx.dml2,
+ 			fast_validate);
++	DC_FP_END();
+ 
+ 	if (fast_validate)
+ 		return out;
+diff --git a/drivers/gpu/drm/amd/display/dc/resource/dcn351/dcn351_resource.c b/drivers/gpu/drm/amd/display/dc/resource/dcn351/dcn351_resource.c
+index 14f7c3acdc96..aea5acf22b26 100644
+--- a/drivers/gpu/drm/amd/display/dc/resource/dcn351/dcn351_resource.c
++++ b/drivers/gpu/drm/amd/display/dc/resource/dcn351/dcn351_resource.c
+@@ -1718,9 +1718,11 @@ static bool dcn351_validate_bandwidth(struct dc *dc,
+ {
+ 	bool out = false;
+ 
++	DC_FP_START();
+ 	out = dml2_validate(dc, context,
+ 			context->power_source == DC_POWER_SOURCE_DC ? context->bw_ctx.dml2_dc_power_source : context->bw_ctx.dml2,
+ 			fast_validate);
++	DC_FP_END();
+ 
+ 	if (fast_validate)
+ 		return out;
+diff --git a/drivers/gpu/drm/amd/display/dc/resource/dcn401/dcn401_resource.c b/drivers/gpu/drm/amd/display/dc/resource/dcn401/dcn401_resource.c
+index c1ebc6b1c937..a1815fa59b02 100644
+--- a/drivers/gpu/drm/amd/display/dc/resource/dcn401/dcn401_resource.c
++++ b/drivers/gpu/drm/amd/display/dc/resource/dcn401/dcn401_resource.c
+@@ -1650,10 +1650,13 @@ bool dcn401_validate_bandwidth(struct dc *dc,
+ 		bool fast_validate)
+ {
+ 	bool out = false;
+-	if (dc->debug.using_dml2)
++	if (dc->debug.using_dml2) {
++		DC_FP_START();
+ 		out = dml2_validate(dc, context,
+ 				context->power_source == DC_POWER_SOURCE_DC ? context->bw_ctx.dml2_dc_power_source : context->bw_ctx.dml2,
+ 				fast_validate);
++		DC_FP_END();
++	}
+ 	return out;
+ }
+ 

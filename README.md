@@ -84,7 +84,7 @@ For a detailed introduction to ROCm, including its components and architecture, 
 ## Kernel and RDNA Version Compatibility
 
 Here is the recommended relationship between kernel versions and RDNA generations:
-
+- **Kernel version 6.14 + rx9070_rdna4_fpu.patch**: 4K page size support for **RDNA4** serial.
 - **Kernel version 6.8 and above**: 4K page size support for **RDNA2/3** serial.
 - **Kernel version below 6.8**: 4K/16K page size support for **RDNA2** serial.
 
