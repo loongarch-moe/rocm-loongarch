@@ -16,7 +16,7 @@ depends=(
   "rocm-rocBLAS=${pkgver}"
   "rocm-rocSOLVER=${pkgver}"
 )
-PATH=/opt/rocm-${pkgver}/bin:$PATH
+PATH=/opt/rocm-${pkgver}/bin:/opt/rocm-${pkgver}/lib/llvm/bin:$PATH
 prepare() {
 #  sed -i '32d' hipSOLVER/test/CMakeLists.txt
 #  sed -i '32i find_package( HIP CONFIG REQUIRED )' hipSOLVER/test/CMakeLists.txt
