@@ -20,6 +20,7 @@ TARGET="AMDGPU;NVPTX;"
 TARGET="$TARGET;LoongArch;"
 TARGET="$TARGET;X86;"
 TARGET="$TARGET;RISCV;"
+PATH=/opt/rocm-$pkgver/lib/llvm/bin:$PATH
 prepare() {
   cd llvm-project
     git apply ../loongarch.patch

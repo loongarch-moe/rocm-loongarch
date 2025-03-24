@@ -56,7 +56,7 @@ prepare() {
 build() {
   mkdir build || true
   cd build
-  ninja  -l$(free -g |tail -n2|head -1|awk '{print int($2/10)}')
+  ninja  -l$(free -g |tail -n2|head -1|awk '{print int($2/20)}')
 }
 
 check() {

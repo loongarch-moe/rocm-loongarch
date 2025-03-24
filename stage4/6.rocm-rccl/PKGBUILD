@@ -37,15 +37,14 @@ prepare() {
    -DBUILD_LOCAL_GPU_TARGET_ONLY=OFF \
    -DCMAKE_EXE_LINKER_FLAGS="-L/opt/rocm-${pkgver}/lib -L/opt/rocm-${pkgver}/lib64  -L/opt/rocm-${pkgver}/hip/lib" \
    -DBUILD_SHARED_LIBS=ON \
-   -DBUILD_RPATH_USE_ORIGIN=OFF \
-   -DCMAKE_C_COMPILER=/opt/rocm-${pkgver}/lib/llvm/bin/clang \
    -DCMAKE_LINKER_TYPE=LLD \
    -DCMAKE_CXX_COMPILER=/opt/rocm-${pkgver}/bin/hipcc \
    -DCMAKE_CXX_FLAGS="-parallel-jobs=$(nproc) $EXT_CFLAGS" \
-   -DCMAKE_C_FLAGS="$EXT_CFLAGS" \
    -DCMAKE_INSTALL_RPATH="/opt/rocm-${pkgver}/lib;/opt/rocm-${pkgver}/lib/llvm/lib;/opt/rocm-${pkgver}/lib64" \
    -DROCM_PATH=/opt/rocm-${pkgver}/ \
    -DRCCL_ROCPROFILER_REGISTER=OFF \
+   -DENABLE_MSCCLPP=OFF \
+   -DENABLE_MSCCL_KERNEL=OFF \
    ${targetSet[@]} \
   -G "Unix Makefiles"
   
