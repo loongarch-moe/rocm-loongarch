@@ -1,8 +1,8 @@
 
 pkgbase='rocm-hipFFT'
 pkgname=('rocm-hipFFT')
-pkgver=6.3.2
-pkgrel=632000
+pkgver=6.3.3
+pkgrel=633000
 pkgdesc="rocm-core is a utility which can be used to get ROCm release version."
 arch=('loong64' 'x86_64')
 license=('MIT')
@@ -11,7 +11,6 @@ url="https://github.com/ROCm/ROCT-Thunk-Interface.git"
 source=(
     "git+https://github.com/ROCm/hipFFT.git#tag=rocm-$pkgver"
 )
-#    "git+https://github.com/ROCm/rocFFT.git#tag=rocm-$pkgver"
 
 b2sums=('SKIP')
 depends=("rocm-clr=${pkgver}")

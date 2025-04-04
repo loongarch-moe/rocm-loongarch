@@ -162,12 +162,17 @@ else ifeq ($(BACKEND),hip)
     -include make.check-hip
 endif
 
-LIB += -Wl,--enable-new-dtags -Wl,--rpath,/opt/rocm-6.3.2/lib -Wl,--rpath,/opt/rocm-6.3.2/lib64 -Wl,--rpath,/opt/rocm-6.3.2/magma/lib
+LIB += -Wl,--enable-new-dtags -Wl,--rpath,/opt/rocm-6.3.3/lib -Wl,--rpath,/opt/rocm-6.3.3/lib64 -Wl,--rpath,/opt/rocm-6.3.3/magma/lib
 LIB += $(EXT_CFLAGS)
 DEVCCFLAGS += $(EXT_CFLAGS)
 CXXFLAGS += $(EXT_CFLAGS)
 DEVCCFLAGS += --gpu-max-threads-per-block=256
+DEVCCFLAGS += --offload-arch=gfx900
+DEVCCFLAGS += --offload-arch=gfx1010
+DEVCCFLAGS += --offload-arch=gfx1012
 DEVCCFLAGS += --offload-arch=gfx1030
 DEVCCFLAGS += --offload-arch=gfx1100
 DEVCCFLAGS += --offload-arch=gfx1101
 DEVCCFLAGS += --offload-arch=gfx1102
+DEVCCFLAGS += --offload-arch=gfx1200
+DEVCCFLAGS += --offload-arch=gfx1201
