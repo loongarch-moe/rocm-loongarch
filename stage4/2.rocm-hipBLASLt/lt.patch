@@ -10,7 +10,7 @@ index 4ff71ea04..b35f5a3b3 100644
 -clang_path="${rocm_path}/bin/amdclang++"
 -$clang_path -x hip "$sources" --offload-arch="${archs}" -c --offload-device-only -Xoffload-linker --build-id=$build_id_kind $additional_options -o "$dest"
 \ No newline at end of file
-+rocm_path="${ROCM_PATH:-/opt/rocm-6.3.2}"
++rocm_path="${ROCM_PATH:-/opt/rocm-6.3.3}"
 +clang_path="${rocm_path}/lib/llvm/bin/amdclang++"
 +$clang_path -x hip "$sources" --offload-arch="${archs}" -c --offload-device-only -Xoffload-linker --build-id=$build_id_kind $additional_options -o "$dest"
 diff --git a/tensilelite/Tensile/Common.py b/tensilelite/Tensile/Common.py

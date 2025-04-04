@@ -1,7 +1,7 @@
 pkgbase='rocm-rocFFT'
 pkgname=('rocm-rocFFT')
-pkgver=6.3.2
-pkgrel=632000
+pkgver=6.3.3
+pkgrel=633000
 pkgdesc="rocm-core is a utility which can be used to get ROCm release version."
 arch=('loong64' 'x86_64' 'riscv64')
 license=('MIT')
@@ -9,15 +9,11 @@ url="https://github.com/ROCm/ROCT-Thunk-Interface.git"
 
 source=(
     "git+https://github.com/ROCm/rocFFT.git#tag=rocm-$pkgver"
-    "rocFFT-loong64.patch"
 )
-b2sums=('SKIP' 'SKIP')
+b2sums=('SKIP')
 depends=("rocm-clr=${pkgver}")
 PATH=/opt/rocm-${pkgver}/bin:$PATH
 prepare() {
-  cd rocFFT
-    git apply ../rocFFT-loong64.patch
-  cd ..
   mkdir build || true
   cd build
   if [ -n $AMDGPU_TARGETS ] && [ $AMDGPU_TARGETS != 'all' ]; then 
@@ -25,7 +21,7 @@ prepare() {
   else
     targetSet=( )
   fi
-  EXT_CFLAGS="-pipe -fopenmp -Wl,-rpath=/opt/rocm-${pkgver}/lib -fPIC -stdlib=libc++ -Wno-gnu-line-marker -L/opt/rocm-${pkgver}/lib/llvm/lib -I/opt/rocm-${pkgver}/lib/llvm/include/c++/v1 -Wno-unused-command-line-argument -I/opt/rocm-${pkgver}/include  -L/opt/rocm-${pkgver}/lib"
+  EXT_CFLAGS="-pipe -fopenmp -Wl,-rpath=/opt/rocm-${pkgver}/lib64 -Wl,-rpath=/opt/rocm-${pkgver}/lib -fPIC -stdlib=libc++ -Wno-gnu-line-marker -L/opt/rocm-${pkgver}/lib/llvm/lib -I/opt/rocm-${pkgver}/lib/llvm/include/c++/v1 -Wno-unused-command-line-argument -I/opt/rocm-${pkgver}/include  -L/opt/rocm-${pkgver}/lib -L/opt/rocm-${pkgver}/lib64"
   cmake ../rocFFT \
    -DCMAKE_BUILD_TYPE=RelWithDebInfo \
    -DCMAKE_INSTALL_RPATH="/opt/rocm-${pkgver}/lib;/opt/rocm-${pkgver}/lib/llvm/lib;/opt/rocm-${pkgver}/lib64" \
